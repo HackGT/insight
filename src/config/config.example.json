@@ -1,0 +1,27 @@
+{
+	"secrets": {
+		"session": "<a random string>",
+		"groundTruth": {
+			"url": "",
+			"id": "",
+			"secret": ""
+		}
+	},
+	"admins": {
+		"domains": [
+			"gatech.edu",
+			"hack.gt"
+		],
+		"emails": [
+			"george.p@burdell.com",
+			"buzz@gatech.edu"
+		]
+	},
+	"server": {
+		"isProduction": true,
+		"port": 3000,
+		"cookieMaxAge": 15552000000,
+		"cookieSecureOnly": true,
+		"mongoURL": "mongodb://localhost/insight"
+	}
+}

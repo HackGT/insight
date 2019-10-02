@@ -1,0 +1,84 @@
+html, body {
+	margin: 0;
+	font-family: "Barlow";
+	background-color: #212121;
+	color: white;
+	height: 100%;
+}
+.label, .title, strong {
+	color: white;
+}
+.subtitle {
+	color: rgba(255, 255, 255, 0.5);
+}
+
+body > .container {
+	padding: 15px;
+}
+.hero-body {
+	background-color: #151515;
+}
+.hero::after {
+	display: block;
+	content: "";
+	width: 100vw;
+	height: 4px;
+	background: linear-gradient(to right, #4AC8EF, #8B54A2);
+}
+.footer {
+	background-color: #212121;
+	color: white;
+	padding-bottom: 3rem;
+}
+
+.is-danger > .message-body:empty, .is-success > .message-body:empty {
+	display: none;
+}
+
+li {
+	overflow-wrap: break-word;
+}
+
+code {
+	border-radius: 3px;
+	padding: 0.15em 0.35em 0.15em
+}
+
+a.button {
+	border: 1px solid #151515;
+	width: 100%;
+	display: block;
+	margin: 0 auto;
+}
+a > i {
+	margin-right: 10px;
+	transform: scale(1.25);
+}
+.hidden {
+	opacity: 0;
+	display: none;
+}
+.shown {
+	opacity: 1;
+	display: block;
+}
+
+.single-line-button {
+	line-height: 2.25em; /* Same height as button */
+	margin: 10px 0;
+}
+.single-line-button > button {
+	margin-left: 15px;
+}
+
+.is-grouped.is-multiline {
+	flex-wrap: wrap;
+	margin-top: -12px;
+}
+.is-grouped.is-multiline > * {
+	margin-top: 12px;
+}
+
+.checkbox:hover, .radio:hover {
+	color: #aaa;
+}

@@ -1,0 +1,27 @@
+{{#> main }}
+	<section class="columns">
+		<div class="column is-half is-offset-one-quarter">
+			{{#if isLogOut}}
+				<h1 class="title">Logout successful</h3>
+				<div class="field is-grouped is-grouped-centered">
+					<p class="control">
+						<a class="button is-medium" href="/auth/login">Log in</a>
+					</p>
+				</div>
+			{{else}}
+				<h1 class="title">Login Error</h3>
+				<article class="message is-danger">
+					<div class="message-body">{{{error}}}</div>
+				</article>
+				<article class="message is-success">
+					<div class="message-body">{{{success}}}</div>
+				</article>
+				<div class="field is-grouped is-grouped-centered">
+					<p class="control">
+						<a class="button is-medium" href="/auth/login">Try again</a>
+					</p>
+				</div>
+			{{/if}}
+		</div>
+	</section>
+{{/main}}
