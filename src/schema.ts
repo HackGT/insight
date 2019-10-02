@@ -2,6 +2,13 @@
 // Exports TypeScript interfaces to be used for type checking and Mongoose models derived from these interfaces
 import { mongoose } from "./common";
 
+export interface IS3Options {
+	region: string;
+	bucket: string;
+	accessKey: string;
+	secretKey: string;
+}
+
 // Secrets JSON file schema
 export namespace IConfig {
 	export interface Secrets {
@@ -11,6 +18,11 @@ export namespace IConfig {
 			id: string;
 			secret: string;
 		};
+		registration: {
+			url: string;
+			key: string;
+		};
+		s3: IS3Options;
 		bugsnag: string | null;
 	}
 	export interface Server {
@@ -57,7 +69,14 @@ export interface IUser extends RootDocument {
 	token: string | null;
 	admin: boolean;
 
+	type: "participant" | "employer";
+	// Only for employers
 	company: string | null;
+	// Only for participants
+	resume: {
+		path: string;
+		size: number;
+	} | null;
 }
 
 // This is basically a type definition that exists at runtime and is derived manually from the IUser definition above
@@ -81,7 +100,12 @@ export const User = mongoose.model<Model<IUser>>("User", new mongoose.Schema({
 	},
 	token: String,
 	admin: Boolean,
-	company: String
+	type: String,
+	company: String,
+	resume: {
+		path: String,
+		size: Number
+	}
 }).index({
 	email: "text",
 	name: "text"

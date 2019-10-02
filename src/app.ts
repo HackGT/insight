@@ -89,6 +89,9 @@ app.use("/auth", authRoutes);
 // import { apiRoutes } from "./api";
 // app.use("/api", apiRoutes);
 
+import { storageRoutes } from "./storage";
+app.use("/resume", storageRoutes);
+
 import { uiRoutes } from "./templates";
 app.use("/", uiRoutes);
 

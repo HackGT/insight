@@ -14,6 +14,16 @@ class Config implements IConfig.Main {
 			id: "",
 			secret: ""
 		},
+		registration: {
+			url: "https://registration.hack.gt/graphql",
+			key: ""
+		},
+		s3: {
+			region: "us-east-1",
+			bucket: "",
+			accessKey: "",
+			secretKey: ""
+		},
 		bugsnag: null
 	};
 	public server: IConfig.Server = {
@@ -68,6 +78,33 @@ class Config implements IConfig.Main {
 		if (process.env.SESSION_SECRET) {
 			this.secrets.session = process.env.SESSION_SECRET;
 			this.sessionSecretSet = true;
+		}
+		if (process.env.GROUND_TRUTH_URL) {
+			this.secrets.groundTruth.url = process.env.GROUND_TRUTH_URL;
+		}
+		if (process.env.GROUND_TRUTH_ID) {
+			this.secrets.groundTruth.id = process.env.GROUND_TRUTH_ID;
+		}
+		if (process.env.GROUND_TRUTH_SECRET) {
+			this.secrets.groundTruth.secret = process.env.GROUND_TRUTH_SECRET;
+		}
+		if (process.env.REGISTRATION_URL) {
+			this.secrets.registration.url = process.env.REGISTRATION_URL;
+		}
+		if (process.env.REGISTRATION_KEY) {
+			this.secrets.registration.key = process.env.REGISTRATION_KEY;
+		}
+		if (process.env.S3_REGION) {
+			this.secrets.s3.region = process.env.S3_REGION;
+		}
+		if (process.env.S3_BUCKET) {
+			this.secrets.s3.bucket = process.env.S3_BUCKET;
+		}
+		if (process.env.S3_ACCESS_KEY) {
+			this.secrets.s3.accessKey = process.env.S3_ACCESS_KEY;
+		}
+		if (process.env.S3_SECRET_KEY) {
+			this.secrets.s3.secretKey = process.env.S3_SECRET_KEY;
 		}
 		if (process.env.BUGSNAG) {
 			this.secrets.bugsnag = process.env.BUGSNAG;
@@ -136,6 +173,7 @@ export const COOKIE_OPTIONS = {
 // Database connection
 //
 import mongoose from "mongoose";
+import { S3StorageEngine } from "./storage";
 mongoose.set("useNewUrlParser", true);
 mongoose.set("useCreateIndex", true);
 mongoose.set("useUnifiedTopology", true);
@@ -146,4 +184,20 @@ export { mongoose };
 
 export function formatName(user: IUser): string {
 	return `${user.name.preferred || user.name.first} ${user.name.last}`;
+}
+
+//
+// Storage
+//
+export const S3_ENGINE = new S3StorageEngine(config.secrets.s3);
+export function formatSize(size: number, binary: boolean = true): string {
+	const base = binary ? 1024 : 1000;
+	const labels = binary ? ["bytes", "KiB", "MiB", "GiB", "TiB"] : ["bytes", "KB", "MB", "GB", "TB"];
+
+	let i = Math.floor(Math.log(size) / Math.log(base));
+	let formattedSize = `${(size / Math.pow(base, i)).toFixed(2)} ${labels[i]}`;
+	if (size <= 0) {
+		formattedSize = "0 bytes";
+	}
+	return formattedSize;
 }
