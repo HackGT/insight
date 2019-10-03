@@ -71,7 +71,10 @@ export interface IUser extends RootDocument {
 
 	type: "participant" | "employer";
 	// Only for employers
-	company: string | null;
+	company: {
+		name: string;
+		verified: boolean;
+	} | null;
 	// Only for participants
 	resume: {
 		path: string;
@@ -102,6 +105,7 @@ export const User = mongoose.model<Model<IUser>>("User", new mongoose.Schema({
 	admin: Boolean,
 	type: String,
 	company: String,
+	companyVerified: Boolean,
 	resume: {
 		path: String,
 		size: Number

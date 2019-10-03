@@ -1,64 +1,61 @@
 {{#> main }}
-	<h1 class="title">Authorized applications</h1>
-	<h2 class="subtitle">These apps can authenticate users via OAuth 2 with user permission</h2>
+	<h1 class="title">Employers</h1>
+	<h2 class="subtitle">Recruiters can be assigned to companies to view and collect resumes</h2>
 	<section class="columns is-multiline">
-		{{#each apps}}
+		{{#each companies}}
 			<div class="column is-one-third">
 				<h1 class="title">{{this.name}}</h1>
 				<p class="content">
 					<ul>
-						<li>UUID: <strong>{{this.uuid}}</strong></li>
-						<li>Client ID: <strong>{{this.clientID}}</strong></li>
-						{{#if this.public}}
-							<li>Client Secret: <strong>N/A</strong></li>
+						<li><strong>{{this.visited.length}}</strong> visited</li>
+						<li><strong>{{this.starred.length}}</strong> starred</li>
+						{{#each this.users}}
+							<li class="single-line-button">
+								<span class="icon"><i class="fas fa-user-cog"></i></span>
+								<strong>{{formatName this.name}}</strong> ({{this.email}})
+								{{#ifCond this.uuid ../uuid}}{{else}}
+									<button class="button is-danger is-outlined remove-employee" data-company="{{../this.name}}" data-email="{{this.email}}">Remove</button>
+								{{/ifCond}}
+							</li>
 						{{else}}
-							<li>Client Secret: <strong>{{this.clientSecret}}</strong></li>
+							<li class="has-text-centered"><em>No users</em></li>
+						{{/each}}
+						{{#if this.pendingUsers.length}}
+							<li><hr /></li>
 						{{/if}}
-						<li>Client Type: <strong>{{#if this.public}}Public (e.g. native app){{else}}Private (e.g. server-based){{/if}}</strong></li>
-						<li>
-							Allowed redirect URIs:
-							<ul>
-								{{#each this.redirectURIs}}
-									<li>
-										<span class="icon"><i class="fas fa-link"></i></span>
-										{{this}}
-									</li>
-								{{/each}}
-							</ul>
-						</li>
-						<li>Issued tokens: <strong>{{this.tokens}}</strong></li>
+						{{#each this.pendingUsers}}
+							<li class="single-line-button">
+								<span class="icon"><i class="fas fa-user-cog"></i></span>
+								<strong>{{formatName this.name}}</strong> ({{this.email}})
+								{{#ifCond this.uuid ../uuid}}{{else}}
+									<button class="button is-success is-outlined confirm-employee" data-company="{{../this.name}}" data-email="{{this.email}}">Confirm</button>
+								{{/ifCond}}
+							</li>
+						{{/each}}
 					</ul>
 				</p>
 				<br />
 				<div class="field is-grouped is-grouped-centered is-multiline">
 					<p class="control">
-						<button class="button is-primary is-outlined rename" data-uuid="{{this.uuid}}" data-name="{{this.name}}">Rename</button>
+						<button class="button is-info is-outlined rename-company" data-name="{{this.name}}">Rename</button>
 					</p>
 					<p class="control">
-						<button class="button is-info is-outlined edit-redirects" data-uuid="{{this.uuid}}" data-uris="{{join this.redirectURIs}}">Edit redirect URIs</button>
-					</p>
-					{{#if this.public}}{{else}}
-						<p class="control">
-							<button class="button is-warning is-outlined regenerate-secret" data-uuid="{{this.uuid}}">Regenerate secret</button>
-						</p>
-					{{/if}}
-					<p class="control">
-						<button class="button is-danger is-outlined delete-app" data-uuid="{{this.uuid}}">Delete</button>
+						<button class="button is-danger is-outlined delete-company" data-name="{{this.name}}">Delete</button>
 					</p>
 				</div>
 			</div>
 		{{else}}
 			<div class="column is-half is-offset-one-quarter has-text-centered">
-				<p><em>No apps</em></p>
+				<p><em>No companies yet</em></p>
 			</div>
 		{{/each}}
 	</section>
 
 	<hr />
 
-	<h1 class="title">Add an application</h1>
-	<h2 class="subtitle">This allows an application to authenticate users via OAuth 2</h2>
-	<section class="columns">
+	<h1 class="title">Add a company</h1>
+	<h2 class="subtitle">Organize recruiters into companies</h2>
+	{{!-- <section class="columns">
 		<div class="column is-half is-offset-one-quarter">
 			<div class="field">
 				<label class="label" for="name">App name</label>
@@ -189,7 +186,7 @@
 				</p>
 			</div>
 		</div>
-	</section>
+	</section>--}}
 
 	<hr />
 

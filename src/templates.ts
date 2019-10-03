@@ -5,7 +5,7 @@ import * as Handlebars from "handlebars";
 
 import { config, formatName } from "./common";
 import { authenticateWithRedirect, isAdmin } from "./middleware";
-import { TemplateContent, User, IUser } from "./schema";
+import { TemplateContent, User, IUser, Company, ICompany } from "./schema";
 
 Handlebars.registerHelper("ifCond", function (this: any, v1: any, v2: any, options: any) {
 	if (v1 === v2) {
@@ -129,12 +129,34 @@ uiRoutes.route("/logout").all((request, response) => {
 uiRoutes.route("/admin").get(isAdmin, async (request, response) => {
 	const user = request.user as IUser;
 
+	let rawCompanies: (ICompany & { users: IUser[] })[] = await Company.aggregate([
+		{
+			"$lookup": {
+				"from": "users",
+				"localField": "name",
+				"foreignField": "company.name",
+				"as": "users"
+			}
+		},
+		{
+			"$sort": {
+				"name": 1
+			}
+		}
+	]);
+	let companies = rawCompanies.map(company => ({
+		...company,
+		users: company.users.filter(user => user.company && user.company.verified),
+		pendingUsers: company.users.filter(user => !user.company || !user.company.verified)
+	}));
+
 	let templateData = {
 		title: "Admin",
 		includeJS: "admin",
 
 		uuid: user.uuid,
 
+		companies,
 		adminDomains: config.server.adminDomains,
 		admins: config.server.admins,
 		currentAdmins: await User.find({ admin: true }).sort("name.last")
