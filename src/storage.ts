@@ -70,7 +70,7 @@ storageRoutes.route("/:file")
 		// Access:
 		// - All employers can GET all resumes
 		// - Participants can GET their own resume
-		if (user.type !== "employer" && user.resumeName !== request.params.file) {
+		if (user.type !== "employer" && (!user.resume || user.resume.path !== request.params.file)) {
 			response.status(403).send();
 			return;
 		}
@@ -91,7 +91,7 @@ storageRoutes.route("/:file")
 		// Access:
 		// - Only participants can update their resumes
 		// - Participants can only update their own resume
-		if (!user || user.type !== "participant" || user.resumeName !== request.params.file) {
+		if (!user || user.type !== "participant" || !user.resume || user.resume.path !== request.params.file) {
 			if (resume) {
 				await fs.promises.unlink(resume.path);
 			}
@@ -100,7 +100,8 @@ storageRoutes.route("/:file")
 		}
 		await S3_ENGINE.saveFile(resume.path, resume.filename);
 		await fs.promises.unlink(resume.path);
-		user.resumeName = resume.filename;
+		user.resume.path = resume.filename;
+		user.resume.size = resume.size;
 		await user.save();
 
 		response.status(201).send();
