@@ -13,6 +13,7 @@ export interface IS3Options {
 export namespace IConfig {
 	export interface Secrets {
 		session: string;
+		apiKey: string;
 		groundTruth: {
 			url: string;
 			id: string;
@@ -119,17 +120,72 @@ export const User = mongoose.model<Model<IUser>>("User", new mongoose.Schema({
 	name: "text"
 }));
 
+export interface IVisit {
+	uuid: string;
+	name: string;
+	email: string;
+	major?: string;
+	githubUsername?: string;
+	website?: string;
+	lookingFor?: {
+		timeframe?: string[];
+		comments?: string;
+	};
+	interestingDetails?: {
+		favoriteLanguages?: string[];
+		proudOf?: string;
+		funFact?: string;
+	};
+	teammates: string[]; // UUIDs of teammates (can be empty)
+
+	visitType: "uncategorized" | "recruiting" | "engineeringHelp" | "other";
+	starred: boolean;
+	notes: string[];
+	time: Date;
+	scannerID: string;
+	employees: {
+		uuid: string;
+		name: string;
+		email: string;
+	}[]; // Single scanner can be associated with multiple employees
+}
+
 export interface ICompany extends RootDocument {
 	name: string;
-	// Corresponds to registration UUIDs
-	starred: string[];
-	visited: string[];
+	visits: IVisit[];
 }
 
 export const Company = mongoose.model<Model<ICompany>>("Company", new mongoose.Schema({
 	name: String,
-	starred: [String],
-	visited: [String]
+	visits: [{
+		uuid: String,
+		name: String,
+		email: String,
+		major: String,
+		githubUsername: String,
+		website: String,
+		lookingFor: {
+			timeframe: [String],
+			comments: String
+		},
+		interestingDetails: {
+			favoriteLanguages: [String],
+			proudOf: String,
+			funFact: String
+		},
+		teammates: [String],
+
+		visitType: String,
+		starred: Boolean,
+		notes: [String],
+		time: Date,
+		scannerID: String,
+		employees: [{
+			uuid: String,
+			name: String,
+			email: String
+		}]
+	}]
 }));
 
 //

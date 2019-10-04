@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import { config } from "./common";
+import { IVisit } from "./schema";
 
 if (!config.secrets.registration.key) {
 	throw new Error("Registration admin key not configured");
@@ -71,4 +72,96 @@ export async function participantData(uuid: string): Promise<IParticipant | null
 		resumePath: fileField ? fileField.file!.path : null,
 		resumeSize: fileField ? fileField.file!.size : null
 	};
+}
+
+export async function createVisit(uuid: string): Promise<Partial<IVisit> | null> {
+	interface FormData {
+		type: string;
+		data: {
+			name: string;
+			value: string | null;
+			values: (string | null)[] | null;
+		}[];
+	}
+	interface QueryResponse {
+		user: {
+			id: string;
+			name: string;
+			email: string;
+			application: FormData | null;
+			confirmation: FormData | null;
+			team: string | null;
+		};
+	}
+
+	let data: QueryResponse = await query(`
+		query ($uuid: ID) {
+			user(id: $uuid) {
+				id,
+				name,
+				email,
+				application {
+					type,
+					data {
+						name,
+						value,
+						values
+					}
+				},
+				confirmation {
+					type,
+					data {
+						name,
+						value,
+						values
+					}
+				}
+				team {
+					id
+				}
+			}
+		}
+	`, { uuid });
+
+	if (!data.user) return null;
+	let user = data.user;
+
+	let visit: Partial<IVisit> = {
+		uuid: user.id,
+		name: user.name,
+		email: user.email
+	};
+	// TODO: need registration GraphQL API for listing teams
+
+	function getQuestionAnswer(form: FormData, questionName: string): string | undefined {
+		let question = form.data.find(q => q.name === questionName);
+		if (!question || !question.value) return undefined;
+		return question.value;
+	}
+	function getQuestionAnswers(form: FormData, questionName: string): string[] {
+		let question = form.data.find(q => q.name === questionName);
+		if (!question || !question.values) return [];
+		return question.values.filter(v => v !== null) as string[];
+	}
+
+	// This section must be updated to match current registration questions
+	// TODO: make configurable in admin panel somehow?
+	if (user.application && user.application.type === "Participant") {
+		visit.major = getQuestionAnswer(user.application, "major");
+		visit.githubUsername = getQuestionAnswer(user.application, "github");
+		visit.website = getQuestionAnswer(user.application, "website");
+		visit.lookingFor = {
+			timeframe: getQuestionAnswers(user.application, "employment"),
+			comments: getQuestionAnswer(user.application, "employment-2")
+		};
+		if (user.confirmation) {
+			visit.interestingDetails = {
+				favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),
+				proudOf: getQuestionAnswer(user.confirmation, "fun"),
+				funFact: getQuestionAnswer(user.confirmation, "fun-2")
+			};
+		}
+	}
+
+	return visit;
 }

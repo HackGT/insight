@@ -9,6 +9,7 @@ import { IConfig, IUser } from "./schema";
 class Config implements IConfig.Main {
 	public secrets: IConfig.Secrets = {
 		session: crypto.randomBytes(32).toString("hex"),
+		apiKey: crypto.randomBytes(32).toString("hex"),
 		groundTruth: {
 			url: "https://login.hack.gt",
 			id: "",
@@ -78,6 +79,9 @@ class Config implements IConfig.Main {
 		if (process.env.SESSION_SECRET) {
 			this.secrets.session = process.env.SESSION_SECRET;
 			this.sessionSecretSet = true;
+		}
+		if (process.env.API_KEY) {
+			this.secrets.apiKey = process.env.API_KEY;
 		}
 		if (process.env.GROUND_TRUTH_URL) {
 			this.secrets.groundTruth.url = process.env.GROUND_TRUTH_URL;

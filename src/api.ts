@@ -1,8 +1,57 @@
 import * as express from "express";
-import { IUser, User, Company } from "./schema";
-import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer } from "./middleware";
+import { IUser, User, Company, IVisit, createNew } from "./schema";
+import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth } from "./middleware";
+import { createVisit } from "./registration";
+import { formatName } from "./common";
 
 export let apiRoutes = express.Router();
+
+apiRoutes.post("/scan", apiAuth, postParser, async (request, response) => {
+	let scannerID = (request.body.scanner as string || "").trim().toLowerCase();
+	let uuid = (request.body.uuid as string || "").trim().toLowerCase();
+
+	let scanningEmployees = await User.find({ "company.verified": true, "company.scannerIDs": scannerID });
+	if (scanningEmployees.length === 0) {
+		response.status(400).json({
+			"error": "Invalid scanner ID"
+		});
+		return;
+	}
+
+	// Scanners are guaranteed to belong to only a single company
+	let company = await Company.findOne({ name: scanningEmployees[0].company!.name });
+	if (!company) {
+		response.status(400).json({
+			"error": "Could not match scanner to company"
+		});
+		return;
+	}
+
+	let visit = await createVisit(uuid);
+	if (!visit) {
+		response.status(400).json({
+			"error": "Invalid UUID"
+		});
+		return;
+	}
+
+	visit.visitType = "uncategorized";
+	visit.starred = false;
+	visit.notes = [];
+	visit.time = new Date();
+	visit.scannerID = scannerID;
+	visit.employees = scanningEmployees.map(employee => ({
+		uuid: employee.uuid,
+		name: formatName(employee),
+		email: employee.email
+	}));
+
+	company.visits.push(visit as IVisit);
+	await company.save();
+	response.json({
+		"success": true
+	});
+});
 
 async function addRemoveEmployee(action: (user: IUser) => void, request: express.Request, response: express.Response) {
 	let user = await User.findOne({ email: request.params.employee });
@@ -152,7 +201,7 @@ apiRoutes.route("/company/:company")
 				"error": "Company name cannot be blank"
 			});
 		}
-		let company = new Company({ name });
+		let company = createNew(Company, { name, visits: [] });
 		await company.save();
 		response.json({
 			"success": true

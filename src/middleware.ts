@@ -4,6 +4,7 @@ import multer from "multer";
 import * as os from "os";
 import * as path from "path";
 
+import { config } from "./common";
 import { IUser } from "./schema";
 
 export const postParser = bodyParser.urlencoded({
@@ -31,12 +32,43 @@ export let uploadHandler = multer({
 
 export async function authenticateWithRedirect(request: express.Request, response: express.Response, next: express.NextFunction) {
 	response.setHeader("Cache-Control", "private");
-	let user = request.user as IUser | undefined;
+	const user = request.user as IUser | undefined;
 	if (!request.isAuthenticated() || !user) {
 		if (request.session) {
 			request.session.returnTo = request.originalUrl;
 		}
 		response.redirect("/login");
+	}
+	else {
+		next();
+	}
+}
+
+export function apiAuth(request: express.Request, response: express.Response, next: express.NextFunction) {
+	response.setHeader("Cache-Control", "private");
+	const user = request.user as IUser | undefined;
+	const auth = request.headers.authorization;
+
+	if (auth && typeof auth === "string" && auth.indexOf(" ") > -1) {
+		const key = Buffer.from(auth.split(" ")[1], "base64").toString();
+		if (key === config.secrets.apiKey) {
+			next();
+		}
+		else {
+			response.status(401).json({
+				"error": "Invalid API key"
+			});
+		}
+	}
+	else if (!request.isAuthenticated() || !user) {
+		response.status(401).json({
+			"error": "You must log in to access this endpoint"
+		});
+	}
+	else if (!user.admin) {
+		response.status(403).json({
+			"error": "You are not permitted to access this endpoint"
+		});
 	}
 	else {
 		next();

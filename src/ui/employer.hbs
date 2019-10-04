@@ -72,7 +72,7 @@
 			<div class="column is-half is-offset-one-quarter">
 				<h1 class="title">Hello, {{formatName user.name}}!</h1>
 				<h2 class="subtitle">{{user.email}}</h2>
-				<p>In order to start using HackGT Insight, you'll need to be associated with company.</p>
+				<p>In order to start using {{siteTitle}}, you'll need to be associated with company.</p>
 				{{#if user.company.name}}
 				<p>You're currently pending approval to join <strong>{{user.company.name}}</strong>.</p>
 				{{/if}}
