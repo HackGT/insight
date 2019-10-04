@@ -56,3 +56,24 @@ export function isAdmin(request: express.Request, response: express.Response, ne
 		next();
 	});
 }
+
+export function isAdminOrEmployee(request: express.Request, response: express.Response, next: express.NextFunction) {
+	authenticateWithRedirect(request, response, (err?: any) => {
+		if (err) {
+			next(err);
+			return;
+		}
+		let user = request.user as IUser | undefined;
+		if (user) {
+			if (user.company && user.company.verified && user.company.name === request.params.company) {
+				next();
+				return;
+			}
+			else if (user.admin) {
+				next();
+				return;
+			}
+		}
+		response.redirect("/");
+	});
+}

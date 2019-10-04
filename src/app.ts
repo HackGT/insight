@@ -86,8 +86,8 @@ process.on("unhandledRejection", err => {
 import { authRoutes } from "./auth/auth";
 app.use("/auth", authRoutes);
 
-// import { apiRoutes } from "./api";
-// app.use("/api", apiRoutes);
+import { apiRoutes } from "./api";
+app.use("/api", apiRoutes);
 
 import { storageRoutes } from "./storage";
 app.use("/resume", storageRoutes);

@@ -11,7 +11,7 @@
 						<li><strong>{{this.starred.length}}</strong> starred</li>
 						{{#each this.users}}
 							<li class="single-line-button">
-								<span class="icon"><i class="fas fa-user-cog"></i></span>
+								<span class="icon"><i class="fas fa-user-tie"></i></span>
 								<strong>{{formatName this.name}}</strong> ({{this.email}})
 								{{#ifCond this.uuid ../uuid}}{{else}}
 									<button class="button is-danger is-outlined remove-employee" data-company="{{../this.name}}" data-email="{{this.email}}">Remove</button>
@@ -25,7 +25,7 @@
 						{{/if}}
 						{{#each this.pendingUsers}}
 							<li class="single-line-button">
-								<span class="icon"><i class="fas fa-user-cog"></i></span>
+								<span class="icon"><i class="fas fa-user-clock"></i></span>
 								<strong>{{formatName this.name}}</strong> ({{this.email}})
 								{{#ifCond this.uuid ../uuid}}{{else}}
 									<button class="button is-success is-outlined confirm-employee" data-company="{{../this.name}}" data-email="{{this.email}}">Confirm</button>
@@ -37,10 +37,13 @@
 				<br />
 				<div class="field is-grouped is-grouped-centered is-multiline">
 					<p class="control">
-						<button class="button is-info is-outlined rename-company" data-name="{{this.name}}">Rename</button>
+						<button class="button is-success is-outlined add-employee" data-company="{{this.name}}">Add employee</button>
 					</p>
 					<p class="control">
-						<button class="button is-danger is-outlined delete-company" data-name="{{this.name}}">Delete</button>
+						<button class="button is-info is-outlined rename-company" data-company="{{this.name}}">Rename</button>
+					</p>
+					<p class="control">
+						<button class="button is-danger is-outlined delete-company" data-company="{{this.name}}">Delete</button>
 					</p>
 				</div>
 			</div>

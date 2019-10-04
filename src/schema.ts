@@ -104,8 +104,10 @@ export const User = mongoose.model<Model<IUser>>("User", new mongoose.Schema({
 	token: String,
 	admin: Boolean,
 	type: String,
-	company: String,
-	companyVerified: Boolean,
+	company: {
+		name: String,
+		verified: Boolean
+	},
 	resume: {
 		path: String,
 		size: Number
