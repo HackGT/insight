@@ -106,7 +106,17 @@ apiRoutes.route("/company/:company")
 	})
 	// Create new company
 	.post(isAdmin, async (request, response) => {
-
+		let name = (request.params.company || "").trim();
+		if (!name) {
+			response.status(400).json({
+				"error": "Company name cannot be blank"
+			});
+		}
+		let company = new Company({ name });
+		await company.save();
+		response.json({
+			"success": true
+		});
 	});
 
 let adminRoutes = express.Router();

@@ -77,34 +77,26 @@ namespace Admin {
 		await sendRequest("DELETE", `/api/company/${encodeURIComponent(dataset.company)}`);
 	});
 
-	// let addApplicationButton = document.getElementById("add-application") as HTMLButtonElement;
-	// addApplicationButton.addEventListener("click", async () => {
-	// 	try {
-	// 		addApplicationButton.disabled = true;
-	// 		let nameField = document.getElementById("name") as HTMLInputElement;
-	// 		let redirectURIsField = document.getElementById("redirect-uris") as HTMLInputElement;
-	// 		let clientType = (document.querySelector(`input[name="client-type"]:checked`) as HTMLInputElement).value;
+	const addCompanyButton = document.getElementById("add-company") as HTMLButtonElement;
+	addCompanyButton.addEventListener("click", async () => {
+		try {
+			addCompanyButton.disabled = true;
+			const nameField = document.getElementById("company-name") as HTMLInputElement;
+			let name = nameField.value.trim();
+			if (!name) {
+				alert("Company name cannot be blank");
+				return;
+			}
 
-	// 		let name = nameField.value.trim();
-	// 		let redirectURIs = redirectURIsField.value.trim();
-	// 		if (!name) {
-	// 			alert("Application name cannot be blank");
-	// 			return;
-	// 		}
-	// 		if (!redirectURIs) {
-	// 			alert("Application must have at least one redirect URI");
-	// 			return;
-	// 		}
-
-	// 		await sendRequest("/api/admin/app", { name, redirectURIs, clientType });
-	// 	}
-	// 	finally {
-	// 		addApplicationButton.disabled = false;
-	// 	}
-	// });
+			await sendRequest("POST", `/api/company/${encodeURIComponent(name)}`);
+		}
+		finally {
+			addCompanyButton.disabled = false;
+		}
+	});
 
 
-	let addAdminButton = document.getElementById("admin-promote") as HTMLButtonElement;
+	const addAdminButton = document.getElementById("admin-promote") as HTMLButtonElement;
 	addAdminButton.addEventListener("click", async () => {
 		let emailField = document.getElementById("admin-email") as HTMLInputElement;
 		try {

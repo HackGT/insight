@@ -58,46 +58,24 @@
 
 	<h1 class="title">Add a company</h1>
 	<h2 class="subtitle">Organize recruiters into companies</h2>
-	{{!-- <section class="columns">
+	<section class="columns">
 		<div class="column is-half is-offset-one-quarter">
 			<div class="field">
-				<label class="label" for="name">App name</label>
+				<label class="label" for="company-name">Company name</label>
 				<div class="control">
-					<input class="input" type="text" id="name" placeholder="My awesome new app" />
-				</div>
-			</div>
-			<div class="field">
-				<label class="label" for="redirect-uris">Redirect URIs (comma separated)</label>
-				<div class="control">
-					<input class="input" type="url" id="redirect-uris" placeholder="e.g. https://localhost:3000" />
-				</div>
-			</div>
-			<div class="field">
-				<label class="label">Client type</label>
-				<p>Private applications must pass along a <code>client_secret</code> parameter when exchanging an authorization code for a long-term access token. This can only work for mediums like server-based apps where the client secret cannot be leaked. Native apps cannot guarantee the security of their secret and so should use <a href="https://www.oauth.com/oauth2-servers/pkce" target="_blank">PKCE</a> to generate and use a per-request secret instead. Public applications <em>should not</em> store or pass along a client secret.</p>
-				<br />
-				<div class="control ">
-					<label class="radio">
-						<input type="radio" name="client-type" value="private" checked />
-						Private (e.g. server-based)
-					</label>
-					<br />
-					<label class="radio">
-						<input type="radio" name="client-type" value="public" />
-						Public (e.g. native app)
-					</label>
+					<input class="input" type="text" id="company-name" placeholder="HackGT Inc." />
 				</div>
 			</div>
 			<br />
 			<div class="field is-grouped is-grouped-centered">
 				<p class="control">
-					<button class="button is-info is-outlined" id="add-application">Add application</button>
+					<button class="button is-info is-outlined" id="add-company">Add company</button>
 				</p>
 			</div>
 		</div>
 	</section>
 
-	<hr />
+	{{!-- <hr />
 
 	<h1 class="title">OAuth Scopes</h1>
 	<h2 class="subtitle">Additional information users must enter before they can authorize an app</h2>
