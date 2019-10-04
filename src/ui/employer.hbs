@@ -1,4 +1,8 @@
-{{#> main }}
+{{#> main title="Home"}}
+	{{#*inline "head-block"}}
+		<script defer src="/js/employer.js"></script>
+	{{/inline}}
+
 	{{#if user.company.verified}}
 		<nav class="tabs is-fullwidth is-toggle is-toggle-rounded">
 			<ul>
@@ -22,8 +26,74 @@
 				</li>
 			</ul>
 		</nav>
+		<template id="table-row">
+			<tr>
+				<td id="name"></td>
+				<td id="major"></td>
+				<td id="links">
+					<div class="field has-addons">
+						<p class="control">
+							<a class="button is-medium github" href="" target="_blank">
+								<span class="icon">
+									<i class="fab fa-github"></i>
+								</span>
+							</a>
+						</p>
+						<p class="control">
+							<a class="button is-medium website" href="" target="_blank">
+								<span class="icon">
+									<i class="fas fa-globe-americas"></i>
+								</span>
+							</a>
+						</p>
+					</div>
+				</td>
+				<td id="tags"></td>
+				<td id="actions">
+					<button class="button star-action">
+						<span class="icon">
+							<i class="fas fa-star"></i>
+						</span>
+					</button>
+					<button class="button tag-action">
+						<span class="icon">
+							<i class="fas fa-tag"></i>
+						</span>
+					</button>
+					<button class="button view-action">
+						<span>View / Edit</span>
+						<span class="icon">
+							<i class="fas fa-external-link-alt"></i>
+						</span>
+					</button>
+				</td>
+			</tr>
+		</template>
 		<section id="scanning">
-			<h1>Scanning</h1>
+			<h1 class="title">Scanning</h1>
+			{{#ifCond user.company.scannerIDs.length 0}}
+				<h2 class="subtitle">You aren't connected to a scanner! Head to the settings tab to configure a scanner.</h2>
+			{{else}}
+				{{#ifCond user.company.scannerIDs.length 1}}
+					<h2 class="subtitle">You're connected to this scanner: <strong>{{join user.company.scannerIDs}}</strong></h2>
+				{{else}}
+					<h2 class="subtitle">You're connected to these scanners: <strong>{{join user.company.scannerIDs}}</strong></h2>
+				{{/ifCond}}
+			{{/ifCond}}
+			<div class="table-container">
+				<table class="table is-hoverable is-fullwidth" id="scanning-table">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Major</th>
+							<th>Links</th>
+							<th>Tags</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
 		</section>
 		<section id="search" hidden>
 			<h1>Search</h1>

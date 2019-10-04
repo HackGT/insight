@@ -57,6 +57,30 @@ namespace Employer {
 
 	// After association
 
+	class TableManager {
+		private readonly tbody: HTMLTableSectionElement;
+		private readonly template: HTMLTemplateElement;
+
+		constructor(id: string) {
+			const table = document.getElementById(id);
+			if (!table) {
+				throw new Error(`Could not find table with ID: ${id}`);
+			}
+			this.tbody = table.querySelector("tbody");
+			this.template = document.getElementById("table-row") as HTMLTemplateElement;
+		}
+
+		public addRow() {
+			let row = document.importNode(this.template.content, true);
+			row.getElementById("name").textContent = "Ryan Petschekk";
+			row.getElementById("major").textContent = "Muh Major";
+			(row.querySelector(".github") as HTMLAnchorElement).href = "https://google.com";
+			(row.querySelector(".website") as HTMLAnchorElement).href = "https://google.com";
+
+			this.tbody.appendChild(row);
+		}
+	}
+
 	enum Tabs {
 		Scanning,
 		Search,
@@ -147,4 +171,7 @@ namespace Employer {
 
 		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company)}/employee/${encodeURIComponent(dataset.email)}/scanners/${encodeURIComponent(scannerID)}`);
 	});
+
+	const scanningTable = new TableManager("scanning-table");
+	scanningTable.addRow();
 }

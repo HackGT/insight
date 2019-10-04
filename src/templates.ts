@@ -50,14 +50,13 @@ export class Template<T extends TemplateContent> {
 		this.template = Handlebars.compile(data);
 	}
 
-	public render(input: Partial<T>): string {
+	public render(input: object): string {
 		if (!config.server.isProduction) {
 			Handlebars.registerPartial("main", fs.readFileSync(path.resolve("src/ui", "partials", "main.hbs"), "utf8"));
 			this.loadTemplate();
 		}
 		const renderData = {
 			siteTitle: config.server.name,
-			includeJS: null,
 			...input
 		} as T;
 		return this.template!(renderData);
@@ -92,21 +91,22 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 	const user = request.user as IUser;
 	let users: IUser[] = [];
 	let pendingUsers: IUser[] = [];
+	let company: ICompany | null = null;
 	if (user.company && user.company.verified) {
 		users = await User.find({ "company.name": user.company.name, "company.verified": true });
 		pendingUsers = await User.find({ "company.name": user.company.name, "company.verified": false });
+		company = await Company.findOne({ "name": user.company.name });
 	}
 
 	if (user.type === "employer") {
 		let templateData = {
-			title: "Home",
-			includeJS: "employer",
 			user,
 			companies: await Company.aggregate([{
 				"$sort": {
 					"name": 1
 				}
 			}]),
+			company,
 			users,
 			pendingUsers
 		};
@@ -169,9 +169,6 @@ uiRoutes.route("/admin").get(isAdmin, async (request, response) => {
 	}));
 
 	let templateData = {
-		title: "Admin",
-		includeJS: "admin",
-
 		uuid: user.uuid,
 
 		companies,

@@ -201,6 +201,5 @@ export const Company = mongoose.model<Model<ICompany>>("Company", new mongoose.S
 
 export interface TemplateContent {
 	siteTitle: string;
-	title: string;
-	includeJS: string | null;
+	title?: string;
 }

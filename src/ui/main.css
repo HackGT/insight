@@ -70,3 +70,7 @@ a > i {
 #settings h1, #settings h2, #settings h5 {
 	margin-bottom: 0;
 }
+
+.table td {
+	vertical-align: middle;
+}
