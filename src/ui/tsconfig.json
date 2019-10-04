@@ -9,6 +9,7 @@
 		"moduleResolution": "node"
 	},
 	"files": [
-		"admin.ts"
+		"admin.ts",
+		"employer.ts"
 	]
 }

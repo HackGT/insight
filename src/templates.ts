@@ -64,20 +64,21 @@ export class Template<T extends TemplateContent> {
 	}
 }
 
-const IndexTemplate = new Template("index.hbs");
+const EmployerTemplate = new Template("employer.hbs");
 const LoginTemplate = new Template("login.hbs");
 const AdminTemplate = new Template("admin.hbs");
 
 export let uiRoutes = express.Router();
 
-uiRoutes.route("/js/admin.js").get((request, response) => {
-	response.type("js");
-	fs.createReadStream(path.resolve("src/ui", "admin.js")).pipe(response);
-});
-uiRoutes.route("/css/main.css").get((request, response) => {
-	response.type("css");
-	fs.createReadStream(path.resolve("src/ui", "main.css")).pipe(response);
-});
+function serveStatic(url: string, file: string) {
+	uiRoutes.route(url).get((request, response) => {
+		response.type(path.extname(file));
+		fs.createReadStream(path.resolve("src/ui", file)).pipe(response);
+	});
+}
+serveStatic("/js/admin.js", "admin.js");
+serveStatic("/js/employer.js", "employer.js");
+serveStatic("/css/main.css", "main.css");
 
 uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 	if (request.session) {
@@ -88,11 +89,18 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 			return;
 		}
 	}
-	let templateData = {
-		title: "Home",
-		user: request.user
-	};
-	response.send(IndexTemplate.render(templateData));
+	const user = request.user as IUser;
+	if (user.type === "employer") {
+		let templateData = {
+			title: "Home",
+			includeJS: "employer",
+			user: request.user
+		};
+		response.send(EmployerTemplate.render(templateData));
+	}
+	else {
+		response.send("Participant content here");
+	}
 });
 
 uiRoutes.route("/login").get(async (request, response) => {

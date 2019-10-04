@@ -1,33 +1,13 @@
 html, body {
 	margin: 0;
 	font-family: "Barlow";
-	background-color: #212121;
-	color: white;
 	height: 100%;
-}
-.label, .title, strong {
-	color: white;
-}
-.subtitle {
-	color: rgba(255, 255, 255, 0.5);
 }
 
 body > .container {
 	padding: 15px;
 }
-.hero-body {
-	background-color: #151515;
-}
-.hero::after {
-	display: block;
-	content: "";
-	width: 100vw;
-	height: 4px;
-	background: linear-gradient(to right, #4AC8EF, #8B54A2);
-}
 .footer {
-	background-color: #212121;
-	color: white;
 	padding-bottom: 3rem;
 }
 
@@ -45,7 +25,6 @@ code {
 }
 
 a.button {
-	border: 1px solid #151515;
 	width: 100%;
 	display: block;
 	margin: 0 auto;
@@ -79,6 +58,11 @@ a > i {
 	margin-top: 12px;
 }
 
-.checkbox:hover, .radio:hover {
-	color: #aaa;
+*[hidden] {
+	display: none;
+}
+
+.tabs.is-toggle li.is-active a {
+	background-color: #4a4a4a;
+	border-color: #212121;
 }
