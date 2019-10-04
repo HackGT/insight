@@ -66,11 +66,9 @@ namespace Admin {
 		await sendRequest("DELETE", `/api/company/${encodeURIComponent(dataset.company)}/employee/${encodeURIComponent(dataset.email)}`);
 	});
 	setUpHandlers("set-scanner", async dataset => {
-		let scannerID = prompt("Scanner ID:");
-		if (!scannerID) return;
-		scannerID = scannerID.trim();
+		let scannerID = prompt("Scanner ID:", dataset.scanners);
 
-		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company)}/employee/${encodeURIComponent(dataset.email)}/scanner/${encodeURIComponent(scannerID)}`);
+		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company)}/employee/${encodeURIComponent(dataset.email)}/scanners/${encodeURIComponent(scannerID)}`);
 	});
 	setUpHandlers("rename-company", async dataset => {
 		let name = prompt("New name:", dataset.company);

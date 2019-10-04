@@ -13,14 +13,14 @@
 						{{#each this.users}}
 							<li class="single-line-button">
 								<span class="icon"><i class="fas fa-user-tie"></i></span>
-								<strong>{{formatName this.name}}</strong> ({{this.email}})&nbsp;&nbsp;|&nbsp;&nbsp;Scanner:
-								{{#if this.company.scannerID}}
-									<strong>{{this.company.scannerID}}</strong>
+								<strong>{{formatName this.name}}</strong> ({{this.email}})&nbsp;&nbsp;|&nbsp;&nbsp;Scanner(s):
+								{{#if this.company.scannerIDs.length}}
+									<strong>{{join this.company.scannerIDs}}</strong>
 								{{else}}
 									<em>None</em>
 								{{/if}}
 								<button class="button is-link is-outlined set-scanner" data-company="{{../this.name}}"
-										data-email="{{this.email}}">Scanner</button>
+										data-email="{{this.email}}" data-scanners="{{join this.company.scannerIDs}}">Scanners</button>
 								{{#ifCond this.uuid ../uuid}}{{else}}
 									<button class="button is-danger is-outlined remove-employee" data-company="{{../this.name}}" data-email="{{this.email}}">Remove</button>
 								{{/ifCond}}

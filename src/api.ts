@@ -48,7 +48,8 @@ apiRoutes.route("/company/:company/employee/:employee")
 		}
 		user.company = {
 			name: request.params.company,
-			verified: true
+			verified: true,
+			scannerIDs: []
 		};
 		await user.save();
 		response.json({
@@ -56,8 +57,8 @@ apiRoutes.route("/company/:company/employee/:employee")
 		});
 	});
 
-apiRoutes.route("/company/:company/employee/:employee/scanner/:scanner")
-	// Change attached scanner
+apiRoutes.route("/company/:company/employee/:employee/scanners/:scanners?")
+	// Change attached scanners
 	.patch(isAdminOrEmployee, async (request, response) => {
 		let user = await User.findOne({ email: request.params.employee });
 		if (!user) {
@@ -73,7 +74,11 @@ apiRoutes.route("/company/:company/employee/:employee/scanner/:scanner")
 			return;
 		}
 
-		user.company.scannerID = request.params.scanner ? request.params.scanner.trim() : undefined;
+		let scanners = (request.params.scanners || "")
+			.split(", ")
+			.filter(scanner => !!scanner)
+			.map(scanner => scanner.replace(/,/g, "").trim().toLowerCase());
+		user.company.scannerIDs = [...new Set(scanners)]; // Eliminates duplicates
 		await user.save();
 		response.json({
 			"success": true
