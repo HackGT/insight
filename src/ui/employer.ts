@@ -8,6 +8,7 @@ namespace Employer {
 	interface APIResponse {
 		success?: boolean;
 		error?: string;
+		[other: string]: unknown;
 	}
 
 	async function sendRequest(method: "POST" | "DELETE" | "PUT" | "PATCH", url: string, data?: object) {
@@ -56,7 +57,9 @@ namespace Employer {
 	}
 
 	// After association
-
+	const modal = document.querySelector(".modal");
+	document.querySelector(".modal-background").addEventListener("click", () => modal.classList.remove("is-active"));
+	document.querySelector(".modal-close").addEventListener("click", () => modal.classList.remove("is-active"));
 	class TableManager {
 		private readonly tbody: HTMLTableSectionElement;
 		private readonly template: HTMLTemplateElement;
@@ -70,14 +73,48 @@ namespace Employer {
 			this.template = document.getElementById("table-row") as HTMLTemplateElement;
 		}
 
-		public addRow() {
+		public addRow(id: string, name: string, major?: string, githubUsername?: string, website?: string) {
 			let row = document.importNode(this.template.content, true);
-			row.getElementById("name").textContent = "Ryan Petschekk";
-			row.getElementById("major").textContent = "Muh Major";
-			(row.querySelector(".github") as HTMLAnchorElement).href = "https://google.com";
-			(row.querySelector(".website") as HTMLAnchorElement).href = "https://google.com";
+			row.getElementById("name").textContent = name;
+			row.getElementById("major").textContent = major || "Unknown";
+			const githubLink = row.querySelector(".github") as HTMLAnchorElement;
+			if (githubUsername) {
+				githubLink.href = `https://github.com/${githubUsername}`;
+			}
+			else {
+				githubLink.parentElement!.remove();
+			}
+			const websiteLink = row.querySelector(".website") as HTMLAnchorElement;
+			if (website) {
+				websiteLink.href = website;
+			}
+			else {
+				websiteLink.parentElement!.remove();
+			}
+			const starAction = row.querySelector(".star-action") as HTMLButtonElement;
+			const tagAction = row.querySelector(".tag-action") as HTMLButtonElement;
+			const viewAction = row.querySelector(".view-action") as HTMLButtonElement;
+			viewAction.addEventListener("click", async () => {
+				viewAction.disabled = true;
+				await this.showModal(id);
+				viewAction.disabled = false;
+			});
 
 			this.tbody.appendChild(row);
+		}
+
+		public async showModal(id: string) {
+			let options: RequestInit = {
+				method: "GET",
+				credentials: "include"
+			};
+			let response: APIResponse = await fetch(`/api/scan/${id}`, options).then(response => response.json());
+			if (!response.success) {
+				alert(response.error);
+				return;
+			}
+			console.log(response.visit);
+			modal.classList.add("is-active");
 		}
 	}
 
@@ -173,5 +210,20 @@ namespace Employer {
 	});
 
 	const scanningTable = new TableManager("scanning-table");
-	scanningTable.addRow();
+	async function updateScanningTable() {
+		let options: RequestInit = {
+			method: "GET",
+			credentials: "include"
+		};
+		let response: APIResponse = await fetch("/api/scan", options).then(response => response.json());
+		if (!response.success) {
+			alert(response.error);
+			return;
+		}
+		let visits = response.visits as any[];
+		for (let visit of visits) {
+			scanningTable.addRow(visit._id, visit.name, visit.major, visit.githubUsername, visit.website);
+		}
+	}
+	updateScanningTable().catch(err => console.error(err));
 }

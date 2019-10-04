@@ -122,7 +122,7 @@ export const User = mongoose.model<Model<IUser>>("User", new mongoose.Schema({
 	name: "text"
 }));
 
-export interface IVisit {
+export interface IVisit extends RootDocument {
 	uuid: string;
 	name: string;
 	email: string;
@@ -141,8 +141,8 @@ export interface IVisit {
 	resume?: IResume;
 	teammates: string[]; // UUIDs of teammates (can be empty)
 
-	visitType: "uncategorized" | "recruiting" | "engineeringHelp" | "other";
-	starred: boolean;
+	company: string;
+	tags: string[];
 	notes: string[];
 	time: Date;
 	scannerID: string;
@@ -153,46 +153,48 @@ export interface IVisit {
 	}[]; // Single scanner can be associated with multiple employees
 }
 
+export const Visit = mongoose.model<Model<IVisit>>("Visit", new mongoose.Schema({
+	uuid: String,
+	name: String,
+	email: String,
+	major: String,
+	githubUsername: String,
+	website: String,
+	lookingFor: {
+		timeframe: [String],
+		comments: String
+	},
+	interestingDetails: {
+		favoriteLanguages: [String],
+		proudOf: String,
+		funFact: String
+	},
+	resume: {
+		path: String,
+		size: Number
+	},
+	teammates: [String],
+
+	company: String,
+	tags: [String],
+	notes: [String],
+	time: Date,
+	scannerID: String,
+	employees: [{
+		uuid: String,
+		name: String,
+		email: String
+	}]
+}));
+
 export interface ICompany extends RootDocument {
 	name: string;
-	visits: IVisit[];
+	visits: mongoose.Types.ObjectId[];
 }
 
 export const Company = mongoose.model<Model<ICompany>>("Company", new mongoose.Schema({
 	name: String,
-	visits: [{
-		uuid: String,
-		name: String,
-		email: String,
-		major: String,
-		githubUsername: String,
-		website: String,
-		lookingFor: {
-			timeframe: [String],
-			comments: String
-		},
-		interestingDetails: {
-			favoriteLanguages: [String],
-			proudOf: String,
-			funFact: String
-		},
-		resume: {
-			path: String,
-			size: Number
-		},
-		teammates: [String],
-
-		visitType: String,
-		starred: Boolean,
-		notes: [String],
-		time: Date,
-		scannerID: String,
-		employees: [{
-			uuid: String,
-			name: String,
-			email: String
-		}]
-	}]
+	visits: [mongoose.Types.ObjectId]
 }));
 
 //
