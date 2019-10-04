@@ -3,16 +3,24 @@
 	<h2 class="subtitle">Recruiters can be assigned to companies to view and collect resumes</h2>
 	<section class="columns is-multiline">
 		{{#each companies}}
-			<div class="column is-one-third">
+			<div class="column is-one-half">
 				<h1 class="title">{{this.name}}</h1>
 				<p class="content">
 					<ul>
 						<li><strong>{{this.visited.length}}</strong> visited</li>
 						<li><strong>{{this.starred.length}}</strong> starred</li>
+						<li><strong>{{this.users.length}}</strong> employee(s)</li>
 						{{#each this.users}}
 							<li class="single-line-button">
 								<span class="icon"><i class="fas fa-user-tie"></i></span>
-								<strong>{{formatName this.name}}</strong> ({{this.email}})
+								<strong>{{formatName this.name}}</strong> ({{this.email}})&nbsp;&nbsp;|&nbsp;&nbsp;Scanner:
+								{{#if this.company.scannerID}}
+									<strong>{{this.company.scannerID}}</strong>
+								{{else}}
+									<em>None</em>
+								{{/if}}
+								<button class="button is-link is-outlined set-scanner" data-company="{{../this.name}}"
+										data-email="{{this.email}}">Scanner</button>
 								{{#ifCond this.uuid ../uuid}}{{else}}
 									<button class="button is-danger is-outlined remove-employee" data-company="{{../this.name}}" data-email="{{this.email}}">Remove</button>
 								{{/ifCond}}

@@ -56,6 +56,30 @@ apiRoutes.route("/company/:company/employee/:employee")
 		});
 	});
 
+apiRoutes.route("/company/:company/employee/:employee/scanner/:scanner")
+	// Change attached scanner
+	.patch(isAdminOrEmployee, async (request, response) => {
+		let user = await User.findOne({ email: request.params.employee });
+		if (!user) {
+			response.status(400).json({
+				"error": "No existing user found with that email"
+			});
+			return;
+		}
+		if (!user.company || user.company.name !== request.params.company) {
+			response.status(400).json({
+				"error": "User has invalid company set"
+			});
+			return;
+		}
+
+		user.company.scannerID = request.params.scanner ? request.params.scanner.trim() : undefined;
+		await user.save();
+		response.json({
+			"success": true
+		});
+	});
+
 apiRoutes.route("/company/:company")
 	// Rename company
 	.patch(isAdminOrEmployee, postParser, async (request, response) => {
