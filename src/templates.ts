@@ -90,16 +90,25 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 		}
 	}
 	const user = request.user as IUser;
+	let users: IUser[] = [];
+	let pendingUsers: IUser[] = [];
+	if (user.company && user.company.verified) {
+		users = await User.find({ "company.name": user.company.name, "company.verified": true });
+		pendingUsers = await User.find({ "company.name": user.company.name, "company.verified": false });
+	}
+
 	if (user.type === "employer") {
 		let templateData = {
 			title: "Home",
 			includeJS: "employer",
-			user: request.user,
+			user,
 			companies: await Company.aggregate([{
 				"$sort": {
 					"name": 1
 				}
-			}])
+			}]),
+			users,
+			pendingUsers
 		};
 		response.send(EmployerTemplate.render(templateData));
 	}

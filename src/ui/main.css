@@ -66,3 +66,7 @@ a > i {
 	background-color: #4a4a4a;
 	border-color: #212121;
 }
+
+#settings h1, #settings h2, #settings h5 {
+	margin-bottom: 0;
+}

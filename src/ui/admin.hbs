@@ -21,9 +21,7 @@
 								{{/if}}
 								<button class="button is-link is-outlined set-scanner" data-company="{{../this.name}}"
 										data-email="{{this.email}}" data-scanners="{{join this.company.scannerIDs}}">Scanners</button>
-								{{#ifCond this.uuid ../uuid}}{{else}}
-									<button class="button is-danger is-outlined remove-employee" data-company="{{../this.name}}" data-email="{{this.email}}">Remove</button>
-								{{/ifCond}}
+								<button class="button is-danger is-outlined remove-employee" data-company="{{../this.name}}" data-email="{{this.email}}">Remove</button>
 							</li>
 						{{else}}
 							<li class="has-text-centered"><em>No users</em></li>
@@ -35,9 +33,7 @@
 							<li class="single-line-button">
 								<span class="icon"><i class="fas fa-user-clock"></i></span>
 								<strong>{{formatName this.name}}</strong> ({{this.email}})
-								{{#ifCond this.uuid ../uuid}}{{else}}
-									<button class="button is-success is-outlined confirm-employee" data-company="{{../this.name}}" data-email="{{this.email}}">Confirm</button>
-								{{/ifCond}}
+								<button class="button is-success is-outlined confirm-employee" data-company="{{../this.name}}" data-email="{{this.email}}">Confirm</button>
 							</li>
 						{{/each}}
 					</ul>

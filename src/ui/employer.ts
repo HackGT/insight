@@ -93,6 +93,7 @@ namespace Employer {
 			searchContent.hidden = true;
 			settingsContent.hidden = false;
 		}
+		localStorage.setItem("tab", tab.toString());
 	}
 	if (scanningTab) {
 		scanningTab.addEventListener("click", () => {
@@ -109,4 +110,41 @@ namespace Employer {
 			setTab(Tabs.Settings);
 		});
 	}
+	let previousTab = localStorage.getItem("tab");
+	if (previousTab) {
+		setTab(parseInt(previousTab, 10));
+	}
+
+	function setUpHandlers(classname: string, handler: (dataset: DOMStringMap) => Promise<void>) {
+		let buttons = document.getElementsByClassName(classname) as HTMLCollectionOf<HTMLButtonElement>;
+		for (let i = 0; i < buttons.length; i++) {
+			buttons[i].addEventListener("click", async e => {
+				let button = e.target as HTMLButtonElement;
+				button.disabled = true;
+				try {
+					await handler(button.dataset);
+				}
+				finally {
+					button.disabled = false;
+				}
+			});
+		}
+	}
+
+	setUpHandlers("confirm-employee", async dataset => {
+		if (!confirm(`Are you sure you want to add ${dataset.email} as an employee? They will have full access to your collected resumes and notes.`)) return;
+
+		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company)}/employee/${encodeURIComponent(dataset.email)}`);
+	});
+	setUpHandlers("remove-employee", async dataset => {
+		if (!confirm(`Are you sure you want to remove ${dataset.email}?`)) return;
+
+		await sendRequest("DELETE", `/api/company/${encodeURIComponent(dataset.company)}/employee/${encodeURIComponent(dataset.email)}`);
+	});
+	setUpHandlers("set-scanner", async dataset => {
+		let scannerID = prompt("Scanner ID:", dataset.scanners);
+		if (scannerID === null) return;
+
+		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company)}/employee/${encodeURIComponent(dataset.email)}/scanners/${encodeURIComponent(scannerID)}`);
+	});
 }

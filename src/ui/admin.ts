@@ -67,6 +67,7 @@ namespace Admin {
 	});
 	setUpHandlers("set-scanner", async dataset => {
 		let scannerID = prompt("Scanner ID:", dataset.scanners);
+		if (scannerID === null) return;
 
 		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company)}/employee/${encodeURIComponent(dataset.email)}/scanners/${encodeURIComponent(scannerID)}`);
 	});

@@ -29,7 +29,43 @@
 			<h1>Search</h1>
 		</section>
 		<section id="settings" hidden>
-			<h1>Settings</h1>
+			<div class="columns">
+				<div class="column is-half is-offset-one-quarter">
+					<h1 class="title">Employees</h1>
+					<ul>
+						{{#each this.users}}
+							<li class="single-line-button">
+								<span class="icon"><i class="fas fa-user-tie"></i></span>
+								<strong>{{formatName this.name}}</strong> ({{this.email}})&nbsp;&nbsp;|&nbsp;&nbsp;Scanner(s):
+								{{#if this.company.scannerIDs.length}}
+									<strong>{{join this.company.scannerIDs}}</strong>
+								{{else}}
+									<em>None</em>
+								{{/if}}
+								<button class="button is-link is-outlined set-scanner" data-company="{{../user.company.name}}"
+										data-email="{{this.email}}" data-scanners="{{join this.company.scannerIDs}}">Scanners</button>
+								{{#ifCond this.uuid ../user.uuid}}{{else}}
+									<button class="button is-danger is-outlined remove-employee" data-company="{{../user.company.name}}" data-email="{{this.email}}">Remove</button>
+								{{/ifCond}}
+							</li>
+						{{/each}}
+					</ul>
+					{{#if this.pendingUsers.length}}
+						<br />
+						<h5 class="title is-5">Pending employee requests</h5>
+						<ul>
+							{{#each this.pendingUsers}}
+								<li class="single-line-button">
+									<span class="icon"><i class="fas fa-user-clock"></i></span>
+									<strong>{{formatName this.name}}</strong> ({{this.email}})
+									<button class="button is-success is-outlined confirm-employee" data-company="{{../user.company.name}}"
+										data-email="{{this.email}}">Confirm</button>
+								</li>
+							{{/each}}
+						</ul>
+					{{/if}}
+				</div>
+			</div>
 		</section>
 	{{else}}
 		<section class="columns">
