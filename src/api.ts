@@ -78,6 +78,17 @@ apiRoutes.route("/company/:company/employee/:employee/scanners/:scanners?")
 			.split(", ")
 			.filter(scanner => !!scanner)
 			.map(scanner => scanner.replace(/,/g, "").trim().toLowerCase());
+		// Check if scanner is already tied to another company
+		for (let scanner of scanners) {
+			let existingScanners = await User.find({ "company.scannerIDs": scanner, "company.name": { "$ne": user!.company!.name } });
+			if (existingScanners.length > 0) {
+				response.json({
+					"error": `Scanner ID ${scanner} is already associated with another company`
+				});
+				return;
+			}
+		}
+
 		user.company.scannerIDs = [...new Set(scanners)]; // Eliminates duplicates
 		await user.save();
 		response.json({
