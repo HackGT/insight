@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import { config } from "./common";
-import { IVisit } from "./schema";
+import { IVisit, User } from "./schema";
 
 if (!config.secrets.registration.key) {
 	throw new Error("Registration admin key not configured");
@@ -81,6 +81,10 @@ export async function createVisit(uuid: string): Promise<Partial<IVisit> | null>
 			name: string;
 			value: string | null;
 			values: (string | null)[] | null;
+			file: {
+				path: string;
+				size: number;
+			} | null;
 		}[];
 	}
 	interface QueryResponse {
@@ -105,7 +109,11 @@ export async function createVisit(uuid: string): Promise<Partial<IVisit> | null>
 					data {
 						name,
 						value,
-						values
+						values,
+						file {
+							path,
+							size
+						}
 					}
 				},
 				confirmation {
@@ -113,7 +121,11 @@ export async function createVisit(uuid: string): Promise<Partial<IVisit> | null>
 					data {
 						name,
 						value,
-						values
+						values,
+						file {
+							path,
+							size
+						}
 					}
 				}
 				team {
@@ -131,6 +143,14 @@ export async function createVisit(uuid: string): Promise<Partial<IVisit> | null>
 		name: user.name,
 		email: user.email
 	};
+	// Check if user has logged into Insight and updated their resume
+	let insightUser = await User.findOne({ uuid: user.id });
+	if (insightUser && insightUser.resume && insightUser.resume.path) {
+		visit.resume = {
+			path: insightUser.resume.path,
+			size: insightUser.resume.size
+		};
+	}
 	// TODO: need registration GraphQL API for listing teams
 
 	function getQuestionAnswer(form: FormData, questionName: string): string | undefined {
@@ -154,6 +174,14 @@ export async function createVisit(uuid: string): Promise<Partial<IVisit> | null>
 			timeframe: getQuestionAnswers(user.application, "employment"),
 			comments: getQuestionAnswer(user.application, "employment-2")
 		};
+
+		let resume = user.application.data.find(q => q.name === "resume");
+		if (!visit.resume && resume && resume.file) {
+			visit.resume = {
+				path: resume.file.path,
+				size: resume.file.size
+			};
+		}
 		if (user.confirmation) {
 			visit.interestingDetails = {
 				favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),

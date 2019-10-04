@@ -59,6 +59,11 @@ export type Model<T extends RootDocument> = T & mongoose.Document;
 // DB types
 //
 
+interface IResume {
+	path: string;
+	size: number;
+}
+
 export interface IUser extends RootDocument {
 	uuid: string;
 	email: string;
@@ -78,10 +83,7 @@ export interface IUser extends RootDocument {
 		scannerIDs: string[];
 	} | null;
 	// Only for participants
-	resume: {
-		path: string;
-		size: number;
-	} | null;
+	resume: IResume | null;
 }
 
 // This is basically a type definition that exists at runtime and is derived manually from the IUser definition above
@@ -136,6 +138,7 @@ export interface IVisit {
 		proudOf?: string;
 		funFact?: string;
 	};
+	resume?: IResume;
 	teammates: string[]; // UUIDs of teammates (can be empty)
 
 	visitType: "uncategorized" | "recruiting" | "engineeringHelp" | "other";
@@ -172,6 +175,10 @@ export const Company = mongoose.model<Model<ICompany>>("Company", new mongoose.S
 			favoriteLanguages: [String],
 			proudOf: String,
 			funFact: String
+		},
+		resume: {
+			path: String,
+			size: Number
 		},
 		teammates: [String],
 
