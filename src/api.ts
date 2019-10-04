@@ -1,6 +1,6 @@
 import * as express from "express";
 import { IUser, User, Company } from "./schema";
-import { postParser, isAdmin, isAdminOrEmployee } from "./middleware";
+import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer } from "./middleware";
 
 export let apiRoutes = express.Router();
 
@@ -143,6 +143,34 @@ apiRoutes.route("/company/:company")
 		}
 		let company = new Company({ name });
 		await company.save();
+		response.json({
+			"success": true
+		});
+	});
+
+apiRoutes.route("/company/:company/join")
+	// Request to join company
+	.post(isAnEmployer, async (request, response) => {
+		let company = await Company.findOne({ name: request.params.company });
+		if (!company) {
+			response.status(400).json({
+				"error": "Unknown company"
+			});
+			return;
+		}
+		let user = await User.findOne({ uuid: (request.user as IUser).uuid });
+		if (!user) {
+			response.status(400).json({
+				"error": "Unknown user"
+			});
+			return;
+		}
+		user.company = {
+			name: company.name,
+			verified: false,
+			scannerIDs: []
+		};
+		await user.save();
 		response.json({
 			"success": true
 		});

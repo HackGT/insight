@@ -1,20 +1,4 @@
 namespace Admin {
-	function setUpHandlers(classname: string, handler: (dataset: DOMStringMap) => Promise<void>) {
-		let buttons = document.getElementsByClassName(classname) as HTMLCollectionOf<HTMLButtonElement>;
-		for (let i = 0; i < buttons.length; i++) {
-			buttons[i].addEventListener("click", async e => {
-				let button = e.target as HTMLButtonElement;
-				button.disabled = true;
-				try {
-					await handler(button.dataset);
-				}
-				finally {
-					button.disabled = false;
-				}
-			});
-		}
-	}
-
 	function serializeQueryString(data: object): string {
 		return Object.keys(data).map(key => {
 			return encodeURIComponent(key) + "=" + encodeURIComponent(data[key]);
@@ -47,6 +31,22 @@ namespace Admin {
 		}
 		else {
 			window.location.reload();
+		}
+	}
+
+	function setUpHandlers(classname: string, handler: (dataset: DOMStringMap) => Promise<void>) {
+		let buttons = document.getElementsByClassName(classname) as HTMLCollectionOf<HTMLButtonElement>;
+		for (let i = 0; i < buttons.length; i++) {
+			buttons[i].addEventListener("click", async e => {
+				let button = e.target as HTMLButtonElement;
+				button.disabled = true;
+				try {
+					await handler(button.dataset);
+				}
+				finally {
+					button.disabled = false;
+				}
+			});
 		}
 	}
 

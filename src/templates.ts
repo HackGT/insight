@@ -94,7 +94,12 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 		let templateData = {
 			title: "Home",
 			includeJS: "employer",
-			user: request.user
+			user: request.user,
+			companies: await Company.aggregate([{
+				"$sort": {
+					"name": 1
+				}
+			}])
 		};
 		response.send(EmployerTemplate.render(templateData));
 	}

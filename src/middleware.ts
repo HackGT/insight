@@ -77,3 +77,17 @@ export function isAdminOrEmployee(request: express.Request, response: express.Re
 		response.redirect("/");
 	});
 }
+
+export function isAnEmployer(request: express.Request, response: express.Response, next: express.NextFunction) {
+	authenticateWithRedirect(request, response, (err?: any) => {
+		if (err) {
+			next(err);
+			return;
+		}
+		if (!request.user || (request.user as IUser).type !== "employer") {
+			response.redirect("/");
+			return;
+		}
+		next();
+	});
+}
