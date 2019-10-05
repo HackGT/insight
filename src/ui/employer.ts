@@ -60,6 +60,7 @@ namespace Employer {
 	const modal = document.querySelector(".modal");
 	document.querySelector(".modal-background").addEventListener("click", () => modal.classList.remove("is-active"));
 	document.querySelector(".modal-close").addEventListener("click", () => modal.classList.remove("is-active"));
+	document.addEventListener("keydown", e => { if (e.key === "Escape") modal.classList.remove("is-active") });
 	class TableManager {
 		private readonly tbody: HTMLTableSectionElement;
 		private readonly template: HTMLTemplateElement;
@@ -114,6 +115,73 @@ namespace Employer {
 				return;
 			}
 			console.log(response.visit);
+			let visit = response.visit as {
+				uuid: string;
+				name: string;
+				email: string;
+				major?: string;
+				githubUsername?: string;
+				website?: string;
+				lookingFor?: {
+					timeframe?: string[];
+					comments?: string;
+				};
+				interestingDetails?: {
+					favoriteLanguages?: string[];
+					proudOf?: string;
+					funFact?: string;
+				};
+				resume?: {
+					path: string;
+					size: number;
+				};
+				teammates: string[]; // UUIDs of teammates (can be empty)
+
+				company: string;
+				tags: string[];
+				notes: string[];
+				time: Date;
+				scannerID: string;
+				employees: {
+					uuid: string;
+					name: string;
+					email: string;
+				}[]; // Single scanner can be associated with multiple employees
+			};
+
+			document.getElementById("detail-name").textContent = visit.name;
+			document.getElementById("detail-major").textContent = visit.major || "Unknown Major";
+			if (visit.lookingFor && visit.lookingFor.timeframe && visit.lookingFor.timeframe.length > 0) {
+				document.getElementById("detail-timeframe").textContent = visit.lookingFor.timeframe.join(", ");
+			}
+			else {
+				document.getElementById("detail-timeframe").innerHTML = "<em>N/A</em>";
+			}
+			if (visit.lookingFor && visit.lookingFor.comments) {
+				document.getElementById("detail-timeframe-comments").textContent = visit.lookingFor.comments;
+			}
+			else {
+				document.getElementById("detail-timeframe-comments").innerHTML = "<em>N/A</em>";
+			}
+			if (visit.interestingDetails && visit.interestingDetails.favoriteLanguages && visit.interestingDetails.favoriteLanguages.length > 0) {
+				document.getElementById("detail-programming-languages").textContent = visit.interestingDetails.favoriteLanguages.join(", ");
+			}
+			else {
+				document.getElementById("detail-programming-languages").innerHTML = "<em>N/A</em>";
+			}
+
+			const iframe = document.getElementById("detail-resume") as HTMLIFrameElement;
+			if (visit.resume) {
+				if (visit.resume.path.indexOf(".doc") !== -1) {
+					iframe.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + visit.resume.path)}`;
+				}
+				else {
+					iframe.src = visit.resume.path;
+				}
+			}
+			else {
+				iframe.hidden = true;
+			}
 			modal.classList.add("is-active");
 		}
 	}

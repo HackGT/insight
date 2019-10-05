@@ -72,7 +72,26 @@
 		<article class="modal">
 			<div class="modal-background"></div>
 			<div class="modal-content">
-				<div class="box"></div>
+				<div class="box">
+					<h1 class="title" id="detail-name"></h1>
+					<h2 class="subtitle" id="detail-major"></h2>
+					<div class="columns">
+						<div class="column">
+							<h4 class="title is-4">Career goals</h4>
+							<p><strong>Looking for:</strong> <span id="detail-timeframe"></span></p>
+							<p><strong>Comments:</strong> <span id="detail-timeframe-comments"></span></p>
+						</div>
+						<div class="column">
+							<h4 class="title is-4">Interesting facts</h4>
+							<p><strong>Favorite programming languages:</strong> <span id="detail-programming-languages"></span></p>
+						</div>
+						<div class="column">
+							<h4 class="title is-4">Your notes</h4>
+						</div>
+					</div>
+					<iframe id="detail-resume"></iframe>
+					{{!-- <embed type="application/pdf" /> --}}
+				</div>
 			</div>
 			<button class="modal-close is-large" aria-label="close"></button>
 		</article>

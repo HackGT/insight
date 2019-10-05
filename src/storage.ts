@@ -1,10 +1,11 @@
 import * as fs from "fs";
+import * as crypto from "crypto";
 import { Readable } from "stream";
 import * as AWS from "aws-sdk";
 import * as express from "express";
 import { authenticateWithRedirect, uploadHandler } from "./middleware";
 import { IUser, User, IS3Options } from "./schema";
-import { S3_ENGINE } from "./common";
+import { config, S3_ENGINE } from "./common";
 
 interface IStorageEngine {
 	saveFile(currentPath: string, name: string): Promise<void>;
@@ -64,20 +65,32 @@ export class S3StorageEngine implements IStorageEngine {
 export let storageRoutes = express.Router();
 
 storageRoutes.route("/:file")
-	.get(authenticateWithRedirect, async (request, response) => {
-		let user = request.user as IUser;
+	.get(async (request, response) => {
+		let user = request.user as IUser | undefined;
 
 		// Access:
 		// - All employers can GET all resumes
 		// - Participants can GET their own resume
-		if (user.type !== "employer" && (!user.resume || user.resume.path !== request.params.file)) {
+		if (!user) {
+			let time = parseInt(request.query.time || "");
+			let hash = request.query.key || "";
+			let correctHash = crypto.createHmac("sha256", config.secrets.apiKey + time).update("/uploads/" + request.params.file).digest().toString("hex");
+			console.log(correctHash, hash, (Date.now() - time));
+			if (correctHash !== hash || (Date.now() - time) > 60000) {
+				response.status(403).send();
+				return;
+			}
+		}
+		else if (user.type !== "employer" && (!user.resume || user.resume.path !== request.params.file)) {
 			response.status(403).send();
 			return;
 		}
 
 		try {
 			let stream = await S3_ENGINE.readFile(request.params.file);
-			response.attachment(request.params.file);
+			if (request.query.preview !== "true" && !request.query.key) {
+				response.attachment(request.params.file);
+			}
 			stream.pipe(response);
 		}
 		catch {

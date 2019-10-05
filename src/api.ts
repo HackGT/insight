@@ -1,8 +1,9 @@
+import * as crypto from "crypto";
 import * as express from "express";
 import { IUser, User, Company, IVisit, createNew, Visit } from "./schema";
 import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth, authenticateWithRedirect } from "./middleware";
 import { createVisit } from "./registration";
-import { formatName } from "./common";
+import { config, formatName } from "./common";
 
 export let apiRoutes = express.Router();
 
@@ -19,6 +20,12 @@ apiRoutes.route("/scan/:id")
 				"error": "Invalid visit ID"
 			});
 			return;
+		}
+		if (visit.resume) {
+			let time = Date.now();
+			let key = config.secrets.apiKey + time;
+			let hash = crypto.createHmac("sha256", key).update("/" + visit.resume.path).digest().toString("hex");
+			visit.resume.path = `/${visit.resume.path}?time=${time}&key=${hash}`;
 		}
 		response.json({
 			"success": true,

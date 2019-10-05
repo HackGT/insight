@@ -90,7 +90,7 @@ import { apiRoutes } from "./api";
 app.use("/api", apiRoutes);
 
 import { storageRoutes } from "./storage";
-app.use("/resume", storageRoutes);
+app.use("/uploads", storageRoutes);
 
 import { uiRoutes } from "./templates";
 app.use("/", uiRoutes);
