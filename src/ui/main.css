@@ -96,3 +96,7 @@ embed, iframe {
 .side-by-side-flex > :first-child {
 	margin-right: 5px;
 }
+.tags-column {
+	word-wrap: break-word;
+	max-width: 160px;
+}

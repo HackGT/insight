@@ -64,7 +64,9 @@ apiRoutes.route("/visit/:id/tag")
 			});
 		}
 
-		visit.tags.push(tag);
+		let tags = new Set(visit.tags);
+		tags.add(tag);
+		visit.tags = [...tags];
 		await visit.save();
 		response.json({ "success": true });
 	})

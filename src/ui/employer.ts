@@ -47,7 +47,7 @@ namespace Employer {
 		[other: string]: unknown;
 	}
 
-	async function sendRequest(method: "POST" | "DELETE" | "PUT" | "PATCH", url: string, data?: object) {
+	async function sendRequest(method: "POST" | "DELETE" | "PUT" | "PATCH", url: string, data?: object, reload = true) {
 		let options: RequestInit = {
 			method,
 			credentials: "include"
@@ -66,7 +66,7 @@ namespace Employer {
 		if (!response.success) {
 			alert(response.error);
 		}
-		else {
+		else if (reload) {
 			window.location.reload();
 		}
 	}
@@ -110,17 +110,44 @@ namespace Employer {
 			this.template = document.getElementById("table-row") as HTMLTemplateElement;
 		}
 
-		private generateTag(tag: string): HTMLSpanElement {
-			let tagContainer = document.createElement("span");
-			tagContainer.classList.add("tag");
-			tagContainer.textContent = tag;
+		private generateTag(visit: IVisit, tag: string): HTMLSpanElement | null {
+			let control = document.createElement("div");
+			control.classList.add("control");
+			let tagContainer = document.createElement("div");
+			tagContainer.classList.add("tags", "has-addons");
+			let tagSpan = document.createElement("span");
+			tagSpan.textContent = tag;
+			tagSpan.dataset.tag = tag;
+			tagSpan.dataset.id = visit._id;
+			tagSpan.classList.add("tag");
 			if (tag === "starred") {
-				tagContainer.classList.add("is-warning");
+				tagSpan.classList.add("is-warning");
 			}
 			if (tag === "flagged") {
-				tagContainer.classList.add("is-danger");
+				tagSpan.classList.add("is-danger");
 			}
-			return tagContainer;
+			let deleteButton = document.createElement("span");
+			deleteButton.classList.add("tag", "is-delete");
+			let locked = false;
+			deleteButton.addEventListener("click", async () => {
+				if (locked) return;
+				locked = true;
+				await sendRequest("DELETE", `/api/visit/${visit._id}/tag`, { tag }, false);
+				control.remove();
+				visit.tags = visit.tags.filter(t => t !== tag);
+				if (modal.classList.contains("is-active")) {
+					let tagSpan = document.querySelector(`.tags-column .tag[data-tag="${tag}"][data-id="${visit._id}"]`);
+					if (tagSpan) {
+						tagSpan.parentElement!.parentElement!.remove();
+					}
+				}
+			});
+
+			tagContainer.appendChild(tagSpan);
+			tagContainer.appendChild(deleteButton);
+			control.appendChild(tagContainer);
+
+			return control;
 		}
 
 		public addRow(visit: IVisit) {
@@ -151,11 +178,41 @@ namespace Employer {
 				tags.removeChild(tags.firstChild);
 			}
 			for (let tag of visit.tags) {
-				tags.appendChild(this.generateTag(tag));
+				tags.appendChild(this.generateTag(visit, tag));
 			}
 
 			const starAction = row.querySelector(".star-action") as HTMLButtonElement;
+			starAction.addEventListener("click", async () => {
+				starAction.disabled = true;
+				let addStar: boolean = visit.tags.indexOf("starred") === -1;
+				await sendRequest(addStar ? "POST" : "DELETE", `/api/visit/${visit._id}/tag`, { tag: "starred" }, false);
+
+				if (addStar) {
+					tags.appendChild(this.generateTag(visit, "starred"));
+					visit.tags.push("starred");
+				}
+				else {
+					tags.querySelector(`.tag[data-tag="starred"]`).parentElement!.parentElement!.remove();
+					visit.tags = visit.tags.filter(t => t !== "starred");
+				}
+				starAction.disabled = false;
+			});
 			const tagAction = row.querySelector(".tag-action") as HTMLButtonElement;
+			tagAction.addEventListener("click", async () => {
+				tagAction.disabled = true;
+
+				let tag = (prompt("Tag:") || "").trim().toLowerCase();
+				if (!tag) return;
+				if (visit.tags.indexOf(tag) !== -1) {
+					tagAction.disabled = false;
+					return;
+				}
+
+				await sendRequest("POST", `/api/visit/${visit._id}/tag`, { tag }, false);
+				tags.appendChild(this.generateTag(visit, tag));
+				visit.tags.push(tag);
+				tagAction.disabled = false;
+			});
 			const viewAction = row.querySelector(".view-action") as HTMLButtonElement;
 			viewAction.addEventListener("click", async () => {
 				viewAction.disabled = true;
@@ -205,7 +262,7 @@ namespace Employer {
 			}
 			if (visit.tags.length > 0) {
 				for (let tag of visit.tags) {
-					tags.appendChild(this.generateTag(tag));
+					tags.appendChild(this.generateTag(visit, tag));
 				}
 			}
 			else {

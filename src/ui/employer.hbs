@@ -49,8 +49,8 @@
 						</p>
 					</div>
 				</td>
-				<td>
-					<div id="tags" class="tags"></div>
+				<td class="tags-column">
+					<div id="tags" class="field is-grouped is-grouped-multiline"></div>
 				</td>
 				<td id="actions">
 					<button class="button star-action">
@@ -97,7 +97,7 @@
 							<h4 class="title is-4">Your notes</h4>
 							<div class="side-by-side-flex">
 								<strong>Tags:</strong>
-								<div class="tags" id="detail-tags"></div>
+								<div class="field is-grouped is-grouped-multiline" id="detail-tags"></div>
 							</div>
 						</div>
 					</div>
@@ -106,7 +106,7 @@
 				<footer class="modal-card-foot">
 					<button class="button is-danger">Delete visit</button>
 					<button class="button">Save changes</button>
-					<button class="button">Cancel</button>
+					<button class="button">Close</button>
 				</footer>
 			</div>
 		</article>
@@ -129,7 +129,7 @@
 							<th>Name</th>
 							<th>Major</th>
 							<th>Links</th>
-							<th>Tags</th>
+							<th class="tags-column">Tags</th>
 							<th>Actions</th>
 						</tr>
 					</thead>
