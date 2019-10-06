@@ -189,11 +189,13 @@ export const Visit = mongoose.model<Model<IVisit>>("Visit", new mongoose.Schema(
 
 export interface ICompany extends RootDocument {
 	name: string;
+	tags: string[];
 	visits: mongoose.Types.ObjectId[];
 }
 
 export const Company = mongoose.model<Model<ICompany>>("Company", new mongoose.Schema({
 	name: String,
+	tags: [String],
 	visits: [mongoose.Types.ObjectId]
 }));
 

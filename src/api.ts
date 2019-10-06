@@ -1,26 +1,94 @@
 import * as crypto from "crypto";
 import * as express from "express";
-import { IUser, User, Company, IVisit, createNew, Visit } from "./schema";
+import { IUser, User, Company, IVisit, createNew, Visit, Model } from "./schema";
 import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth, authenticateWithRedirect } from "./middleware";
 import { createVisit } from "./registration";
-import { config, formatName } from "./common";
+import { config, formatName, DEFAULT_TAGS } from "./common";
 
 export let apiRoutes = express.Router();
 
-apiRoutes.route("/scan/:id")
+apiRoutes.route("/tag")
 	.get(isAnEmployer, async (request, response) => {
 		const user = request.user as IUser | undefined;
 		if (!user || !user.company || !user.company.verified) {
 			response.status(403).send();
 			return;
 		}
-		const visit = await Visit.findById(request.params.id);
-		if (!visit || visit.company !== user.company.name) {
-			response.status(403).json({
-				"error": "Invalid visit ID"
+		const company = await Company.findOne({ name: user.company.name });
+		if (!company) {
+			response.status(400).json({
+				"error": "User has invalid company"
 			});
 			return;
 		}
+		response.json({
+			"success": true,
+			"tags": company.tags
+		});
+	});
+
+async function getVisit(request: express.Request, response: express.Response): Promise<Model<IVisit> | null> {
+	const user = request.user as IUser | undefined;
+	if (!user || !user.company || !user.company.verified) {
+		response.status(403).send();
+		return null;
+	}
+	const visit = await Visit.findById(request.params.id);
+	if (!visit || visit.company !== user.company.name) {
+		response.status(403).json({
+			"error": "Invalid visit ID"
+		});
+		return null;
+	}
+	return visit;
+}
+
+apiRoutes.route("/visit/:id/tag")
+	.get(isAnEmployer, async (request, response) => {
+		const visit = await getVisit(request, response);
+		if (!visit) return;
+
+		response.json({
+			"success": true,
+			"tags": visit.tags
+		});
+	})
+	.post(isAnEmployer, postParser, async (request, response) => {
+		const visit = await getVisit(request, response);
+		if (!visit) return;
+
+		const tag = (request.body.tag as string || "").trim().toLowerCase();
+		if (!tag) {
+			response.json({
+				"error": "Missing tag"
+			});
+		}
+
+		visit.tags.push(tag);
+		await visit.save();
+		response.json({ "success": true });
+	})
+	.delete(isAnEmployer, postParser, async (request, response) => {
+		const visit = await getVisit(request, response);
+		if (!visit) return;
+
+		const tag = (request.body.tag as string || "").trim().toLowerCase();
+		if (!tag) {
+			response.json({
+				"error": "Missing tag"
+			});
+		}
+
+		visit.tags = visit.tags.filter(t => t !== tag);
+		await visit.save();
+		response.json({ "success": true });
+	});
+
+apiRoutes.route("/visit/:id")
+	.get(isAnEmployer, async (request, response) => {
+		const visit = await getVisit(request, response);
+		if (!visit) return;
+
 		if (visit.resume) {
 			let time = Date.now();
 			let key = config.secrets.apiKey + time;
@@ -32,7 +100,7 @@ apiRoutes.route("/scan/:id")
 			"visit": visit.toObject()
 		});
 	});
-apiRoutes.route("/scan")
+apiRoutes.route("/visit")
 	.get(isAnEmployer, async (request, response) => {
 		const user = request.user as IUser | undefined;
 		if (!user || !user.company || !user.company.verified) {
@@ -253,7 +321,7 @@ apiRoutes.route("/company/:company")
 				"error": "Company name cannot be blank"
 			});
 		}
-		let company = createNew(Company, { name, visits: [] });
+		let company = createNew(Company, { name, tags: DEFAULT_TAGS, visits: [] });
 		await company.save();
 		response.json({
 			"success": true

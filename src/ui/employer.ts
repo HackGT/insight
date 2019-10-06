@@ -1,4 +1,40 @@
 namespace Employer {
+	// Slight differences (due to JSON representation) between this interface and the same one in schema.ts
+	interface IVisit {
+		_id: string;
+		uuid: string;
+		name: string;
+		email: string;
+		major?: string;
+		githubUsername?: string;
+		website?: string;
+		lookingFor?: {
+			timeframe?: string[];
+			comments?: string;
+		};
+		interestingDetails?: {
+			favoriteLanguages?: string[];
+			proudOf?: string;
+			funFact?: string;
+		};
+		resume?: {
+			path: string;
+			size: number;
+		};
+		teammates: string[]; // UUIDs of teammates (can be empty)
+
+		company: string;
+		tags: string[];
+		notes: string[];
+		time: string;
+		scannerID: string;
+		employees: {
+			uuid: string;
+			name: string;
+			email: string;
+		}[]; // Single scanner can be associated with multiple employees
+	}
+
 	function serializeQueryString(data: object): string {
 		return Object.keys(data).map(key => {
 			return encodeURIComponent(key) + "=" + encodeURIComponent(data[key]);
@@ -74,32 +110,56 @@ namespace Employer {
 			this.template = document.getElementById("table-row") as HTMLTemplateElement;
 		}
 
-		public addRow(time: Date, id: string, name: string, major?: string, githubUsername?: string, website?: string) {
+		private generateTag(tag: string): HTMLSpanElement {
+			let tagContainer = document.createElement("span");
+			tagContainer.classList.add("tag");
+			tagContainer.textContent = tag;
+			if (tag === "starred") {
+				tagContainer.classList.add("is-warning");
+			}
+			if (tag === "flagged") {
+				tagContainer.classList.add("is-danger");
+			}
+			return tagContainer;
+		}
+
+		public addRow(visit: IVisit) {
 			let row = document.importNode(this.template.content, true);
 			const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+			const time = new Date(visit.time);
 			row.getElementById("time").textContent = `${time.getHours()}:${time.getMinutes()} on ${time.getDate()} ${months[time.getMonth()]}`;
-			row.getElementById("name").textContent = name;
-			row.getElementById("major").textContent = major || "Unknown";
+			row.getElementById("name").textContent = visit.name;
+			row.getElementById("major").textContent = visit.major || "Unknown";
 			const githubLink = row.querySelector(".github") as HTMLAnchorElement;
-			if (githubUsername) {
-				githubLink.href = `https://github.com/${githubUsername}`;
+			if (visit.githubUsername) {
+				githubLink.href = `https://github.com/${visit.githubUsername}`;
 			}
 			else {
 				githubLink.parentElement!.remove();
 			}
 			const websiteLink = row.querySelector(".website") as HTMLAnchorElement;
-			if (website) {
-				websiteLink.href = website;
+			if (visit.website) {
+				websiteLink.href = visit.website;
 			}
 			else {
 				websiteLink.parentElement!.remove();
 			}
+
+			const tags = row.getElementById("tags");
+			// Remove all previous children
+			while (tags.firstChild) {
+				tags.removeChild(tags.firstChild);
+			}
+			for (let tag of visit.tags) {
+				tags.appendChild(this.generateTag(tag));
+			}
+
 			const starAction = row.querySelector(".star-action") as HTMLButtonElement;
 			const tagAction = row.querySelector(".tag-action") as HTMLButtonElement;
 			const viewAction = row.querySelector(".view-action") as HTMLButtonElement;
 			viewAction.addEventListener("click", async () => {
 				viewAction.disabled = true;
-				await this.showModal(id);
+				await this.showModal(visit._id);
 				viewAction.disabled = false;
 			});
 
@@ -111,45 +171,13 @@ namespace Employer {
 				method: "GET",
 				credentials: "include"
 			};
-			let response: APIResponse = await fetch(`/api/scan/${id}`, options).then(response => response.json());
+			let response: APIResponse = await fetch(`/api/visit/${id}`, options).then(response => response.json());
 			if (!response.success) {
 				alert(response.error);
 				return;
 			}
 			console.log(response.visit);
-			let visit = response.visit as {
-				uuid: string;
-				name: string;
-				email: string;
-				major?: string;
-				githubUsername?: string;
-				website?: string;
-				lookingFor?: {
-					timeframe?: string[];
-					comments?: string;
-				};
-				interestingDetails?: {
-					favoriteLanguages?: string[];
-					proudOf?: string;
-					funFact?: string;
-				};
-				resume?: {
-					path: string;
-					size: number;
-				};
-				teammates: string[]; // UUIDs of teammates (can be empty)
-
-				company: string;
-				tags: string[];
-				notes: string[];
-				time: Date;
-				scannerID: string;
-				employees: {
-					uuid: string;
-					name: string;
-					email: string;
-				}[]; // Single scanner can be associated with multiple employees
-			};
+			let visit = response.visit as IVisit;
 
 			document.getElementById("detail-name").textContent = visit.name;
 			document.getElementById("detail-major").textContent = visit.major || "Unknown Major";
@@ -170,6 +198,18 @@ namespace Employer {
 			}
 			else {
 				document.getElementById("detail-programming-languages").innerHTML = "<em>N/A</em>";
+			}
+			const tags = document.getElementById("detail-tags");
+			while (tags.firstChild) {
+				tags.removeChild(tags.firstChild);
+			}
+			if (visit.tags.length > 0) {
+				for (let tag of visit.tags) {
+					tags.appendChild(this.generateTag(tag));
+				}
+			}
+			else {
+				tags.innerHTML = "<em>No tags</em>";
 			}
 
 			const iframe = document.getElementById("detail-resume") as HTMLIFrameElement;
@@ -285,14 +325,14 @@ namespace Employer {
 			method: "GET",
 			credentials: "include"
 		};
-		let response: APIResponse = await fetch("/api/scan", options).then(response => response.json());
+		let response: APIResponse = await fetch("/api/visit", options).then(response => response.json());
 		if (!response.success) {
 			alert(response.error);
 			return;
 		}
-		let visits = response.visits as any[];
+		let visits = response.visits as IVisit[];
 		for (let visit of visits) {
-			scanningTable.addRow(new Date(visit.time), visit._id, visit.name, visit.major, visit.githubUsername, visit.website);
+			scanningTable.addRow(visit);
 		}
 	}
 	updateScanningTable().catch(err => console.error(err));

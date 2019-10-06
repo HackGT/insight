@@ -172,6 +172,12 @@ export const COOKIE_OPTIONS = {
 	"secure": config.server.cookieSecureOnly,
 	"httpOnly": true
 };
+export const DEFAULT_TAGS = [
+	"starred",
+	"flagged",
+	"recruiting",
+	"engineering"
+];
 
 //
 // Database connection
