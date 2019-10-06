@@ -28,6 +28,7 @@
 		</nav>
 		<template id="table-row">
 			<tr>
+				<td id="time"></td>
 				<td id="name"></td>
 				<td id="major"></td>
 				<td id="links">
@@ -71,10 +72,15 @@
 		</template>
 		<article class="modal">
 			<div class="modal-background"></div>
-			<div class="modal-content">
-				<div class="box">
-					<h1 class="title" id="detail-name"></h1>
-					<h2 class="subtitle" id="detail-major"></h2>
+			<div class="modal-card">
+				<header class="modal-card-head">
+					<div class="modal-title">
+						<h1 class="title" id="detail-name"></h1>
+						<h2 class="subtitle" id="detail-major"></h2>
+					</div>
+					<button class="delete" aria-label="close"></button>
+				</header>
+				<section class="modal-card-body">
 					<div class="columns">
 						<div class="column">
 							<h4 class="title is-4">Career goals</h4>
@@ -90,10 +96,13 @@
 						</div>
 					</div>
 					<iframe id="detail-resume"></iframe>
-					{{!-- <embed type="application/pdf" /> --}}
-				</div>
+				</section>
+				<footer class="modal-card-foot">
+					<button class="button is-danger">Delete visit</button>
+					<button class="button">Save changes</button>
+					<button class="button">Cancel</button>
+				</footer>
 			</div>
-			<button class="modal-close is-large" aria-label="close"></button>
 		</article>
 		<section id="scanning">
 			<h1 class="title">Scanning</h1>
@@ -110,6 +119,7 @@
 				<table class="table is-hoverable is-fullwidth" id="scanning-table">
 					<thead>
 						<tr>
+							<th>Time</th>
 							<th>Name</th>
 							<th>Major</th>
 							<th>Links</th>

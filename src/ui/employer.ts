@@ -59,7 +59,7 @@ namespace Employer {
 	// After association
 	const modal = document.querySelector(".modal");
 	document.querySelector(".modal-background").addEventListener("click", () => modal.classList.remove("is-active"));
-	document.querySelector(".modal-close").addEventListener("click", () => modal.classList.remove("is-active"));
+	modal.querySelector(".delete").addEventListener("click", () => modal.classList.remove("is-active"));
 	document.addEventListener("keydown", e => { if (e.key === "Escape") modal.classList.remove("is-active") });
 	class TableManager {
 		private readonly tbody: HTMLTableSectionElement;
@@ -74,8 +74,10 @@ namespace Employer {
 			this.template = document.getElementById("table-row") as HTMLTemplateElement;
 		}
 
-		public addRow(id: string, name: string, major?: string, githubUsername?: string, website?: string) {
+		public addRow(time: Date, id: string, name: string, major?: string, githubUsername?: string, website?: string) {
 			let row = document.importNode(this.template.content, true);
+			const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+			row.getElementById("time").textContent = `${time.getHours()}:${time.getMinutes()} on ${time.getDate()} ${months[time.getMonth()]}`;
 			row.getElementById("name").textContent = name;
 			row.getElementById("major").textContent = major || "Unknown";
 			const githubLink = row.querySelector(".github") as HTMLAnchorElement;
@@ -290,7 +292,7 @@ namespace Employer {
 		}
 		let visits = response.visits as any[];
 		for (let visit of visits) {
-			scanningTable.addRow(visit._id, visit.name, visit.major, visit.githubUsername, visit.website);
+			scanningTable.addRow(new Date(visit.time), visit._id, visit.name, visit.major, visit.githubUsername, visit.website);
 		}
 	}
 	updateScanningTable().catch(err => console.error(err));

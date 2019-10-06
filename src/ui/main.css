@@ -75,14 +75,13 @@ a > i {
 	vertical-align: middle;
 }
 
-.modal-content {
+.modal-card {
 	height: calc(90vh - 40px);
 	width: calc(90vw - 40px);
 }
-.modal-content > .box {
-	height: 100%;
-	width: 100%;
-	overflow: auto;
+.modal-title {
+	flex-grow: 1;
+	flex-shrink: 0;
 }
 embed, iframe {
 	width: 100%;
