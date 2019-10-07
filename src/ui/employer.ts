@@ -260,6 +260,21 @@ namespace Employer {
 			else {
 				tags.innerHTML = "<em>No tags</em>";
 			}
+			document.getElementById("detail-scanner").textContent = `${visit.scannerID} → ${visit.employees.map(e => e.name).join(", ")}`;
+			const notes = document.getElementById("detail-notes");
+			while (notes.firstChild) {
+				notes.removeChild(notes.firstChild);
+			}
+			for (let note of visit.notes) {
+				let noteElement = document.createElement("li");
+				noteElement.textContent = note;
+				notes.appendChild(noteElement);
+			}
+			if (visit.notes.length === 0) {
+				let noteElement = document.createElement("li");
+				noteElement.innerHTML = "<em>No notes yet</em>";
+				notes.appendChild(noteElement);
+			}
 
 			const iframe = document.getElementById("detail-resume") as HTMLIFrameElement;
 			if (visit.resume) {
