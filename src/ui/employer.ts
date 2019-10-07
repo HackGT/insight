@@ -181,22 +181,26 @@ namespace Employer {
 				tags.appendChild(this.generateTag(visit, tag));
 			}
 
-			const starAction = row.querySelector(".star-action") as HTMLButtonElement;
-			starAction.addEventListener("click", async () => {
-				starAction.disabled = true;
-				let addStar: boolean = visit.tags.indexOf("starred") === -1;
-				await sendRequest(addStar ? "POST" : "DELETE", `/api/visit/${visit._id}/tag`, { tag: "starred" }, false);
+			async function tagButton(name: string, e: MouseEvent) {
+				let button = e.target as HTMLButtonElement;
+				button.disabled = true;
+				let shouldAdd: boolean = visit.tags.indexOf(name) === -1;
+				await sendRequest(shouldAdd ? "POST" : "DELETE", `/api/visit/${visit._id}/tag`, { tag: name }, false);
 
-				if (addStar) {
-					tags.appendChild(this.generateTag(visit, "starred"));
-					visit.tags.push("starred");
+				if (shouldAdd) {
+					tags.appendChild(this.generateTag(visit, name));
+					visit.tags.push(name);
 				}
 				else {
-					tags.querySelector(`.tag[data-tag="starred"]`).parentElement!.parentElement!.remove();
-					visit.tags = visit.tags.filter(t => t !== "starred");
+					tags.querySelector(`.tag[data-tag="${name}"]`).parentElement!.parentElement!.remove();
+					visit.tags = visit.tags.filter(t => t !== name);
 				}
-				starAction.disabled = false;
-			});
+				button.disabled = false;
+			}
+			const starAction = row.querySelector(".star-action") as HTMLButtonElement;
+			starAction.addEventListener("click", tagButton.bind(this, "starred"));
+			const flagAction = row.querySelector(".flag-action") as HTMLButtonElement;
+			flagAction.addEventListener("click", tagButton.bind(this, "flagged"));
 			const tagAction = row.querySelector(".tag-action") as HTMLButtonElement;
 			tagAction.addEventListener("click", async () => {
 				tagAction.disabled = true;
@@ -216,26 +220,14 @@ namespace Employer {
 			const viewAction = row.querySelector(".view-action") as HTMLButtonElement;
 			viewAction.addEventListener("click", async () => {
 				viewAction.disabled = true;
-				await this.showModal(visit._id);
+				await this.showModal(visit);
 				viewAction.disabled = false;
 			});
 
 			this.tbody.appendChild(row);
 		}
 
-		public async showModal(id: string) {
-			let options: RequestInit = {
-				method: "GET",
-				credentials: "include"
-			};
-			let response: APIResponse = await fetch(`/api/visit/${id}`, options).then(response => response.json());
-			if (!response.success) {
-				alert(response.error);
-				return;
-			}
-			console.log(response.visit);
-			let visit = response.visit as IVisit;
-
+		public async showModal(visit: IVisit) {
 			document.getElementById("detail-name").textContent = visit.name;
 			document.getElementById("detail-major").textContent = visit.major || "Unknown Major";
 			if (visit.lookingFor && visit.lookingFor.timeframe && visit.lookingFor.timeframe.length > 0) {
