@@ -1,7 +1,12 @@
 import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
 import * as crypto from "crypto";
 import { Readable } from "stream";
 import * as AWS from "aws-sdk";
+const PDFParser = require("pdf2json");
+const mammoth = require("mammoth");
+import WordExtractor from "word-extractor";
 import * as express from "express";
 import { authenticateWithRedirect, uploadHandler } from "./middleware";
 import { IUser, User, IS3Options } from "./schema";
@@ -60,6 +65,48 @@ export class S3StorageEngine implements IStorageEngine {
 		await s3.headObject(object).promise();
 		return s3.getObject(object).createReadStream();
 	}
+	public async getText(name: string): Promise<string | null> {
+		return new Promise(async (resolve, reject) => {
+			let stream = await this.readFile(name);
+
+			if (path.extname(name) === ".pdf") {
+				let pdfParser = new PDFParser(this, 1);
+				pdfParser.on("pdfParser_dataError", (err: Error) => {
+					reject(err);
+				});
+				pdfParser.on("pdfParser_dataReady", () => {
+					resolve(pdfParser.getRawTextContent());
+				});
+				stream.pipe(pdfParser);
+			}
+			else if (path.extname(name) === ".docx") {
+				const tmpName = path.join(os.tmpdir(), crypto.randomBytes(16).toString("hex") + ".docx");
+				let fileStream = fs.createWriteStream(tmpName);
+				stream.once("finish", async () => {
+					let text = await mammoth.extractRawText({ path: tmpName });
+					await fs.promises.unlink(tmpName);
+					resolve(text.value);
+				});
+				stream.pipe(fileStream);
+			}
+			else if (path.extname(name) === ".doc") {
+				const tmpName = path.join(os.tmpdir(), crypto.randomBytes(16).toString("hex") + ".doc");
+				let fileStream = fs.createWriteStream(tmpName);
+				stream.once("finish", async () => {
+					let extractor = new WordExtractor();
+					let doc = await extractor.extract(tmpName);
+					let text = doc.getBody();
+					await fs.promises.unlink(tmpName);
+					resolve(text);
+				});
+				stream.pipe(fileStream);
+			}
+			else {
+				// Unsupported format
+				resolve(null);
+			}
+		});
+	}
 }
 
 export let storageRoutes = express.Router();
@@ -88,7 +135,7 @@ storageRoutes.route("/:file")
 
 		try {
 			let stream = await S3_ENGINE.readFile(request.params.file);
-			if (request.query.preview !== "true" && !request.query.key) {
+			if (request.query.download === "true") {
 				response.attachment(request.params.file);
 			}
 			stream.pipe(response);
