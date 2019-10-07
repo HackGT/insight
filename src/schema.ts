@@ -62,6 +62,7 @@ export type Model<T extends RootDocument> = T & mongoose.Document;
 interface IResume {
 	path: string;
 	size: number;
+	extractedText?: string;
 }
 
 export interface IUser extends RootDocument {
@@ -82,8 +83,6 @@ export interface IUser extends RootDocument {
 		verified: boolean;
 		scannerIDs: string[];
 	} | null;
-	// Only for participants
-	resume: IResume | null;
 }
 
 // This is basically a type definition that exists at runtime and is derived manually from the IUser definition above
@@ -112,10 +111,6 @@ export const User = mongoose.model<Model<IUser>>("User", new mongoose.Schema({
 		name: String,
 		verified: Boolean,
 		scannerIDs: [String]
-	},
-	resume: {
-		path: String,
-		size: Number
 	}
 }).index({
 	email: "text",
@@ -123,24 +118,7 @@ export const User = mongoose.model<Model<IUser>>("User", new mongoose.Schema({
 }));
 
 export interface IVisit extends RootDocument {
-	uuid: string;
-	name: string;
-	email: string;
-	major?: string;
-	githubUsername?: string;
-	website?: string;
-	lookingFor?: {
-		timeframe?: string[];
-		comments?: string;
-	};
-	interestingDetails?: {
-		favoriteLanguages?: string[];
-		proudOf?: string;
-		funFact?: string;
-	};
-	resume?: IResume;
-	teammates: string[]; // UUIDs of teammates (can be empty)
-
+	participant: string;
 	company: string;
 	tags: string[];
 	notes: string[];
@@ -154,27 +132,7 @@ export interface IVisit extends RootDocument {
 }
 
 export const Visit = mongoose.model<Model<IVisit>>("Visit", new mongoose.Schema({
-	uuid: String,
-	name: String,
-	email: String,
-	major: String,
-	githubUsername: String,
-	website: String,
-	lookingFor: {
-		timeframe: [String],
-		comments: String
-	},
-	interestingDetails: {
-		favoriteLanguages: [String],
-		proudOf: String,
-		funFact: String
-	},
-	resume: {
-		path: String,
-		size: Number
-	},
-	teammates: [String],
-
+	participant: String,
 	company: String,
 	tags: [String],
 	notes: [String],
@@ -197,6 +155,92 @@ export const Company = mongoose.model<Model<ICompany>>("Company", new mongoose.S
 	name: String,
 	tags: [String],
 	visits: [mongoose.Types.ObjectId]
+}));
+
+export interface IParticipant extends RootDocument {
+	uuid: string;
+	name: string;
+	email: string;
+	school?: string;
+	major?: string;
+	githubUsername?: string;
+	website?: string;
+	lookingFor?: {
+		timeframe?: string[];
+		comments?: string;
+	};
+	interestingDetails?: {
+		favoriteLanguages?: string[];
+		fun1: {
+			question: string;
+			answer?: string;
+		};
+		fun2: {
+			question: string;
+			answer?: string;
+		};
+	};
+	resume?: IResume;
+	teammates: string[]; // UUIDs of teammates (can be empty)
+
+	flagForUpdate: boolean; // Can be manually set to true to refresh cached data
+}
+
+export const Participant = mongoose.model<Model<IParticipant>>("Participant", new mongoose.Schema({
+	uuid: String,
+	name: String,
+	email: String,
+	school: String,
+	major: String,
+	githubUsername: String,
+	website: String,
+	lookingFor: {
+		timeframe: [String],
+		comments: String
+	},
+	interestingDetails: {
+		favoriteLanguages: [String],
+		fun1: {
+			question: String,
+			answer: String
+		},
+		fun2: {
+			question: String,
+			answer: String
+		},
+	},
+	resume: {
+		path: String,
+		size: Number,
+		extractedText: String
+	},
+	teammates: [String],
+
+	flagForUpdate: Boolean
+}).index({
+	"name": "text",
+	"school": "text",
+	"major": "text",
+	"lookingFor.timeframe": "text",
+	"lookingFor.comments": "text",
+	"interestingDetails.favoriteLanguages": "text",
+	"interestingDetails.fun1.answer": "text",
+	"interestingDetails.fun2.answer": "text",
+	"resume.extractedText": "text"
+}, {
+	"weights": {
+		// Default weight is 1
+		"name": 1,
+		"school": 2,
+		"major": 2,
+		"lookingFor.timeframe": 5,
+		"lookingFor.comments": 5,
+		"interestingDetails.favoriteLanguages": 5,
+		"interestingDetails.fun1.answer": 2,
+		"interestingDetails.fun2.answer": 2,
+		"resume.extractedText": 10
+	},
+	"name": "ParticipantSearchIndex"
 }));
 
 //

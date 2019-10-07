@@ -92,8 +92,15 @@ app.use("/api", apiRoutes);
 import { storageRoutes } from "./storage";
 app.use("/uploads", storageRoutes);
 
+import { taskDashboardRoutes, startTaskEngine } from "./tasks";
+app.use("/admin/tasks", taskDashboardRoutes);
+
 import { uiRoutes } from "./templates";
 app.use("/", uiRoutes);
+
+startTaskEngine().catch(err => {
+	throw err;
+});
 
 app.route("/version").get((request, response) => {
 	response.json({

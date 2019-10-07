@@ -1,8 +1,7 @@
 import * as crypto from "crypto";
 import * as express from "express";
-import { IUser, User, Company, IVisit, createNew, Visit, Model } from "./schema";
+import { IUser, User, Company, IVisit, createNew, Visit, Model, IParticipant, Participant } from "./schema";
 import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth, authenticateWithRedirect } from "./middleware";
-import { createVisit } from "./registration";
 import { config, formatName, DEFAULT_TAGS } from "./common";
 
 export let apiRoutes = express.Router();
@@ -27,7 +26,11 @@ apiRoutes.route("/tag")
 		});
 	});
 
-async function getVisit(request: express.Request, response: express.Response): Promise<Model<IVisit> | null> {
+interface IVisitWithParticipant {
+	visit: Model<IVisit>;
+	participant: Model<IParticipant>;
+}
+async function getVisit(request: express.Request, response: express.Response): Promise<IVisitWithParticipant | null> {
 	const user = request.user as IUser | undefined;
 	if (!user || !user.company || !user.company.verified) {
 		response.status(403).send();
@@ -40,13 +43,21 @@ async function getVisit(request: express.Request, response: express.Response): P
 		});
 		return null;
 	}
-	return visit;
+	const participant = await Participant.findOne({ uuid: visit.participant });
+	if (!participant) {
+		response.status(500).json({
+			"error": "Visit does not correspond to a valid participant"
+		});
+		return null;
+	}
+	return { visit, participant };
 }
 
 apiRoutes.route("/visit/:id/tag")
 	.get(isAnEmployer, async (request, response) => {
-		const visit = await getVisit(request, response);
-		if (!visit) return;
+		const data = await getVisit(request, response);
+		if (!data) return;
+		const { visit } = data;
 
 		response.json({
 			"success": true,
@@ -54,8 +65,9 @@ apiRoutes.route("/visit/:id/tag")
 		});
 	})
 	.post(isAnEmployer, postParser, async (request, response) => {
-		const visit = await getVisit(request, response);
-		if (!visit) return;
+		const data = await getVisit(request, response);
+		if (!data) return;
+		const { visit } = data;
 
 		const tag = (request.body.tag as string || "").trim().toLowerCase();
 		if (!tag) {
@@ -71,8 +83,9 @@ apiRoutes.route("/visit/:id/tag")
 		response.json({ "success": true });
 	})
 	.delete(isAnEmployer, postParser, async (request, response) => {
-		const visit = await getVisit(request, response);
-		if (!visit) return;
+		const data = await getVisit(request, response);
+		if (!data) return;
+		const { visit } = data;
 
 		const tag = (request.body.tag as string || "").trim().toLowerCase();
 		if (!tag) {
@@ -88,18 +101,14 @@ apiRoutes.route("/visit/:id/tag")
 
 apiRoutes.route("/visit/:id")
 	.get(isAnEmployer, async (request, response) => {
-		const visit = await getVisit(request, response);
-		if (!visit) return;
+		const data = await getVisit(request, response);
+		if (!data) return;
+		const { visit, participant } = data;
 
-		if (visit.resume) {
-			let time = Date.now();
-			let key = config.secrets.apiKey + time;
-			let hash = crypto.createHmac("sha256", key).update("/" + visit.resume.path).digest().toString("hex");
-			visit.resume.path = `/${visit.resume.path}?time=${time}&key=${hash}`;
-		}
 		response.json({
 			"success": true,
-			"visit": visit.toObject()
+			"visit": visit.toObject(),
+			"participant": participant.toObject()
 		});
 	});
 apiRoutes.route("/visit")
@@ -147,29 +156,31 @@ apiRoutes.route("/visit")
 			return;
 		}
 
-		let visit = await createVisit(uuid);
-		if (!visit) {
+		let participant = await Participant.findOne({ uuid });
+		if (!participant) {
 			response.status(400).json({
 				"error": "Invalid UUID"
 			});
 			return;
 		}
 
-		visit.company = company.name;
-		visit.tags = [];
-		visit.notes = [];
-		visit.time = new Date();
-		visit.scannerID = scannerID;
-		visit.employees = scanningEmployees.map(employee => ({
-			uuid: employee.uuid,
-			name: formatName(employee),
-			email: employee.email
-		}));
-
-		let visitDocument = createNew(Visit, visit as IVisit);
-		company.visits.push(visitDocument._id);
-		await visitDocument.save();
+		let visit = createNew(Visit, {
+			participant: participant.uuid,
+			company: company.name,
+			tags: [],
+			notes: [],
+			time: new Date(),
+			scannerID,
+			employees: scanningEmployees.map(employee => ({
+				uuid: employee.uuid,
+				name: formatName(employee),
+				email: employee.email
+			}))
+		});
+		company.visits.push(visit._id);
+		await visit.save();
 		await company.save();
+
 		response.json({
 			"success": true
 		});

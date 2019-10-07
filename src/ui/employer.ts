@@ -1,38 +1,53 @@
 namespace Employer {
 	// Slight differences (due to JSON representation) between this interface and the same one in schema.ts
-	interface IVisit {
-		_id: string;
-		uuid: string;
-		name: string;
-		email: string;
-		major?: string;
-		githubUsername?: string;
-		website?: string;
-		lookingFor?: {
-			timeframe?: string[];
-			comments?: string;
+	interface IVisitAndParticipant {
+		visit: {
+			_id: string;
+			participant: string;
+			company: string;
+			tags: string[];
+			notes: string[];
+			time: string;
+			scannerID: string;
+			employees: {
+				uuid: string;
+				name: string;
+				email: string;
+			}[]; // Single scanner can be associated with multiple employees
 		};
-		interestingDetails?: {
-			favoriteLanguages?: string[];
-			proudOf?: string;
-			funFact?: string;
-		};
-		resume?: {
-			path: string;
-			size: number;
-		};
-		teammates: string[]; // UUIDs of teammates (can be empty)
-
-		company: string;
-		tags: string[];
-		notes: string[];
-		time: string;
-		scannerID: string;
-		employees: {
+		participant: {
+			_id: string;
 			uuid: string;
 			name: string;
 			email: string;
-		}[]; // Single scanner can be associated with multiple employees
+			school?: string;
+			major?: string;
+			githubUsername?: string;
+			website?: string;
+			lookingFor?: {
+				timeframe?: string[];
+				comments?: string;
+			};
+			interestingDetails?: {
+				favoriteLanguages?: string[];
+				fun1: {
+					question: string;
+					answer?: string;
+				};
+				fun2: {
+					question: string;
+					answer?: string;
+				};
+			};
+			resume?: {
+				path: string;
+				size: number;
+				extractedText?: string;
+			};
+			teammates: string[]; // UUIDs of teammates (can be empty)
+
+			flagForUpdate: boolean; // Can be manually set to true to refresh cached data
+		};
 	}
 
 	function serializeQueryString(data: object): string {
@@ -110,7 +125,7 @@ namespace Employer {
 			this.template = document.getElementById("table-row") as HTMLTemplateElement;
 		}
 
-		private generateTag(visit: IVisit, tag: string): HTMLSpanElement | null {
+		private generateTag(visitData: IVisitAndParticipant, tag: string): HTMLSpanElement | null {
 			let control = document.createElement("div");
 			control.classList.add("control");
 			let tagContainer = document.createElement("div");
@@ -118,7 +133,7 @@ namespace Employer {
 			let tagSpan = document.createElement("span");
 			tagSpan.textContent = tag;
 			tagSpan.dataset.tag = tag;
-			tagSpan.dataset.id = visit._id;
+			tagSpan.dataset.id = visitData.visit._id;
 			tagSpan.classList.add("tag");
 			if (tag === "starred") {
 				tagSpan.classList.add("is-warning");
@@ -132,11 +147,11 @@ namespace Employer {
 			deleteButton.addEventListener("click", async () => {
 				if (locked) return;
 				locked = true;
-				await sendRequest("DELETE", `/api/visit/${visit._id}/tag`, { tag }, false);
+				await sendRequest("DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
 				control.remove();
-				visit.tags = visit.tags.filter(t => t !== tag);
+				visitData.visit.tags = visitData.visit.tags.filter(t => t !== tag);
 				if (modal.classList.contains("is-active")) {
-					let tagSpan = document.querySelector(`.tags-column .tag[data-tag="${tag}"][data-id="${visit._id}"]`);
+					let tagSpan = document.querySelector(`.tags-column .tag[data-tag="${tag}"][data-id="${visitData.visit._id}"]`);
 					if (tagSpan) {
 						tagSpan.parentElement!.parentElement!.remove();
 					}
@@ -150,23 +165,23 @@ namespace Employer {
 			return control;
 		}
 
-		public addRow(visit: IVisit) {
+		public addRow(visitData: IVisitAndParticipant) {
 			let row = document.importNode(this.template.content, true);
 			const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-			const time = new Date(visit.time);
+			const time = new Date(visitData.visit.time);
 			row.getElementById("time").textContent = `${time.getHours()}:${time.getMinutes()} on ${time.getDate()} ${months[time.getMonth()]}`;
-			row.getElementById("name").textContent = visit.name;
-			row.getElementById("major").textContent = visit.major || "Unknown";
+			row.getElementById("name").textContent = visitData.participant.name;
+			row.getElementById("major").textContent = visitData.participant.major || "Unknown";
 			const githubLink = row.querySelector(".github") as HTMLAnchorElement;
-			if (visit.githubUsername) {
-				githubLink.href = `https://github.com/${visit.githubUsername}`;
+			if (visitData.participant.githubUsername) {
+				githubLink.href = `https://github.com/${visitData.participant.githubUsername}`;
 			}
 			else {
 				githubLink.parentElement!.remove();
 			}
 			const websiteLink = row.querySelector(".website") as HTMLAnchorElement;
-			if (visit.website) {
-				websiteLink.href = visit.website;
+			if (visitData.participant.website) {
+				websiteLink.href = visitData.participant.website;
 			}
 			else {
 				websiteLink.parentElement!.remove();
@@ -177,23 +192,23 @@ namespace Employer {
 			while (tags.firstChild) {
 				tags.removeChild(tags.firstChild);
 			}
-			for (let tag of visit.tags) {
-				tags.appendChild(this.generateTag(visit, tag));
+			for (let tag of visitData.visit.tags) {
+				tags.appendChild(this.generateTag(visitData, tag));
 			}
 
 			async function tagButton(name: string, e: MouseEvent) {
 				let button = e.target as HTMLButtonElement;
 				button.disabled = true;
-				let shouldAdd: boolean = visit.tags.indexOf(name) === -1;
-				await sendRequest(shouldAdd ? "POST" : "DELETE", `/api/visit/${visit._id}/tag`, { tag: name }, false);
+				let shouldAdd: boolean = visitData.visit.tags.indexOf(name) === -1;
+				await sendRequest(shouldAdd ? "POST" : "DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag: name }, false);
 
 				if (shouldAdd) {
-					tags.appendChild(this.generateTag(visit, name));
-					visit.tags.push(name);
+					tags.appendChild(this.generateTag(visitData, name));
+					visitData.visit.tags.push(name);
 				}
 				else {
 					tags.querySelector(`.tag[data-tag="${name}"]`).parentElement!.parentElement!.remove();
-					visit.tags = visit.tags.filter(t => t !== name);
+					visitData.visit.tags = visitData.visit.tags.filter(t => t !== name);
 				}
 				button.disabled = false;
 			}
@@ -207,43 +222,44 @@ namespace Employer {
 
 				let tag = (prompt("Tag:") || "").trim().toLowerCase();
 				if (!tag) return;
-				if (visit.tags.indexOf(tag) !== -1) {
+				if (visitData.visit.tags.indexOf(tag) !== -1) {
 					tagAction.disabled = false;
 					return;
 				}
 
-				await sendRequest("POST", `/api/visit/${visit._id}/tag`, { tag }, false);
-				tags.appendChild(this.generateTag(visit, tag));
-				visit.tags.push(tag);
+				await sendRequest("POST", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
+				tags.appendChild(this.generateTag(visitData, tag));
+				visitData.visit.tags.push(tag);
 				tagAction.disabled = false;
 			});
 			const viewAction = row.querySelector(".view-action") as HTMLButtonElement;
 			viewAction.addEventListener("click", async () => {
 				viewAction.disabled = true;
-				await this.showModal(visit);
+				await this.showModal(visitData);
 				viewAction.disabled = false;
 			});
 
 			this.tbody.appendChild(row);
 		}
 
-		public async showModal(visit: IVisit) {
-			document.getElementById("detail-name").textContent = visit.name;
-			document.getElementById("detail-major").textContent = visit.major || "Unknown Major";
-			if (visit.lookingFor && visit.lookingFor.timeframe && visit.lookingFor.timeframe.length > 0) {
-				document.getElementById("detail-timeframe").textContent = visit.lookingFor.timeframe.join(", ");
+		public async showModal(visitData: IVisitAndParticipant) {
+			const participant = visitData.participant;
+			document.getElementById("detail-name").textContent = participant.name;
+			document.getElementById("detail-major").textContent = participant.major || "Unknown Major";
+			if (participant.lookingFor && participant.lookingFor.timeframe && participant.lookingFor.timeframe.length > 0) {
+				document.getElementById("detail-timeframe").textContent = participant.lookingFor.timeframe.join(", ");
 			}
 			else {
 				document.getElementById("detail-timeframe").innerHTML = "<em>N/A</em>";
 			}
-			if (visit.lookingFor && visit.lookingFor.comments) {
-				document.getElementById("detail-timeframe-comments").textContent = visit.lookingFor.comments;
+			if (participant.lookingFor && participant.lookingFor.comments) {
+				document.getElementById("detail-timeframe-comments").textContent = participant.lookingFor.comments;
 			}
 			else {
 				document.getElementById("detail-timeframe-comments").innerHTML = "<em>N/A</em>";
 			}
-			if (visit.interestingDetails && visit.interestingDetails.favoriteLanguages && visit.interestingDetails.favoriteLanguages.length > 0) {
-				document.getElementById("detail-programming-languages").textContent = visit.interestingDetails.favoriteLanguages.join(", ");
+			if (participant.interestingDetails && participant.interestingDetails.favoriteLanguages && participant.interestingDetails.favoriteLanguages.length > 0) {
+				document.getElementById("detail-programming-languages").textContent = participant.interestingDetails.favoriteLanguages.join(", ");
 			}
 			else {
 				document.getElementById("detail-programming-languages").innerHTML = "<em>N/A</em>";
@@ -252,37 +268,37 @@ namespace Employer {
 			while (tags.firstChild) {
 				tags.removeChild(tags.firstChild);
 			}
-			if (visit.tags.length > 0) {
-				for (let tag of visit.tags) {
-					tags.appendChild(this.generateTag(visit, tag));
+			if (visitData.visit.tags.length > 0) {
+				for (let tag of visitData.visit.tags) {
+					tags.appendChild(this.generateTag(visitData, tag));
 				}
 			}
 			else {
 				tags.innerHTML = "<em>No tags</em>";
 			}
-			document.getElementById("detail-scanner").textContent = `${visit.scannerID} → ${visit.employees.map(e => e.name).join(", ")}`;
+			document.getElementById("detail-scanner").textContent = `${visitData.visit.scannerID} → ${visitData.visit.employees.map(e => e.name).join(", ")}`;
 			const notes = document.getElementById("detail-notes");
 			while (notes.firstChild) {
 				notes.removeChild(notes.firstChild);
 			}
-			for (let note of visit.notes) {
+			for (let note of visitData.visit.notes) {
 				let noteElement = document.createElement("li");
 				noteElement.textContent = note;
 				notes.appendChild(noteElement);
 			}
-			if (visit.notes.length === 0) {
+			if (visitData.visit.notes.length === 0) {
 				let noteElement = document.createElement("li");
 				noteElement.innerHTML = "<em>No notes yet</em>";
 				notes.appendChild(noteElement);
 			}
 
 			const iframe = document.getElementById("detail-resume") as HTMLIFrameElement;
-			if (visit.resume) {
-				if (visit.resume.path.indexOf(".doc") !== -1) {
-					iframe.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + visit.resume.path)}`;
+			if (participant.resume) {
+				if (participant.resume.path.indexOf(".doc") !== -1) {
+					iframe.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + participant.resume.path)}`;
 				}
 				else {
-					iframe.src = visit.resume.path;
+					iframe.src = participant.resume.path;
 				}
 			}
 			else {
@@ -394,7 +410,7 @@ namespace Employer {
 			alert(response.error);
 			return;
 		}
-		let visits = response.visits as IVisit[];
+		let visits = response.visits as IVisitAndParticipant[];
 		for (let visit of visits) {
 			scanningTable.addRow(visit);
 		}

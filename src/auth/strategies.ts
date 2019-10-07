@@ -6,9 +6,9 @@ import requester from "request";
 import * as passport from "passport";
 import { Strategy as OAuthStrategy } from "passport-oauth2";
 
-import { config, formatSize } from "../common";
+import { config } from "../common";
 import { createNew, IUser, User } from "../schema";
-import { participantData } from "../registration";
+import { isParticipant } from "../registration";
 import { Request, Response, NextFunction } from "express";
 
 type PassportDone = (err: Error | null, user?: IUser | false, errMessage?: { message: string }) => void;
@@ -113,17 +113,13 @@ export class GroundTruthStrategy extends OAuthStrategy {
 	protected static async passportCallback(request: Request, accessToken: string, refreshToken: string, profile: IProfile, done: PassportDone) {
 		let user = await User.findOne({ uuid: profile.uuid });
 		if (!user) {
-			let registrationData = await participantData(profile.uuid);
+			let participant = await isParticipant(profile.uuid);
 
 			user = createNew<IUser>(User, {
 				...GroundTruthStrategy.defaultUserProperties,
 				...profile,
 				name: profile.nameParts,
-				type: registrationData ? "participant" : "employer",
-				resume: registrationData && registrationData.resumePath && registrationData.resumeSize ? {
-					path: registrationData.resumePath,
-					size: registrationData.resumeSize
-				} : null
+				type: participant ? "participant" : "employer",
 			});
 		}
 		else {

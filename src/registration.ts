@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
-import { config } from "./common";
-import { IVisit, User } from "./schema";
+import { config, mongoose, wait } from "./common";
+import { IVisit, User, IParticipant } from "./schema";
 
 if (!config.secrets.registration.key) {
 	throw new Error("Registration admin key not configured");
@@ -28,57 +28,12 @@ async function query<T>(query: string, variables?: { [name: string]: string }): 
 	}
 }
 
-export interface IParticipant {
-	resumePath: string | null;
-	resumeSize: number | null;
-}
-export async function participantData(uuid: string): Promise<IParticipant | null> {
-	interface QueryResponse {
-		user: {
-			applied: boolean;
-			confirmed: boolean;
-			application: {
-				data: {
-					file: {
-						path: string;
-						size: number;
-					} | null;
-				}[];
-			};
-		};
-	}
-	let data: QueryResponse = await query(`
-		query ($uuid: ID) {
-			user(id: $uuid) {
-				applied,
-				confirmed,
-				application {
-					data {
-						file {
-							path,
-							size
-						}
-					}
-				}
-			}
-		}
-	`, { uuid });
-
-	if (!data.user || !data.user.confirmed) {
-		return null;
-	}
-	let fileField = data.user.application.data.find(d => d.file !== null);
-	return {
-		resumePath: fileField ? fileField.file!.path : null,
-		resumeSize: fileField ? fileField.file!.size : null
-	};
-}
-
-export async function createVisit(uuid: string): Promise<Partial<IVisit> | null> {
+export async function getAllParticipants(): Promise<IParticipant[]> {
 	interface FormData {
 		type: string;
 		data: {
 			name: string;
+			label: string;
 			value: string | null;
 			values: (string | null)[] | null;
 			file: {
@@ -87,109 +42,159 @@ export async function createVisit(uuid: string): Promise<Partial<IVisit> | null>
 			} | null;
 		}[];
 	}
-	interface QueryResponse {
-		user: {
-			id: string;
-			name: string;
-			email: string;
-			application: FormData | null;
-			confirmation: FormData | null;
-			team: string | null;
-		};
+	interface UserData {
+		id: string;
+		name: string;
+		email: string;
+		team: string | null;
+		application: FormData | null;
+		confirmation: FormData | null;
+		pagination_token: string;
+	}
+	let users: UserData[] = [];
+	let page = "";
+	while (true) {
+		let data = await query<{ users: UserData[] }>(`
+			query ($page: ID!) {
+				users(n: 50, pagination_token: $page, filter: { accepted: true }) {
+					id,
+					name,
+					email,
+					team {
+						id
+					},
+					application {
+						type,
+						data {
+							name,
+							label,
+							value,
+							values,
+							file {
+								path,
+								size
+							}
+						}
+					},
+					confirmation {
+						type,
+						data {
+							name,
+							label,
+							value,
+							values,
+							file {
+								path,
+								size
+							}
+						}
+					},
+					pagination_token
+				}
+			}
+		`, { page });
+		if (!data || !data.users) {
+			return [];
+		}
+		if (data.users.length === 0) {
+			break;
+		}
+		users = users.concat(data.users);
+		page = users[users.length - 1].pagination_token;
+		await wait(1000);
 	}
 
+	return Promise.all(users.map(async user => {
+		let participant: IParticipant = {
+			_id: mongoose.Types.ObjectId(),
+			uuid: user.id,
+			name: user.name,
+			email: user.email,
+			teammates: [],
+			flagForUpdate: false
+		};
+		// TODO: need registration GraphQL API for listing teams
+
+		function getQuestionLabel(form: FormData, questionName: string): string | undefined {
+			let question = form.data.find(q => q.name === questionName);
+			if (!question) return undefined;
+			return question.label;
+		}
+		function getQuestionAnswer(form: FormData, questionName: string): string | undefined {
+			let question = form.data.find(q => q.name === questionName);
+			if (!question || !question.value) return undefined;
+			return question.value;
+		}
+		function getQuestionAnswers(form: FormData, questionName: string): string[] {
+			let question = form.data.find(q => q.name === questionName);
+			if (!question || !question.values) return [];
+			return question.values.filter(v => v !== null) as string[];
+		}
+
+		// This section must be updated to match current registration questions
+		// TODO: make configurable in admin panel somehow?
+		if (user.application && user.application.type === "Participant") {
+			participant.major = getQuestionAnswer(user.application, "major");
+			participant.githubUsername = getQuestionAnswer(user.application, "github");
+			participant.website = getQuestionAnswer(user.application, "website");
+			participant.lookingFor = {
+				timeframe: getQuestionAnswers(user.application, "employment"),
+				comments: getQuestionAnswer(user.application, "employment-2")
+			};
+
+			let resume = user.application.data.find(q => q.name === "resume");
+			if (!participant.resume && resume && resume.file) {
+				participant.resume = {
+					path: resume.file.path,
+					size: resume.file.size
+				};
+			}
+			if (user.confirmation) {
+				participant.interestingDetails = {
+					favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),
+					fun1: {
+						question: getQuestionLabel(user.confirmation, "fun") || "Unknown",
+						answer: getQuestionAnswer(user.confirmation, "fun"),
+					},
+					fun2: {
+						question: getQuestionLabel(user.confirmation, "fun-2") || "Unknown",
+						answer: getQuestionAnswer(user.confirmation, "fun-2"),
+					}
+				};
+			}
+		}
+
+		return participant;
+	}));
+}
+
+export async function isParticipant(uuid: string): Promise<boolean> {
+	interface QueryResponse {
+		user: {
+			applied: boolean;
+			accepted: boolean;
+			confirmed: boolean;
+			application: {
+				type: string;
+			} | null;
+		};
+	}
 	let data: QueryResponse = await query(`
 		query ($uuid: ID) {
 			user(id: $uuid) {
-				id,
-				name,
-				email,
+				applied,
+				accepted,
+				confirmed,
 				application {
-					type,
-					data {
-						name,
-						value,
-						values,
-						file {
-							path,
-							size
-						}
-					}
-				},
-				confirmation {
-					type,
-					data {
-						name,
-						value,
-						values,
-						file {
-							path,
-							size
-						}
-					}
-				}
-				team {
-					id
+					type
 				}
 			}
 		}
 	`, { uuid });
 
-	if (!data.user) return null;
-	let user = data.user;
-
-	let visit: Partial<IVisit> = {
-		uuid: user.id,
-		name: user.name,
-		email: user.email
-	};
-	// Check if user has logged into Insight and updated their resume
-	let insightUser = await User.findOne({ uuid: user.id });
-	if (insightUser && insightUser.resume && insightUser.resume.path) {
-		visit.resume = {
-			path: insightUser.resume.path,
-			size: insightUser.resume.size
-		};
+	const participantBranches = ["Participant", "Mentor", "Volunteer", "Organizer"];
+	if (!data.user || !data.user.confirmed || !data.user.accepted || !data.user.application || !participantBranches.includes(data.user.application.type)) {
+		return false;
 	}
-	// TODO: need registration GraphQL API for listing teams
-
-	function getQuestionAnswer(form: FormData, questionName: string): string | undefined {
-		let question = form.data.find(q => q.name === questionName);
-		if (!question || !question.value) return undefined;
-		return question.value;
-	}
-	function getQuestionAnswers(form: FormData, questionName: string): string[] {
-		let question = form.data.find(q => q.name === questionName);
-		if (!question || !question.values) return [];
-		return question.values.filter(v => v !== null) as string[];
-	}
-
-	// This section must be updated to match current registration questions
-	// TODO: make configurable in admin panel somehow?
-	if (user.application && user.application.type === "Participant") {
-		visit.major = getQuestionAnswer(user.application, "major");
-		visit.githubUsername = getQuestionAnswer(user.application, "github");
-		visit.website = getQuestionAnswer(user.application, "website");
-		visit.lookingFor = {
-			timeframe: getQuestionAnswers(user.application, "employment"),
-			comments: getQuestionAnswer(user.application, "employment-2")
-		};
-
-		let resume = user.application.data.find(q => q.name === "resume");
-		if (!visit.resume && resume && resume.file) {
-			visit.resume = {
-				path: resume.file.path,
-				size: resume.file.size
-			};
-		}
-		if (user.confirmation) {
-			visit.interestingDetails = {
-				favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),
-				proudOf: getQuestionAnswer(user.confirmation, "fun"),
-				funFact: getQuestionAnswer(user.confirmation, "fun-2")
-			};
-		}
-	}
-
-	return visit;
+	return true;
 }
