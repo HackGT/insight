@@ -29,11 +29,11 @@ namespace Employer {
 		};
 		interestingDetails?: {
 			favoriteLanguages?: string[];
-			fun1: {
+			fun1?: {
 				question: string;
 				answer?: string;
 			};
-			fun2: {
+			fun2?: {
 				question: string;
 				answer?: string;
 			};
@@ -226,6 +226,10 @@ namespace Employer {
 			const detailTimeframe = document.getElementById("detail-timeframe") as HTMLSpanElement;
 			const detailTimeframeComments = document.getElementById("detail-timeframe-comments") as HTMLSpanElement;
 			const detailProgrammingLanguages = document.getElementById("detail-programming-languages") as HTMLSpanElement;
+			const detailFun1Question = document.getElementById("detail-fun-1") as HTMLSpanElement;
+			const detailFun1Answer = document.getElementById("detail-fun-1-answer") as HTMLSpanElement;
+			const detailFun2Question = document.getElementById("detail-fun-2") as HTMLSpanElement;
+			const detailFun2Answer = document.getElementById("detail-fun-2-answer") as HTMLSpanElement;
 			const detailTags = document.getElementById("detail-tags") as HTMLDivElement;
 			const detailScanner = document.getElementById("detail-scanner") as HTMLSpanElement;
 			const detailNotes = document.getElementById("detail-notes") as HTMLUListElement;
@@ -245,11 +249,40 @@ namespace Employer {
 			else {
 				detailTimeframeComments.innerHTML = "<em>N/A</em>";
 			}
-			if (participant.interestingDetails && participant.interestingDetails.favoriteLanguages && participant.interestingDetails.favoriteLanguages.length > 0) {
-				detailProgrammingLanguages.textContent = participant.interestingDetails.favoriteLanguages.join(", ");
-			}
-			else {
-				detailProgrammingLanguages.innerHTML = "<em>N/A</em>";
+			const details = participant.interestingDetails;
+			if (details) {
+				if (details.favoriteLanguages && details.favoriteLanguages.length > 0) {
+					detailProgrammingLanguages.textContent = details.favoriteLanguages.join(", ");
+				}
+				else {
+					detailProgrammingLanguages.innerHTML = "<em>N/A</em>";
+				}
+				if (details.fun1) {
+					detailFun1Question.textContent = details.fun1.question;
+					if (details.fun1.answer) {
+						detailFun1Answer.textContent = details.fun1.answer;
+					}
+					else {
+						detailFun1Answer.innerHTML = "<em>N/A</em>";
+					}
+				}
+				else {
+					detailFun1Question.textContent = "";
+					detailFun1Answer.textContent = "";
+				}
+				if (details.fun2) {
+					detailFun2Question.textContent = details.fun2.question;
+					if (details.fun2.answer) {
+						detailFun2Answer.textContent = details.fun2.answer;
+					}
+					else {
+						detailFun2Answer.innerHTML = "<em>N/A</em>";
+					}
+				}
+				else {
+					detailFun2Question.textContent = "";
+					detailFun2Answer.textContent = "";
+				}
 			}
 
 			while (detailTags.firstChild) {
@@ -281,7 +314,7 @@ namespace Employer {
 			}
 
 			if (participant.resume) {
-				if (participant.resume.path.indexOf(".doc") !== -1) {
+				if (participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
 					detailResume.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + participant.resume.path)}`;
 				}
 				else {
