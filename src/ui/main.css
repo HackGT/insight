@@ -76,7 +76,7 @@ a > i {
 }
 
 .modal-card {
-	height: calc(90vh - 40px);
+	height: calc(95vh - 40px);
 	width: calc(90vw - 40px);
 }
 .modal-title {
@@ -99,4 +99,10 @@ embed, iframe {
 .tags-column {
 	word-wrap: break-word;
 	max-width: 160px;
+}
+.modal-card-body {
+	display: flex;
+	flex-direction: column;
+	padding-top: 10px;
+	padding-bottom: 5px;
 }
