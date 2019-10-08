@@ -34,7 +34,7 @@ apiRoutes.route("/search")
 			"success": true,
 			"results": participants.map((participant, i) => ({
 				participant: participant.toObject(),
-				visit: visits[i]
+				visit: visits[i] ? visits[i]!.toObject() : null
 			}))
 		});
 	});
@@ -162,10 +162,14 @@ apiRoutes.route("/visit")
 			.sort({ "time": "desc" })
 			.skip(page * PAGE_SIZE)
 			.limit(PAGE_SIZE);
+		let participants = await Promise.all(visits.map(visit => Participant.findOne({ uuid: visit.participant })));
 
 		response.json({
 			"success": true,
-			"visits": visits.map(visit => visit.toObject())
+			"visits": visits.map((visit, i) => ({
+				visit: visit.toObject(),
+				participant: participants[i] ? participants[i]!.toObject() : null
+			}))
 		});
 	})
 	.post(apiAuth, postParser, async (request, response) => {

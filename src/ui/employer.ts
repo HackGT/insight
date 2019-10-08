@@ -129,7 +129,8 @@ namespace Employer {
 			nameCell.textContent = visitData.participant.name;
 			majorCell.textContent = visitData.participant.major || "Unknown";
 			if (visitData.participant.githubUsername) {
-				githubLink.href = `https://github.com/${visitData.participant.githubUsername}`;
+				let username = visitData.participant.githubUsername.replace(/https:\/\/(www\.)?github.com\/?/ig, "");
+				githubLink.href = `https://github.com/${username}`;
 			}
 			else {
 				githubLink.parentElement!.remove();
@@ -146,7 +147,9 @@ namespace Employer {
 
 				const time = new Date(visitData.visit.time);
 				const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-				row.getElementById("time")!.textContent = `${time.getHours()}:${time.getMinutes()} on ${time.getDate()} ${months[time.getMonth()]}`;
+				const hours: string = (time.getHours() < 10 ? "0" : "") + time.getHours();
+				const minutes: string = (time.getMinutes() < 10 ? "0" : "") + time.getMinutes();
+				row.getElementById("time")!.textContent = `${hours}:${minutes} on ${time.getDate()} ${months[time.getMonth()]}`;
 
 				const tags = row.getElementById("tags") as HTMLDivElement;
 				// Remove all previous children
@@ -182,8 +185,7 @@ namespace Employer {
 					tagAction.disabled = true;
 
 					let tag = (prompt("Tag:") || "").trim().toLowerCase();
-					if (!tag) return;
-					if (visitData.visit.tags.indexOf(tag) !== -1) {
+					if (!tag || visitData.visit.tags.indexOf(tag) !== -1) {
 						tagAction.disabled = false;
 						return;
 					}
@@ -293,6 +295,59 @@ namespace Employer {
 		}
 	}
 
+	const scanningTable = new TableManager("scanning-table");
+	async function updateScanningTable() {
+		scanningTable.empty();
+		let options: RequestInit = {
+			method: "GET",
+			credentials: "include"
+		};
+		let response: APIResponse = await fetch("/api/visit", options).then(response => response.json());
+		if (!response.success) {
+			alert(response.error);
+			return;
+		}
+		let visits = response.visits as IParticipantWithVisit[];
+		for (let visit of visits) {
+			scanningTable.addRow(visit);
+		}
+	}
+
+	const searchTable = new TableManager("search-table");
+	const searchControl = document.getElementById("search-control") as HTMLDivElement;
+	const searchBox = document.getElementById("search-box") as HTMLInputElement;
+
+	const debounceTimeout = 500; // Milliseconds to wait before content is rendered to avoid hitting the server for every keystroke
+	function debounce(func: (...args: unknown[]) => void): (...args: unknown[]) => void {
+		let timer: number | null = null;
+		return () => {
+			searchControl.classList.add("is-loading");
+			if (timer) {
+				clearTimeout(timer);
+			}
+			timer = setTimeout(func, debounceTimeout) as unknown as number;
+		};
+	}
+	async function updateSearchTable() {
+		searchTable.empty();
+		let query = searchBox.value;
+		let options: RequestInit = {
+			method: "GET",
+			credentials: "include"
+		};
+		let response: APIResponse = await fetch(`/api/search?q=${query}`, options).then(response => response.json());
+		if (!response.success) {
+			alert(response.error);
+			return;
+		}
+		let results = response.results as IParticipantWithPossibleVisit[];
+		for (let result of results) {
+			searchTable.addRow(result);
+		}
+		searchControl.classList.remove("is-loading");
+	}
+	searchBox.addEventListener("keydown", debounce(updateSearchTable));
+
 	enum Tabs {
 		Scanning,
 		Search,
@@ -304,7 +359,7 @@ namespace Employer {
 	const searchContent = document.getElementById("search") as HTMLElement;
 	const settingsTab = document.getElementById("settings-tab") as HTMLElement;
 	const settingsContent = document.getElementById("settings") as HTMLElement;
-	function setTab(tab: Tabs) {
+	async function setTab(tab: Tabs) {
 		if (tab === Tabs.Scanning) {
 			scanningTab.classList.add("is-active");
 			searchTab.classList.remove("is-active");
@@ -312,6 +367,8 @@ namespace Employer {
 			scanningContent.hidden = false;
 			searchContent.hidden = true;
 			settingsContent.hidden = true;
+
+			await updateScanningTable();
 		}
 		else if (tab === Tabs.Search) {
 			scanningTab.classList.remove("is-active");
@@ -320,6 +377,8 @@ namespace Employer {
 			scanningContent.hidden = true;
 			searchContent.hidden = false;
 			settingsContent.hidden = true;
+
+			await updateSearchTable();
 		}
 		else if (tab === Tabs.Settings) {
 			scanningTab.classList.remove("is-active");
@@ -331,14 +390,14 @@ namespace Employer {
 		}
 		localStorage.setItem("tab", tab.toString());
 	}
-	scanningTab.addEventListener("click", () => {
-		setTab(Tabs.Scanning);
+	scanningTab.addEventListener("click", async () => {
+		await setTab(Tabs.Scanning);
 	});
-	searchTab.addEventListener("click", () => {
-		setTab(Tabs.Search);
+	searchTab.addEventListener("click", async () => {
+		await setTab(Tabs.Search);
 	});
-	settingsTab.addEventListener("click", () => {
-		setTab(Tabs.Settings);
+	settingsTab.addEventListener("click", async () => {
+		await setTab(Tabs.Settings);
 	});
 	let previousTab = localStorage.getItem("tab");
 	if (previousTab) {
@@ -361,56 +420,4 @@ namespace Employer {
 
 		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company || "")}/employee/${encodeURIComponent(dataset.email || "")}/scanners/${encodeURIComponent(scannerID)}`);
 	});
-
-	const scanningTable = new TableManager("scanning-table");
-	async function updateScanningTable() {
-		let options: RequestInit = {
-			method: "GET",
-			credentials: "include"
-		};
-		let response: APIResponse = await fetch("/api/visit", options).then(response => response.json());
-		if (!response.success) {
-			alert(response.error);
-			return;
-		}
-		let visits = response.visits as IParticipantWithVisit[];
-		for (let visit of visits) {
-			scanningTable.addRow(visit);
-		}
-	}
-	updateScanningTable().catch(err => console.error(err));
-
-	const searchTable = new TableManager("search-table");
-	const searchControl = document.getElementById("search-control") as HTMLDivElement;
-	const searchBox = document.getElementById("search-box") as HTMLInputElement;
-
-	const debounceTimeout = 500; // Milliseconds to wait before content is rendered to avoid hitting the server for every keystroke
-	function debounce(func: (...args: unknown[]) => void): (...args: unknown[]) => void {
-		let timer: number | null = null;
-		return () => {
-			searchControl.classList.add("is-loading");
-			if (timer) {
-				clearTimeout(timer);
-			}
-			timer = setTimeout(func, debounceTimeout) as unknown as number;
-		};
-	}
-	searchBox.addEventListener("keydown", debounce(async () => {
-		searchTable.empty();
-		let query = searchBox.value;
-		let options: RequestInit = {
-			method: "GET",
-			credentials: "include"
-		};
-		let response: APIResponse = await fetch(`/api/search?q=${query}`, options).then(response => response.json());
-		if (!response.success) {
-			alert(response.error);
-			return;
-		}
-		let results = response.results as IParticipantWithPossibleVisit[];
-		for (let result of results) {
-			searchTable.addRow(result);
-		}
-		searchControl.classList.remove("is-loading");
-	}));
 }
