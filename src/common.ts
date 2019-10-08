@@ -172,12 +172,6 @@ export const COOKIE_OPTIONS = {
 	"secure": config.server.cookieSecureOnly,
 	"httpOnly": true
 };
-export const DEFAULT_TAGS = [
-	"starred",
-	"flagged",
-	"recruiting",
-	"engineering"
-];
 
 export function wait(ms: number): Promise<void> {
 	return new Promise(resolve => {

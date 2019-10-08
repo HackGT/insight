@@ -7,7 +7,7 @@ import {
 	createNew, Model
 } from "./schema";
 import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth } from "./middleware";
-import { formatName, DEFAULT_TAGS } from "./common";
+import { formatName } from "./common";
 
 export let apiRoutes = express.Router();
 
@@ -36,26 +36,6 @@ apiRoutes.route("/search")
 				participant: participant.toObject(),
 				visit: visits[i] ? visits[i]!.toObject() : null
 			}))
-		});
-	});
-
-apiRoutes.route("/tag")
-	.get(isAnEmployer, async (request, response) => {
-		const user = request.user as IUser | undefined;
-		if (!user || !user.company || !user.company.verified) {
-			response.status(403).send();
-			return;
-		}
-		const company = await Company.findOne({ name: user.company.name });
-		if (!company) {
-			response.status(400).json({
-				"error": "User has invalid company"
-			});
-			return;
-		}
-		response.json({
-			"success": true,
-			"tags": company.tags
 		});
 	});
 
@@ -371,7 +351,7 @@ apiRoutes.route("/company/:company")
 				"error": "Company name cannot be blank"
 			});
 		}
-		let company = createNew(Company, { name, tags: DEFAULT_TAGS, visits: [] });
+		let company = createNew(Company, { name, visits: [] });
 		await company.save();
 		response.json({
 			"success": true
