@@ -1,232 +1,219 @@
 {{#> main title="Home"}}
 	{{#*inline "head-block"}}
+		<script src="/js/common.js"></script>
 		<script defer src="/js/employer.js"></script>
 	{{/inline}}
 
-	{{#if user.company.verified}}
-		<nav class="tabs is-fullwidth is-toggle is-toggle-rounded">
-			<ul>
-				<li class="is-active" id="scanning-tab">
-					<a>
-						<span class="icon is-small"><i class="fas fa-satellite-dish" aria-hidden="true"></i></span>
-						<span>Scanning</span>
-					</a>
-				</li>
-				<li id="search-tab">
-					<a>
-						<span class="icon is-small"><i class="fas fa-search" aria-hidden="true"></i></span>
-						<span>Search</span>
-					</a>
-				</li>
-				<li id="settings-tab">
-					<a>
-						<span class="icon is-small"><i class="fas fa-sliders-h" aria-hidden="true"></i></span>
-						<span>Settings</span>
-					</a>
-				</li>
-			</ul>
-		</nav>
-		<template id="table-row">
-			<tr>
-				<td id="time"></td>
-				<td id="name"></td>
-				<td id="major"></td>
-				<td id="links">
-					<div class="field has-addons">
-						<p class="control">
-							<a class="button is-medium github" href="" target="_blank">
-								<span class="icon">
-									<i class="fab fa-github"></i>
-								</span>
-							</a>
+	<nav class="tabs is-fullwidth is-toggle is-toggle-rounded">
+		<ul>
+			<li class="is-active" id="scanning-tab">
+				<a>
+					<span class="icon is-small"><i class="fas fa-satellite-dish" aria-hidden="true"></i></span>
+					<span>Scanning</span>
+				</a>
+			</li>
+			<li id="search-tab">
+				<a>
+					<span class="icon is-small"><i class="fas fa-search" aria-hidden="true"></i></span>
+					<span>Search</span>
+				</a>
+			</li>
+			<li id="settings-tab">
+				<a>
+					<span class="icon is-small"><i class="fas fa-sliders-h" aria-hidden="true"></i></span>
+					<span>Settings</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+	<template id="table-row">
+		<tr>
+			<td id="time"></td>
+			<td id="name"></td>
+			<td id="major"></td>
+			<td id="links">
+				<div class="field has-addons">
+					<p class="control">
+						<a class="button is-medium github" href="" target="_blank">
+							<span class="icon">
+								<i class="fab fa-github"></i>
+							</span>
+						</a>
+					</p>
+					<p class="control">
+						<a class="button is-medium website" href="" target="_blank">
+							<span class="icon">
+								<i class="fas fa-globe-americas"></i>
+							</span>
+						</a>
+					</p>
+				</div>
+			</td>
+			<td class="tags-column">
+				<div id="tags" class="field is-grouped is-grouped-multiline"></div>
+			</td>
+			<td id="actions">
+				<button class="button add-action">
+					<span class="icon">
+						<i class="fas fa-plus"></i>
+					</span>
+				</button>
+				<button class="button star-action">
+					<span class="icon">
+						<i class="fas fa-star"></i>
+					</span>
+				</button>
+				<button class="button flag-action">
+					<span class="icon">
+						<i class="fas fa-flag"></i>
+					</span>
+				</button>
+				<button class="button tag-action">
+					<span class="icon">
+						<i class="fas fa-tag"></i>
+					</span>
+				</button>
+				<button class="button view-action">
+					<span>View / Edit</span>
+					<span class="icon">
+						<i class="fas fa-external-link-alt"></i>
+					</span>
+				</button>
+			</td>
+		</tr>
+	</template>
+	<article class="modal">
+		<div class="modal-background"></div>
+		<div class="modal-card">
+			<header class="modal-card-head">
+				<div class="modal-title">
+					<h1 class="title" id="detail-name"></h1>
+					<h2 class="subtitle" id="detail-major"></h2>
+				</div>
+				<button class="delete" aria-label="close"></button>
+			</header>
+			<section class="modal-card-body">
+				<div class="columns">
+					<div class="column">
+						<h4 class="title is-4">Career goals</h4>
+						<p><strong>Looking for:</strong> <span id="detail-timeframe"></span></p>
+						<p><strong>Comments:</strong> <span id="detail-timeframe-comments"></span></p>
+					</div>
+					<div class="column">
+						<h4 class="title is-4">Interesting facts</h4>
+						<p><strong>Favorite programming languages:</strong> <span id="detail-programming-languages"></span></p>
+					</div>
+					<div class="column">
+						<h4 class="title is-4">Your notes</h4>
+						<p><strong>Scanner:</strong> <span id="detail-scanner"></span></p>
+						<div class="side-by-side-flex">
+							<strong>Tags:</strong>
+							<div class="field is-grouped is-grouped-multiline" id="detail-tags"></div>
+						</div>
+						<p>
+							<strong>Notes:</strong>
+							<ul id="detail-notes"></ul>
 						</p>
-						<p class="control">
-							<a class="button is-medium website" href="" target="_blank">
-								<span class="icon">
-									<i class="fas fa-globe-americas"></i>
-								</span>
-							</a>
-						</p>
 					</div>
-				</td>
-				<td class="tags-column">
-					<div id="tags" class="field is-grouped is-grouped-multiline"></div>
-				</td>
-				<td id="actions">
-					<button class="button star-action">
-						<span class="icon">
-							<i class="fas fa-star"></i>
-						</span>
-					</button>
-					<button class="button flag-action">
-						<span class="icon">
-							<i class="fas fa-flag"></i>
-						</span>
-					</button>
-					<button class="button tag-action">
-						<span class="icon">
-							<i class="fas fa-tag"></i>
-						</span>
-					</button>
-					<button class="button view-action">
-						<span>View / Edit</span>
-						<span class="icon">
-							<i class="fas fa-external-link-alt"></i>
-						</span>
-					</button>
-				</td>
-			</tr>
-		</template>
-		<article class="modal">
-			<div class="modal-background"></div>
-			<div class="modal-card">
-				<header class="modal-card-head">
-					<div class="modal-title">
-						<h1 class="title" id="detail-name"></h1>
-						<h2 class="subtitle" id="detail-major"></h2>
-					</div>
-					<button class="delete" aria-label="close"></button>
-				</header>
-				<section class="modal-card-body">
-					<div class="columns">
-						<div class="column">
-							<h4 class="title is-4">Career goals</h4>
-							<p><strong>Looking for:</strong> <span id="detail-timeframe"></span></p>
-							<p><strong>Comments:</strong> <span id="detail-timeframe-comments"></span></p>
-						</div>
-						<div class="column">
-							<h4 class="title is-4">Interesting facts</h4>
-							<p><strong>Favorite programming languages:</strong> <span id="detail-programming-languages"></span></p>
-						</div>
-						<div class="column">
-							<h4 class="title is-4">Your notes</h4>
-							<p><strong>Scanner:</strong> <span id="detail-scanner"></span></p>
-							<div class="side-by-side-flex">
-								<strong>Tags:</strong>
-								<div class="field is-grouped is-grouped-multiline" id="detail-tags"></div>
-							</div>
-							<p>
-								<strong>Notes:</strong>
-								<ul id="detail-notes"></ul>
-							</p>
-						</div>
-					</div>
-					<iframe id="detail-resume"></iframe>
-				</section>
-				<footer class="modal-card-foot">
-					<button class="button is-danger">Delete visit</button>
-					<button class="button">Save changes</button>
-					<button class="button">Close</button>
-				</footer>
-			</div>
-		</article>
-		<section id="scanning">
-			<h1 class="title">Scanning</h1>
-			{{#ifCond user.company.scannerIDs.length 0}}
-				<h2 class="subtitle">You aren't connected to a scanner! Head to the settings tab to configure a scanner.</h2>
+				</div>
+				<iframe id="detail-resume"></iframe>
+			</section>
+			<footer class="modal-card-foot">
+				<button class="button is-danger">Delete visit</button>
+				<button class="button">Save changes</button>
+				<button class="button">Close</button>
+			</footer>
+		</div>
+	</article>
+	<section id="scanning">
+		<h1 class="title">Scanning</h1>
+		{{#ifCond user.company.scannerIDs.length 0}}
+			<h2 class="subtitle">You aren't connected to a scanner! Head to the settings tab to configure a scanner.</h2>
+		{{else}}
+			{{#ifCond user.company.scannerIDs.length 1}}
+				<h2 class="subtitle">You're connected to this scanner: <strong>{{join user.company.scannerIDs}}</strong></h2>
 			{{else}}
-				{{#ifCond user.company.scannerIDs.length 1}}
-					<h2 class="subtitle">You're connected to this scanner: <strong>{{join user.company.scannerIDs}}</strong></h2>
-				{{else}}
-					<h2 class="subtitle">You're connected to these scanners: <strong>{{join user.company.scannerIDs}}</strong></h2>
-				{{/ifCond}}
+				<h2 class="subtitle">You're connected to these scanners: <strong>{{join user.company.scannerIDs}}</strong></h2>
 			{{/ifCond}}
-			<div class="table-container">
-				<table class="table is-hoverable is-fullwidth" id="scanning-table">
-					<thead>
-						<tr>
-							<th>Time</th>
-							<th>Name</th>
-							<th>Major</th>
-							<th>Links</th>
-							<th class="tags-column">Tags</th>
-							<th>Actions</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
-			</div>
-		</section>
-		<section id="search" hidden>
-			<h1>Search</h1>
-		</section>
-		<section id="settings" hidden>
-			<div class="columns">
-				<div class="column is-half is-offset-one-quarter">
-					<h1 class="title">Employees</h1>
+		{{/ifCond}}
+		<div class="table-container">
+			<table class="table is-hoverable is-fullwidth" id="scanning-table">
+				<thead>
+					<tr>
+						<th>Time</th>
+						<th>Name</th>
+						<th>Major</th>
+						<th>Links</th>
+						<th class="tags-column">Tags</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
+	</section>
+	<section id="search" hidden>
+		<h1 class="title">Search</h1>
+		<div class="control is-medium" id="search-control">
+			<input class="input is-medium" type="text" placeholder="Search names, resume content, skills, etc." id="search-box">
+		</div>
+		<br />
+		<div class="table-container">
+			<table class="table is-hoverable is-fullwidth" id="search-table">
+				<thead>
+					<tr>
+						<th>Time</th>
+						<th>Name</th>
+						<th>Major</th>
+						<th>Links</th>
+						<th class="tags-column">Tags</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
+	</section>
+	<section id="settings" hidden>
+		<div class="columns">
+			<div class="column is-half is-offset-one-quarter">
+				<h1 class="title">Employees</h1>
+				<ul>
+					{{#each this.users}}
+						<li class="single-line-button">
+							<span class="icon"><i class="fas fa-user-tie"></i></span>
+							<strong>{{formatName this.name}}</strong> ({{this.email}})&nbsp;&nbsp;|&nbsp;&nbsp;Scanner(s):
+							{{#if this.company.scannerIDs.length}}
+								<strong>{{join this.company.scannerIDs}}</strong>
+							{{else}}
+								<em>None</em>
+							{{/if}}
+							<button class="button is-link is-outlined set-scanner" data-company="{{../user.company.name}}"
+									data-email="{{this.email}}" data-scanners="{{join this.company.scannerIDs}}">Scanners</button>
+							{{#ifCond this.uuid ../user.uuid}}{{else}}
+								<button class="button is-danger is-outlined remove-employee" data-company="{{../user.company.name}}" data-email="{{this.email}}">Remove</button>
+							{{/ifCond}}
+						</li>
+					{{/each}}
+				</ul>
+				{{#if this.pendingUsers.length}}
+					<br />
+					<h5 class="title is-5">Pending employee requests</h5>
 					<ul>
-						{{#each this.users}}
+						{{#each this.pendingUsers}}
 							<li class="single-line-button">
-								<span class="icon"><i class="fas fa-user-tie"></i></span>
-								<strong>{{formatName this.name}}</strong> ({{this.email}})&nbsp;&nbsp;|&nbsp;&nbsp;Scanner(s):
-								{{#if this.company.scannerIDs.length}}
-									<strong>{{join this.company.scannerIDs}}</strong>
-								{{else}}
-									<em>None</em>
-								{{/if}}
-								<button class="button is-link is-outlined set-scanner" data-company="{{../user.company.name}}"
-										data-email="{{this.email}}" data-scanners="{{join this.company.scannerIDs}}">Scanners</button>
-								{{#ifCond this.uuid ../user.uuid}}{{else}}
-									<button class="button is-danger is-outlined remove-employee" data-company="{{../user.company.name}}" data-email="{{this.email}}">Remove</button>
-								{{/ifCond}}
+								<span class="icon"><i class="fas fa-user-clock"></i></span>
+								<strong>{{formatName this.name}}</strong> ({{this.email}})
+								<button class="button is-success is-outlined confirm-employee" data-company="{{../user.company.name}}"
+									data-email="{{this.email}}">Confirm</button>
 							</li>
 						{{/each}}
 					</ul>
-					{{#if this.pendingUsers.length}}
-						<br />
-						<h5 class="title is-5">Pending employee requests</h5>
-						<ul>
-							{{#each this.pendingUsers}}
-								<li class="single-line-button">
-									<span class="icon"><i class="fas fa-user-clock"></i></span>
-									<strong>{{formatName this.name}}</strong> ({{this.email}})
-									<button class="button is-success is-outlined confirm-employee" data-company="{{../user.company.name}}"
-										data-email="{{this.email}}">Confirm</button>
-								</li>
-							{{/each}}
-						</ul>
-					{{/if}}
-				</div>
-			</div>
-		</section>
-	{{else}}
-		<section class="columns">
-			<div class="column is-half is-offset-one-quarter">
-				<h1 class="title">Hello, {{formatName user.name}}!</h1>
-				<h2 class="subtitle">{{user.email}}</h2>
-				<p>In order to start using {{siteTitle}}, you'll need to be associated with company.</p>
-				{{#if user.company.name}}
-				<p>You're currently pending approval to join <strong>{{user.company.name}}</strong>.</p>
 				{{/if}}
-				<p class="content">
-					<div class="field has-addons">
-						<div class="control is-expanded">
-							<div class="select is-fullwidth">
-								<select id="company-request">
-									{{#if companies.length}}
-										<option disabled selected>Please select</option>
-									{{else}}
-										<option disabled selected>No companies available</option>
-									{{/if}}
-									{{#each companies}}
-										{{#ifCond this.name ../user.company.name}}
-											<option selected value="{{this.name}}">{{this.name}}</option>
-										{{else}}
-											<option value="{{this.name}}">{{this.name}}</option>
-										{{/ifCond}}
-									{{/each}}
-								</select>
-							</div>
-						</div>
-						<div class="control">
-							<button id="submit-company-request" class="button">Request to join</button>
-						</div>
-					</div>
-				</p>
-				<p class="content">Requests to join a company can be approved by existing members of your company or by HackGT staff.</p>
 			</div>
-		</section>
-	{{/if}}
+		</div>
+	</section>
+
 	<br />
 	<div class="field is-grouped is-grouped-centered">
 		{{#if user.admin}}

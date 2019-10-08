@@ -1,10 +1,43 @@
-import * as crypto from "crypto";
 import * as express from "express";
-import { IUser, User, Company, IVisit, createNew, Visit, Model, IParticipant, Participant } from "./schema";
-import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth, authenticateWithRedirect } from "./middleware";
-import { config, formatName, DEFAULT_TAGS } from "./common";
+import {
+	IUser, User,
+	ICompany, Company,
+	IVisit, Visit,
+	IParticipant, Participant,
+	createNew, Model
+} from "./schema";
+import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth } from "./middleware";
+import { formatName, DEFAULT_TAGS } from "./common";
 
 export let apiRoutes = express.Router();
+
+apiRoutes.route("/search")
+	.get(isAnEmployer, async (request, response) => {
+		let query: string = request.query.q || "";
+		const PAGE_SIZE = 20;
+		let page = parseInt(request.query.page, 10);
+		if (isNaN(page) || page < 0) {
+			page = 0;
+		}
+
+		let participants = await Participant
+			.find(
+				{ "$text": { "$search": query } },
+				{ "score": { "$meta": "textScore" } }
+			)
+			.sort({ "score": { $meta: "textScore" } })
+			.skip(page * PAGE_SIZE)
+			.limit(PAGE_SIZE);
+		let visits = await Promise.all(participants.map(participant => Visit.findOne({ participant: participant.uuid })));
+
+		response.json({
+			"success": true,
+			"results": participants.map((participant, i) => ({
+				participant: participant.toObject(),
+				visit: visits[i]
+			}))
+		});
+	});
 
 apiRoutes.route("/tag")
 	.get(isAnEmployer, async (request, response) => {

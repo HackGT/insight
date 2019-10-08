@@ -1,0 +1,55 @@
+{{#> main title="Home"}}
+	{{#*inline "head-block"}}
+		<script src="/js/common.js"></script>
+		<script defer src="/js/preemployer.js"></script>
+	{{/inline}}
+
+	<section class="columns">
+		<div class="column is-half is-offset-one-quarter">
+			<h1 class="title">Hello, {{formatName user.name}}!</h1>
+			<h2 class="subtitle">{{user.email}}</h2>
+			<p>In order to start using {{siteTitle}}, you'll need to be associated with company.</p>
+			{{#if user.company.name}}
+				<p>You're currently pending approval to join <strong>{{user.company.name}}</strong>.</p>
+			{{/if}}
+			<p class="content">
+				<div class="field has-addons">
+					<div class="control is-expanded">
+						<div class="select is-fullwidth">
+							<select id="company-request">
+								{{#if companies.length}}
+									<option disabled selected>Please select</option>
+								{{else}}
+									<option disabled selected>No companies available</option>
+								{{/if}}
+								{{#each companies}}
+									{{#ifCond this.name ../user.company.name}}
+										<option selected value="{{this.name}}">{{this.name}}</option>
+									{{else}}
+										<option value="{{this.name}}">{{this.name}}</option>
+									{{/ifCond}}
+								{{/each}}
+							</select>
+						</div>
+					</div>
+					<div class="control">
+						<button id="submit-company-request" class="button">Request to join</button>
+					</div>
+				</div>
+			</p>
+			<p class="content">Requests to join a company can be approved by existing members of your company or by HackGT staff.</p>
+		</div>
+	</section>
+
+	<br />
+	<div class="field is-grouped is-grouped-centered">
+		{{#if user.admin}}
+		<p class="control">
+			<a class="button is-medium" href="/admin">Admin Settings</a>
+		</p>
+		{{/if}}
+		<p class="control">
+			<a class="button is-medium" href="/logout">Log out</a>
+		</p>
+	</div>
+{{/main}}

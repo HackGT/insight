@@ -1,117 +1,66 @@
 namespace Employer {
-	// Slight differences (due to JSON representation) between this interface and the same one in schema.ts
-	interface IVisitAndParticipant {
-		visit: {
-			_id: string;
-			participant: string;
-			company: string;
-			tags: string[];
-			notes: string[];
-			time: string;
-			scannerID: string;
-			employees: {
-				uuid: string;
-				name: string;
-				email: string;
-			}[]; // Single scanner can be associated with multiple employees
-		};
-		participant: {
-			_id: string;
+	// Slight differences (due to JSON representation) between these interfaces and the same ones in schema.ts
+	interface IVisit {
+		_id: string;
+		participant: string;
+		company: string;
+		tags: string[];
+		notes: string[];
+		time: string;
+		scannerID: string;
+		employees: {
 			uuid: string;
 			name: string;
 			email: string;
-			school?: string;
-			major?: string;
-			githubUsername?: string;
-			website?: string;
-			lookingFor?: {
-				timeframe?: string[];
-				comments?: string;
-			};
-			interestingDetails?: {
-				favoriteLanguages?: string[];
-				fun1: {
-					question: string;
-					answer?: string;
-				};
-				fun2: {
-					question: string;
-					answer?: string;
-				};
-			};
-			resume?: {
-				path: string;
-				size: number;
-				extractedText?: string;
-			};
-			teammates: string[]; // UUIDs of teammates (can be empty)
-
-			flagForUpdate: boolean; // Can be manually set to true to refresh cached data
+		}[]; // Single scanner can be associated with multiple employees
+	}
+	interface IParticipant {
+		_id: string;
+		uuid: string;
+		name: string;
+		email: string;
+		school?: string;
+		major?: string;
+		githubUsername?: string;
+		website?: string;
+		lookingFor?: {
+			timeframe?: string[];
+			comments?: string;
 		};
-	}
-
-	function serializeQueryString(data: object): string {
-		return Object.keys(data).map(key => {
-			return encodeURIComponent(key) + "=" + encodeURIComponent(data[key]);
-		}).join("&");
-	}
-
-	interface APIResponse {
-		success?: boolean;
-		error?: string;
-		[other: string]: unknown;
-	}
-
-	async function sendRequest(method: "POST" | "DELETE" | "PUT" | "PATCH", url: string, data?: object, reload = true) {
-		let options: RequestInit = {
-			method,
-			credentials: "include"
-		};
-		if (data) {
-			options = {
-				...options,
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-				},
-				body: serializeQueryString(data)
+		interestingDetails?: {
+			favoriteLanguages?: string[];
+			fun1: {
+				question: string;
+				answer?: string;
 			};
-		}
+			fun2: {
+				question: string;
+				answer?: string;
+			};
+		};
+		resume?: {
+			path: string;
+			size: number;
+			extractedText?: string;
+		};
+		teammates: string[]; // UUIDs of teammates (can be empty)
 
-		let response: APIResponse = await fetch(url, options).then(response => response.json());
-		if (!response.success) {
-			alert(response.error);
-		}
-		else if (reload) {
-			window.location.reload();
-		}
+		flagForUpdate: boolean; // Can be manually set to true to refresh cached data
+	}
+	interface IParticipantWithPossibleVisit {
+		visit?: IVisit;
+		participant: IParticipant;
+	}
+	interface IParticipantWithVisit {
+		visit: IVisit;
+		participant: IParticipant;
 	}
 
-	// Before user is associated with a company
-
-	const companySelect = document.getElementById("company-request") as HTMLSelectElement | null;
-	const companyRequest = document.getElementById("submit-company-request") as HTMLButtonElement | null;
-	if (companySelect && companyRequest) {
-		companyRequest.addEventListener("click", async () => {
-			companySelect.disabled = true;
-			companyRequest.disabled = true;
-			try {
-				let company = companySelect.value;
-				if (!company || company === "Please select") return;
-
-				await sendRequest("POST", `/api/company/${encodeURIComponent(company)}/join`);
-			}
-			finally {
-				companySelect.disabled = false;
-				companyRequest.disabled = false;
-			}
-		});
-	}
-
-	// After association
-	const modal = document.querySelector(".modal");
-	document.querySelector(".modal-background").addEventListener("click", () => modal.classList.remove("is-active"));
-	modal.querySelector(".delete").addEventListener("click", () => modal.classList.remove("is-active"));
+	const modal = document.querySelector(".modal") as HTMLDivElement;
+	document.querySelector(".modal-background")!.addEventListener("click", () => modal.classList.remove("is-active"));
+	modal.querySelector(".delete")!.addEventListener("click", () => modal.classList.remove("is-active"));
 	document.addEventListener("keydown", e => { if (e.key === "Escape") modal.classList.remove("is-active") });
+
 	class TableManager {
 		private readonly tbody: HTMLTableSectionElement;
 		private readonly template: HTMLTemplateElement;
@@ -121,11 +70,11 @@ namespace Employer {
 			if (!table) {
 				throw new Error(`Could not find table with ID: ${id}`);
 			}
-			this.tbody = table.querySelector("tbody");
+			this.tbody = table.querySelector("tbody") as HTMLTableSectionElement;
 			this.template = document.getElementById("table-row") as HTMLTemplateElement;
 		}
 
-		private generateTag(visitData: IVisitAndParticipant, tag: string): HTMLSpanElement | null {
+		private generateTag(visitData: IParticipantWithVisit, tag: string): HTMLSpanElement {
 			let control = document.createElement("div");
 			control.classList.add("control");
 			let tagContainer = document.createElement("div");
@@ -150,7 +99,7 @@ namespace Employer {
 				await sendRequest("DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
 				control.remove();
 				visitData.visit.tags = visitData.visit.tags.filter(t => t !== tag);
-				if (modal.classList.contains("is-active")) {
+				if (modal!.classList.contains("is-active")) {
 					let tagSpan = document.querySelector(`.tags-column .tag[data-tag="${tag}"][data-id="${visitData.visit._id}"]`);
 					if (tagSpan) {
 						tagSpan.parentElement!.parentElement!.remove();
@@ -165,21 +114,26 @@ namespace Employer {
 			return control;
 		}
 
-		public addRow(visitData: IVisitAndParticipant) {
+		public addRow(visitData: IParticipantWithPossibleVisit) {
 			let row = document.importNode(this.template.content, true);
-			const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-			const time = new Date(visitData.visit.time);
-			row.getElementById("time").textContent = `${time.getHours()}:${time.getMinutes()} on ${time.getDate()} ${months[time.getMonth()]}`;
-			row.getElementById("name").textContent = visitData.participant.name;
-			row.getElementById("major").textContent = visitData.participant.major || "Unknown";
+
+			const nameCell = row.getElementById("name") as HTMLTableCellElement;
+			const majorCell = row.getElementById("major") as HTMLTableCellElement;
+			const addAction = row.querySelector(".add-action") as HTMLButtonElement;
+			const starAction = row.querySelector(".star-action") as HTMLButtonElement;
+			const flagAction = row.querySelector(".flag-action") as HTMLButtonElement;
+			const tagAction = row.querySelector(".tag-action") as HTMLButtonElement;
 			const githubLink = row.querySelector(".github") as HTMLAnchorElement;
+			const websiteLink = row.querySelector(".website") as HTMLAnchorElement;
+
+			nameCell.textContent = visitData.participant.name;
+			majorCell.textContent = visitData.participant.major || "Unknown";
 			if (visitData.participant.githubUsername) {
 				githubLink.href = `https://github.com/${visitData.participant.githubUsername}`;
 			}
 			else {
 				githubLink.parentElement!.remove();
 			}
-			const websiteLink = row.querySelector(".website") as HTMLAnchorElement;
 			if (visitData.participant.website) {
 				websiteLink.href = visitData.participant.website;
 			}
@@ -187,51 +141,65 @@ namespace Employer {
 				websiteLink.parentElement!.remove();
 			}
 
-			const tags = row.getElementById("tags");
-			// Remove all previous children
-			while (tags.firstChild) {
-				tags.removeChild(tags.firstChild);
-			}
-			for (let tag of visitData.visit.tags) {
-				tags.appendChild(this.generateTag(visitData, tag));
-			}
+			if (visitData.visit) {
+				addAction.remove();
 
-			async function tagButton(name: string, e: MouseEvent) {
-				let button = e.target as HTMLButtonElement;
-				button.disabled = true;
-				let shouldAdd: boolean = visitData.visit.tags.indexOf(name) === -1;
-				await sendRequest(shouldAdd ? "POST" : "DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag: name }, false);
+				const time = new Date(visitData.visit.time);
+				const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+				row.getElementById("time")!.textContent = `${time.getHours()}:${time.getMinutes()} on ${time.getDate()} ${months[time.getMonth()]}`;
 
-				if (shouldAdd) {
-					tags.appendChild(this.generateTag(visitData, name));
-					visitData.visit.tags.push(name);
+				const tags = row.getElementById("tags") as HTMLDivElement;
+				// Remove all previous children
+				while (tags.firstChild) {
+					tags.removeChild(tags.firstChild);
 				}
-				else {
-					tags.querySelector(`.tag[data-tag="${name}"]`).parentElement!.parentElement!.remove();
-					visitData.visit.tags = visitData.visit.tags.filter(t => t !== name);
+				for (let tag of visitData.visit.tags) {
+					tags.appendChild(this.generateTag(visitData as IParticipantWithVisit, tag));
 				}
-				button.disabled = false;
-			}
-			const starAction = row.querySelector(".star-action") as HTMLButtonElement;
-			starAction.addEventListener("click", tagButton.bind(this, "starred"));
-			const flagAction = row.querySelector(".flag-action") as HTMLButtonElement;
-			flagAction.addEventListener("click", tagButton.bind(this, "flagged"));
-			const tagAction = row.querySelector(".tag-action") as HTMLButtonElement;
-			tagAction.addEventListener("click", async () => {
-				tagAction.disabled = true;
 
-				let tag = (prompt("Tag:") || "").trim().toLowerCase();
-				if (!tag) return;
-				if (visitData.visit.tags.indexOf(tag) !== -1) {
+				const tagButton = async (name: string, e: MouseEvent) => {
+					if (!visitData.visit) return;
+					let button = e.target as HTMLButtonElement;
+					button.disabled = true;
+					let shouldAdd: boolean = visitData.visit.tags.indexOf(name) === -1;
+					await sendRequest(shouldAdd ? "POST" : "DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag: name }, false);
+
+					if (shouldAdd) {
+						tags.appendChild(this.generateTag(visitData as IParticipantWithVisit, name));
+						visitData.visit.tags.push(name);
+					}
+					else {
+						tags.querySelector(`.tag[data-tag="${name}"]`)!.parentElement!.parentElement!.remove();
+						visitData.visit.tags = visitData.visit.tags.filter(t => t !== name);
+					}
+					button.disabled = false;
+				}
+
+				starAction.addEventListener("click", tagButton.bind(this, "starred"));
+				flagAction.addEventListener("click", tagButton.bind(this, "flagged"));
+				tagAction.addEventListener("click", async () => {
+					if (!visitData.visit) return;
+					tagAction.disabled = true;
+
+					let tag = (prompt("Tag:") || "").trim().toLowerCase();
+					if (!tag) return;
+					if (visitData.visit.tags.indexOf(tag) !== -1) {
+						tagAction.disabled = false;
+						return;
+					}
+
+					await sendRequest("POST", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
+					tags.appendChild(this.generateTag(visitData as IParticipantWithVisit, tag));
+					visitData.visit.tags.push(tag);
 					tagAction.disabled = false;
-					return;
-				}
+				});
+			}
+			else {
+				starAction.remove();
+				flagAction.remove();
+				tagAction.remove();
+			}
 
-				await sendRequest("POST", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
-				tags.appendChild(this.generateTag(visitData, tag));
-				visitData.visit.tags.push(tag);
-				tagAction.disabled = false;
-			});
 			const viewAction = row.querySelector(".view-action") as HTMLButtonElement;
 			viewAction.addEventListener("click", async () => {
 				viewAction.disabled = true;
@@ -242,69 +210,86 @@ namespace Employer {
 			this.tbody.appendChild(row);
 		}
 
-		public async showModal(visitData: IVisitAndParticipant) {
+		public empty() {
+			while (this.tbody.firstChild) {
+				this.tbody.removeChild(this.tbody.firstChild);
+			}
+		}
+
+		public async showModal(visitData: IParticipantWithPossibleVisit) {
 			const participant = visitData.participant;
-			document.getElementById("detail-name").textContent = participant.name;
-			document.getElementById("detail-major").textContent = participant.major || "Unknown Major";
+
+			const detailName = document.getElementById("detail-name") as HTMLHeadingElement;
+			const detailMajor = document.getElementById("detail-major") as HTMLHeadingElement;
+			const detailTimeframe = document.getElementById("detail-timeframe") as HTMLSpanElement;
+			const detailTimeframeComments = document.getElementById("detail-timeframe-comments") as HTMLSpanElement;
+			const detailProgrammingLanguages = document.getElementById("detail-programming-languages") as HTMLSpanElement;
+			const detailTags = document.getElementById("detail-tags") as HTMLDivElement;
+			const detailScanner = document.getElementById("detail-scanner") as HTMLSpanElement;
+			const detailNotes = document.getElementById("detail-notes") as HTMLUListElement;
+			const detailResume = document.getElementById("detail-resume") as HTMLIFrameElement;
+
+			detailName.textContent = participant.name;
+			detailMajor.textContent = participant.major || "Unknown Major";
 			if (participant.lookingFor && participant.lookingFor.timeframe && participant.lookingFor.timeframe.length > 0) {
-				document.getElementById("detail-timeframe").textContent = participant.lookingFor.timeframe.join(", ");
+				detailTimeframe.textContent = participant.lookingFor.timeframe.join(", ");
 			}
 			else {
-				document.getElementById("detail-timeframe").innerHTML = "<em>N/A</em>";
+				detailTimeframe.innerHTML = "<em>N/A</em>";
 			}
 			if (participant.lookingFor && participant.lookingFor.comments) {
-				document.getElementById("detail-timeframe-comments").textContent = participant.lookingFor.comments;
+				detailTimeframeComments.textContent = participant.lookingFor.comments;
 			}
 			else {
-				document.getElementById("detail-timeframe-comments").innerHTML = "<em>N/A</em>";
+				detailTimeframeComments.innerHTML = "<em>N/A</em>";
 			}
 			if (participant.interestingDetails && participant.interestingDetails.favoriteLanguages && participant.interestingDetails.favoriteLanguages.length > 0) {
-				document.getElementById("detail-programming-languages").textContent = participant.interestingDetails.favoriteLanguages.join(", ");
+				detailProgrammingLanguages.textContent = participant.interestingDetails.favoriteLanguages.join(", ");
 			}
 			else {
-				document.getElementById("detail-programming-languages").innerHTML = "<em>N/A</em>";
-			}
-			const tags = document.getElementById("detail-tags");
-			while (tags.firstChild) {
-				tags.removeChild(tags.firstChild);
-			}
-			if (visitData.visit.tags.length > 0) {
-				for (let tag of visitData.visit.tags) {
-					tags.appendChild(this.generateTag(visitData, tag));
-				}
-			}
-			else {
-				tags.innerHTML = "<em>No tags</em>";
-			}
-			document.getElementById("detail-scanner").textContent = `${visitData.visit.scannerID} → ${visitData.visit.employees.map(e => e.name).join(", ")}`;
-			const notes = document.getElementById("detail-notes");
-			while (notes.firstChild) {
-				notes.removeChild(notes.firstChild);
-			}
-			for (let note of visitData.visit.notes) {
-				let noteElement = document.createElement("li");
-				noteElement.textContent = note;
-				notes.appendChild(noteElement);
-			}
-			if (visitData.visit.notes.length === 0) {
-				let noteElement = document.createElement("li");
-				noteElement.innerHTML = "<em>No notes yet</em>";
-				notes.appendChild(noteElement);
+				detailProgrammingLanguages.innerHTML = "<em>N/A</em>";
 			}
 
-			const iframe = document.getElementById("detail-resume") as HTMLIFrameElement;
-			if (participant.resume) {
-				if (participant.resume.path.indexOf(".doc") !== -1) {
-					iframe.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + participant.resume.path)}`;
+			while (detailTags.firstChild) {
+				detailTags.removeChild(detailTags.firstChild);
+			}
+			if (visitData.visit) {
+				if (visitData.visit.tags.length > 0) {
+					for (let tag of visitData.visit.tags) {
+						detailTags.appendChild(this.generateTag(visitData as IParticipantWithVisit, tag));
+					}
 				}
 				else {
-					iframe.src = participant.resume.path;
+					detailTags.innerHTML = "<em>No tags</em>";
+				}
+				detailScanner.textContent = `${visitData.visit.scannerID} → ${visitData.visit.employees.map(e => e.name).join(", ")}`;
+				while (detailNotes.firstChild) {
+					detailNotes.removeChild(detailNotes.firstChild);
+				}
+				for (let note of visitData.visit.notes) {
+					let noteElement = document.createElement("li");
+					noteElement.textContent = note;
+					detailNotes.appendChild(noteElement);
+				}
+				if (visitData.visit.notes.length === 0) {
+					let noteElement = document.createElement("li");
+					noteElement.innerHTML = "<em>No notes yet</em>";
+					detailNotes.appendChild(noteElement);
+				}
+			}
+
+			if (participant.resume) {
+				if (participant.resume.path.indexOf(".doc") !== -1) {
+					detailResume.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + participant.resume.path)}`;
+				}
+				else {
+					detailResume.src = participant.resume.path;
 				}
 			}
 			else {
-				iframe.hidden = true;
+				detailResume.hidden = true;
 			}
-			modal.classList.add("is-active");
+			modal!.classList.add("is-active");
 		}
 	}
 
@@ -313,12 +298,12 @@ namespace Employer {
 		Search,
 		Settings,
 	}
-	const scanningTab = document.getElementById("scanning-tab") as HTMLElement | null;
-	const scanningContent = document.getElementById("scanning") as HTMLElement | null;
-	const searchTab = document.getElementById("search-tab") as HTMLElement | null;
-	const searchContent = document.getElementById("search") as HTMLElement | null;
-	const settingsTab = document.getElementById("settings-tab") as HTMLElement | null;
-	const settingsContent = document.getElementById("settings") as HTMLElement | null;
+	const scanningTab = document.getElementById("scanning-tab") as HTMLElement;
+	const scanningContent = document.getElementById("scanning") as HTMLElement;
+	const searchTab = document.getElementById("search-tab") as HTMLElement;
+	const searchContent = document.getElementById("search") as HTMLElement;
+	const settingsTab = document.getElementById("settings-tab") as HTMLElement;
+	const settingsContent = document.getElementById("settings") as HTMLElement;
 	function setTab(tab: Tabs) {
 		if (tab === Tabs.Scanning) {
 			scanningTab.classList.add("is-active");
@@ -346,57 +331,35 @@ namespace Employer {
 		}
 		localStorage.setItem("tab", tab.toString());
 	}
-	if (scanningTab) {
-		scanningTab.addEventListener("click", () => {
-			setTab(Tabs.Scanning);
-		});
-	}
-	if (searchTab) {
-		searchTab.addEventListener("click", () => {
-			setTab(Tabs.Search);
-		});
-	}
-	if (settingsTab) {
-		settingsTab.addEventListener("click", () => {
-			setTab(Tabs.Settings);
-		});
-	}
+	scanningTab.addEventListener("click", () => {
+		setTab(Tabs.Scanning);
+	});
+	searchTab.addEventListener("click", () => {
+		setTab(Tabs.Search);
+	});
+	settingsTab.addEventListener("click", () => {
+		setTab(Tabs.Settings);
+	});
 	let previousTab = localStorage.getItem("tab");
 	if (previousTab) {
 		setTab(parseInt(previousTab, 10));
 	}
 
-	function setUpHandlers(classname: string, handler: (dataset: DOMStringMap) => Promise<void>) {
-		let buttons = document.getElementsByClassName(classname) as HTMLCollectionOf<HTMLButtonElement>;
-		for (let i = 0; i < buttons.length; i++) {
-			buttons[i].addEventListener("click", async e => {
-				let button = e.target as HTMLButtonElement;
-				button.disabled = true;
-				try {
-					await handler(button.dataset);
-				}
-				finally {
-					button.disabled = false;
-				}
-			});
-		}
-	}
-
 	setUpHandlers("confirm-employee", async dataset => {
 		if (!confirm(`Are you sure you want to add ${dataset.email} as an employee? They will have full access to your collected resumes and notes.`)) return;
 
-		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company)}/employee/${encodeURIComponent(dataset.email)}`);
+		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company || "")}/employee/${encodeURIComponent(dataset.email || "")}`);
 	});
 	setUpHandlers("remove-employee", async dataset => {
 		if (!confirm(`Are you sure you want to remove ${dataset.email}?`)) return;
 
-		await sendRequest("DELETE", `/api/company/${encodeURIComponent(dataset.company)}/employee/${encodeURIComponent(dataset.email)}`);
+		await sendRequest("DELETE", `/api/company/${encodeURIComponent(dataset.company || "")}/employee/${encodeURIComponent(dataset.email || "")}`);
 	});
 	setUpHandlers("set-scanner", async dataset => {
 		let scannerID = prompt("Scanner ID:", dataset.scanners);
 		if (scannerID === null) return;
 
-		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company)}/employee/${encodeURIComponent(dataset.email)}/scanners/${encodeURIComponent(scannerID)}`);
+		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company || "")}/employee/${encodeURIComponent(dataset.email || "")}/scanners/${encodeURIComponent(scannerID)}`);
 	});
 
 	const scanningTable = new TableManager("scanning-table");
@@ -410,10 +373,44 @@ namespace Employer {
 			alert(response.error);
 			return;
 		}
-		let visits = response.visits as IVisitAndParticipant[];
+		let visits = response.visits as IParticipantWithVisit[];
 		for (let visit of visits) {
 			scanningTable.addRow(visit);
 		}
 	}
 	updateScanningTable().catch(err => console.error(err));
+
+	const searchTable = new TableManager("search-table");
+	const searchControl = document.getElementById("search-control") as HTMLDivElement;
+	const searchBox = document.getElementById("search-box") as HTMLInputElement;
+
+	const debounceTimeout = 500; // Milliseconds to wait before content is rendered to avoid hitting the server for every keystroke
+	function debounce(func: (...args: unknown[]) => void): (...args: unknown[]) => void {
+		let timer: number | null = null;
+		return () => {
+			searchControl.classList.add("is-loading");
+			if (timer) {
+				clearTimeout(timer);
+			}
+			timer = setTimeout(func, debounceTimeout) as unknown as number;
+		};
+	}
+	searchBox.addEventListener("keydown", debounce(async () => {
+		searchTable.empty();
+		let query = searchBox.value;
+		let options: RequestInit = {
+			method: "GET",
+			credentials: "include"
+		};
+		let response: APIResponse = await fetch(`/api/search?q=${query}`, options).then(response => response.json());
+		if (!response.success) {
+			alert(response.error);
+			return;
+		}
+		let results = response.results as IParticipantWithPossibleVisit[];
+		for (let result of results) {
+			searchTable.addRow(result);
+		}
+		searchControl.classList.remove("is-loading");
+	}));
 }

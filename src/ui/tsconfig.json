@@ -6,10 +6,15 @@
 		"lib": [
 			"dom"
 		],
+		"strict": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
 		"moduleResolution": "node"
 	},
 	"files": [
 		"admin.ts",
+		"common.ts",
+		"preemployer.ts",
 		"employer.ts"
 	]
 }

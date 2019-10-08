@@ -63,6 +63,7 @@ export class Template<T extends TemplateContent> {
 	}
 }
 
+const PreEmployerTemplate = new Template("preemployer.hbs");
 const EmployerTemplate = new Template("employer.hbs");
 const LoginTemplate = new Template("login.hbs");
 const AdminTemplate = new Template("admin.hbs");
@@ -75,7 +76,9 @@ function serveStatic(url: string, file: string) {
 		fs.createReadStream(path.resolve("src/ui", file)).pipe(response);
 	});
 }
+serveStatic("/js/common.js", "common.js");
 serveStatic("/js/admin.js", "admin.js");
+serveStatic("/js/preemployer.js", "preemployer.js");
 serveStatic("/js/employer.js", "employer.js");
 serveStatic("/css/main.css", "main.css");
 
@@ -110,7 +113,12 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 			users,
 			pendingUsers
 		};
-		response.send(EmployerTemplate.render(templateData));
+		if (user.company && user.company.verified) {
+			response.send(EmployerTemplate.render(templateData));
+		}
+		else {
+			response.send(PreEmployerTemplate.render(templateData));
+		}
 	}
 	else {
 		response.send("Participant content here");
