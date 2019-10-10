@@ -206,6 +206,26 @@ namespace Employer {
 			}));
 			this.addNote.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
+
+				const note = (prompt("New note:") || "").trim();
+				if (!note) return;
+
+				await sendRequest("POST", `/api/visit/${this.openDetail.visit._id}/note`, { note }, false);
+
+				let options: RequestInit = {
+					method: "GET",
+					credentials: "include"
+				};
+				let response: APIResponse = await fetch(`/api/visit/${this.openDetail.participant.uuid}`, options).then(response => response.json());
+				if (!response.success) {
+					alert(response.error);
+					return;
+				}
+				let newDetails = {
+					visit: response.visit,
+					participant: response.participant
+				} as IParticipantWithVisit;
+				this.open(newDetails);
 			}));
 		}
 

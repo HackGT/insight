@@ -87,6 +87,7 @@ apiRoutes.route("/visit/:id/tag")
 			response.json({
 				"error": "Missing tag"
 			});
+			return;
 		}
 
 		let tags = new Set(visit.tags);
@@ -105,9 +106,29 @@ apiRoutes.route("/visit/:id/tag")
 			response.json({
 				"error": "Missing tag"
 			});
+			return;
 		}
 
 		visit.tags = visit.tags.filter(t => t !== tag);
+		await visit.save();
+		response.json({ "success": true });
+	});
+
+apiRoutes.route("/visit/:id/note")
+	.post(isAnEmployer, postParser, async (request, response) => {
+		const data = await getVisit(request, response);
+		if (!data) return;
+		const { visit } = data;
+
+		const note = (request.body.note as string || "").trim();
+		if (!note) {
+			response.json({
+				"error": "Missing note"
+			});
+			return;
+		}
+
+		visit.notes.push(note);
 		await visit.save();
 		response.json({ "success": true });
 	});
