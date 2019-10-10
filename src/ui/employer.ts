@@ -56,6 +56,12 @@ namespace Employer {
 		participant: IParticipant;
 	}
 
+	function emptyContainer(element: HTMLElement) {
+		while (element.firstChild) {
+			element.removeChild(element.firstChild);
+		}
+	}
+
 	const modal = document.querySelector(".modal") as HTMLDivElement;
 	document.querySelector(".modal-background")!.addEventListener("click", () => modal.classList.remove("is-active"));
 	modal.querySelector(".delete")!.addEventListener("click", () => modal.classList.remove("is-active"));
@@ -117,6 +123,7 @@ namespace Employer {
 		public addRow(visitData: IParticipantWithPossibleVisit) {
 			let row = document.importNode(this.template.content, true);
 
+			const timeCell = row.getElementById("time") as HTMLTableCellElement;
 			const nameCell = row.getElementById("name") as HTMLTableCellElement;
 			const majorCell = row.getElementById("major") as HTMLTableCellElement;
 			const addAction = row.querySelector(".add-action") as HTMLButtonElement;
@@ -149,13 +156,11 @@ namespace Employer {
 				const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 				const hours: string = (time.getHours() < 10 ? "0" : "") + time.getHours();
 				const minutes: string = (time.getMinutes() < 10 ? "0" : "") + time.getMinutes();
-				row.getElementById("time")!.textContent = `${hours}:${minutes} on ${time.getDate()} ${months[time.getMonth()]}`;
+				timeCell.textContent = `${hours}:${minutes} on ${time.getDate()} ${months[time.getMonth()]}`;
 
 				const tags = row.getElementById("tags") as HTMLDivElement;
 				// Remove all previous children
-				while (tags.firstChild) {
-					tags.removeChild(tags.firstChild);
-				}
+				emptyContainer(tags);
 				for (let tag of visitData.visit.tags) {
 					tags.appendChild(this.generateTag(visitData as IParticipantWithVisit, tag));
 				}
@@ -197,6 +202,7 @@ namespace Employer {
 				});
 			}
 			else {
+				timeCell.textContent = "-"
 				starAction.remove();
 				flagAction.remove();
 				tagAction.remove();
@@ -213,9 +219,7 @@ namespace Employer {
 		}
 
 		public empty() {
-			while (this.tbody.firstChild) {
-				this.tbody.removeChild(this.tbody.firstChild);
-			}
+			emptyContainer(this.tbody);
 		}
 
 		public async showModal(visitData: IParticipantWithPossibleVisit) {
@@ -236,14 +240,14 @@ namespace Employer {
 			const detailResume = document.getElementById("detail-resume") as HTMLIFrameElement;
 
 			detailName.textContent = participant.name;
-			detailMajor.textContent = participant.major || "Unknown Major";
-			if (participant.lookingFor && participant.lookingFor.timeframe && participant.lookingFor.timeframe.length > 0) {
+			detailMajor.textContent = participant.major ?? "Unknown Major";
+			if (participant.lookingFor?.timeframe?.length) {
 				detailTimeframe.textContent = participant.lookingFor.timeframe.join(", ");
 			}
 			else {
 				detailTimeframe.innerHTML = "<em>N/A</em>";
 			}
-			if (participant.lookingFor && participant.lookingFor.comments) {
+			if (participant.lookingFor?.comments) {
 				detailTimeframeComments.textContent = participant.lookingFor.comments;
 			}
 			else {
@@ -251,7 +255,7 @@ namespace Employer {
 			}
 			const details = participant.interestingDetails;
 			if (details) {
-				if (details.favoriteLanguages && details.favoriteLanguages.length > 0) {
+				if (details.favoriteLanguages?.length) {
 					detailProgrammingLanguages.textContent = details.favoriteLanguages.join(", ");
 				}
 				else {
@@ -285,9 +289,8 @@ namespace Employer {
 				}
 			}
 
-			while (detailTags.firstChild) {
-				detailTags.removeChild(detailTags.firstChild);
-			}
+			emptyContainer(detailTags);
+			emptyContainer(detailNotes);
 			if (visitData.visit) {
 				if (visitData.visit.tags.length > 0) {
 					for (let tag of visitData.visit.tags) {
@@ -298,9 +301,6 @@ namespace Employer {
 					detailTags.innerHTML = "<em>No tags</em>";
 				}
 				detailScanner.textContent = `${visitData.visit.scannerID} → ${visitData.visit.employees.map(e => e.name).join(", ")}`;
-				while (detailNotes.firstChild) {
-					detailNotes.removeChild(detailNotes.firstChild);
-				}
 				for (let note of visitData.visit.notes) {
 					let noteElement = document.createElement("li");
 					noteElement.textContent = note;
@@ -311,6 +311,9 @@ namespace Employer {
 					noteElement.innerHTML = "<em>No notes yet</em>";
 					detailNotes.appendChild(noteElement);
 				}
+			}
+			else {
+				detailScanner.innerHTML = "<em>Not scanned</em>";
 			}
 
 			if (participant.resume) {
@@ -324,7 +327,7 @@ namespace Employer {
 			else {
 				detailResume.hidden = true;
 			}
-			modal!.classList.add("is-active");
+			modal.classList.add("is-active");
 		}
 	}
 
