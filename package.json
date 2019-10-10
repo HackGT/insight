@@ -5,7 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "./node_modules/typescript/bin/tsc -b",
     "start": "node src/app.js",
     "report-build": "node bugsnag.js",
     "debug": "node --nolazy --inspect-brk=9229 src/app.js"
@@ -56,6 +56,7 @@
     "pdf-parse": "^1.1.1",
     "pdf2json": "^1.1.8",
     "request": "^2.88.0",
+    "typescript": "^3.7.0-dev.20191009",
     "word-extractor": "^0.3.0"
   }
 }
