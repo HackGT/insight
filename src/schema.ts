@@ -123,7 +123,7 @@ export interface IVisit extends RootDocument {
 	tags: string[];
 	notes: string[];
 	time: Date;
-	scannerID: string;
+	scannerID: string | null;
 	employees: {
 		uuid: string;
 		name: string;

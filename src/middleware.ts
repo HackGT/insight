@@ -65,7 +65,7 @@ export function apiAuth(request: express.Request, response: express.Response, ne
 			"error": "You must log in to access this endpoint"
 		});
 	}
-	else if (!user.admin) {
+	else if ((!user.company || !user.company.verified) && !user.admin) {
 		response.status(403).json({
 			"error": "You are not permitted to access this endpoint"
 		});

@@ -156,16 +156,29 @@ apiRoutes.route("/visit")
 		let scannerID = (request.body.scanner as string || "").trim().toLowerCase();
 		let uuid = (request.body.uuid as string || "").trim().toLowerCase();
 
-		let scanningEmployees = await User.find({ "company.verified": true, "company.scannerIDs": scannerID });
-		if (scanningEmployees.length === 0) {
-			response.status(400).json({
-				"error": "Invalid scanner ID"
-			});
-			return;
+		let scanningEmployees: IUser[] = [];
+		if (scannerID) {
+			scanningEmployees = await User.find({ "company.verified": true, "company.scannerIDs": scannerID });
+			if (scanningEmployees.length === 0) {
+				response.status(400).json({
+					"error": "Invalid scanner ID"
+				});
+				return;
+			}
+		}
+		else {
+			let user = request.user as IUser | undefined;
+			if (!user?.company?.verified) {
+				response.status(400).json({
+					"error": "Unauthorized user"
+				});
+				return;
+			}
+			scanningEmployees.push(user);
 		}
 
 		// Scanners are guaranteed to belong to only a single company
-		let company = await Company.findOne({ name: scanningEmployees[0].company!.name });
+		let company = await Company.findOne({ name: scanningEmployees[0].company?.name });
 		if (!company) {
 			response.status(400).json({
 				"error": "Could not match scanner to company"
@@ -187,7 +200,7 @@ apiRoutes.route("/visit")
 			tags: [],
 			notes: [],
 			time: new Date(),
-			scannerID,
+			scannerID: scannerID || null,
 			employees: scanningEmployees.map(employee => ({
 				uuid: employee.uuid,
 				name: formatName(employee),

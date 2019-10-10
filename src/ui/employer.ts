@@ -7,7 +7,7 @@ namespace Employer {
 		tags: string[];
 		notes: string[];
 		time: string;
-		scannerID: string;
+		scannerID: string | null;
 		employees: {
 			uuid: string;
 			name: string;
@@ -206,6 +206,16 @@ namespace Employer {
 				starAction.remove();
 				flagAction.remove();
 				tagAction.remove();
+
+				addAction.addEventListener("click", async () => {
+					tagAction.disabled = true;
+					await sendRequest("POST", "/api/visit", { uuid: visitData.participant.uuid }, false);
+					await Promise.all([
+						updateSearchTable(),
+						updateScanningTable()
+					]);
+					tagAction.disabled = false;
+				});
 			}
 
 			const viewAction = row.querySelector(".view-action") as HTMLButtonElement;
@@ -300,7 +310,7 @@ namespace Employer {
 				else {
 					detailTags.innerHTML = "<em>No tags</em>";
 				}
-				detailScanner.textContent = `${visitData.visit.scannerID} → ${visitData.visit.employees.map(e => e.name).join(", ")}`;
+				detailScanner.textContent = `${visitData.visit.scannerID ?? "Direct add"} → ${visitData.visit.employees.map(e => e.name).join(", ")}`;
 				for (let note of visitData.visit.notes) {
 					let noteElement = document.createElement("li");
 					noteElement.textContent = note;
