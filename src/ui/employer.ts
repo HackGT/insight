@@ -171,22 +171,7 @@ namespace Employer {
 				if (!this.openDetail) return;
 
 				await sendRequest("POST", "/api/visit", { uuid: this.openDetail.participant.uuid }, false);
-
-				let options: RequestInit = {
-					method: "GET",
-					credentials: "include"
-				};
-				let response: APIResponse = await fetch(`/api/visit/${this.openDetail.participant.uuid}`, options).then(response => response.json());
-				if (!response.success) {
-					alert(response.error);
-					return;
-				}
-				let newDetails = {
-					visit: response.visit,
-					participant: response.participant
-				} as IParticipantWithVisit;
-				this.open(newDetails);
-
+				await this.getAndRedraw();
 				await updateTables();
 			}));
 			this.addTag.addEventListener("click", asyncHandler(async () => {
@@ -211,21 +196,7 @@ namespace Employer {
 				if (!note) return;
 
 				await sendRequest("POST", `/api/visit/${this.openDetail.visit._id}/note`, { note }, false);
-
-				let options: RequestInit = {
-					method: "GET",
-					credentials: "include"
-				};
-				let response: APIResponse = await fetch(`/api/visit/${this.openDetail.participant.uuid}`, options).then(response => response.json());
-				if (!response.success) {
-					alert(response.error);
-					return;
-				}
-				let newDetails = {
-					visit: response.visit,
-					participant: response.participant
-				} as IParticipantWithVisit;
-				this.open(newDetails);
+				await this.getAndRedraw();
 			}));
 		}
 
@@ -233,7 +204,26 @@ namespace Employer {
 			return this.modal.classList.contains("is-active");
 		}
 
-		public open(visitData: IParticipantWithPossibleVisit) {
+		private async getAndRedraw() {
+			if (!this.openDetail) return;
+
+			let options: RequestInit = {
+				method: "GET",
+				credentials: "include"
+			};
+			let response: APIResponse = await fetch(`/api/visit/${this.openDetail.participant.uuid}`, options).then(response => response.json());
+			if (!response.success) {
+				alert(response.error);
+				return;
+			}
+			let newDetails = {
+				visit: response.visit,
+				participant: response.participant
+			} as IParticipantWithVisit;
+			this.open(newDetails, false);
+		}
+
+		public open(visitData: IParticipantWithPossibleVisit, loadResume = true) {
 			this.openDetail = visitData;
 			const participant = visitData.participant;
 
@@ -308,10 +298,21 @@ namespace Employer {
 				for (let note of visitData.visit.notes) {
 					let noteElement = document.createElement("li");
 					noteElement.textContent = note;
+
+					let noteActionsTemplate = document.getElementById("note-actions") as HTMLTemplateElement;
+					let noteActions = document.importNode(noteActionsTemplate.content, true);
+					(noteActions.querySelector(".detail-note-delete") as HTMLButtonElement).addEventListener("click", asyncHandler(async () => {
+						if (!this.openDetail?.visit) return;
+						if (!confirm("Are you sure that you want to delete this note?")) return;
+						await sendRequest("DELETE", `/api/visit/${this.openDetail.visit._id}/note`, { note }, false);
+						await this.getAndRedraw();
+					}));
+					noteElement.appendChild(noteActions);
 					this.notes.appendChild(noteElement);
 				}
 				if (visitData.visit.notes.length === 0) {
 					let noteElement = document.createElement("li");
+					noteElement.classList.add("no-prefix");
 					noteElement.innerHTML = "<em>No notes yet</em>";
 					this.notes.appendChild(noteElement);
 				}
@@ -326,16 +327,18 @@ namespace Employer {
 				this.scanner.innerHTML = "<em>Not scanned</em>";
 			}
 
-			if (participant.resume) {
-				if (participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
-					this.resume.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + participant.resume.path)}`;
+			if (loadResume) {
+				if (participant.resume) {
+					if (participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
+						this.resume.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + participant.resume.path)}`;
+					}
+					else {
+						this.resume.src = participant.resume.path;
+					}
 				}
 				else {
-					this.resume.src = participant.resume.path;
+					this.resume.hidden = true;
 				}
-			}
-			else {
-				this.resume.hidden = true;
 			}
 			this.modal.classList.add("is-active");
 		}

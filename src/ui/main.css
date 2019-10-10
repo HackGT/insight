@@ -112,3 +112,9 @@ embed, iframe {
 	padding-top: 10px;
 	padding-bottom: 5px;
 }
+#detail-notes > li:not(.no-prefix)::before {
+	content: "– ";
+}
+#detail-notes > li > .button {
+	margin: 1px;
+}
