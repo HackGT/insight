@@ -33,39 +33,26 @@ namespace Admin {
 	});
 
 	const addCompanyButton = document.getElementById("add-company") as HTMLButtonElement;
-	addCompanyButton.addEventListener("click", async () => {
-		try {
-			addCompanyButton.disabled = true;
-			const nameField = document.getElementById("company-name") as HTMLInputElement;
-			let name = nameField.value.trim();
-			if (!name) {
-				alert("Company name cannot be blank");
-				return;
-			}
+	addCompanyButton.addEventListener("click", asyncHandler(async () => {
+		const nameField = document.getElementById("company-name") as HTMLInputElement;
+		let name = nameField.value.trim();
+		if (!name) {
+			alert("Company name cannot be blank");
+			return;
+		}
 
-			await sendRequest("POST", `/api/company/${encodeURIComponent(name)}`);
-		}
-		finally {
-			addCompanyButton.disabled = false;
-		}
-	});
+		await sendRequest("POST", `/api/company/${encodeURIComponent(name)}`);
+	}));
 
 
 	const addAdminButton = document.getElementById("admin-promote") as HTMLButtonElement;
-	addAdminButton.addEventListener("click", async () => {
+	addAdminButton.addEventListener("click", asyncHandler(async () => {
 		let emailField = document.getElementById("admin-email") as HTMLInputElement;
-		try {
-			addAdminButton.disabled = true;
-			let email = emailField.value.trim();
-			if (!email) return;
+		let email = emailField.value.trim();
+		if (!email) return;
 
-			await sendRequest("POST", "/api/admin", { email });
-		}
-		finally {
-			emailField.value = "";
-			addAdminButton.disabled = false;
-		}
-	});
+		await sendRequest("POST", "/api/admin", { email });
+	}));
 
 	setUpHandlers("delete-admin", async dataset => {
 		if (!confirm("Are you sure you want to revoke admin privileges from this user?")) return;

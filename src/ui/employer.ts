@@ -132,7 +132,6 @@ namespace Employer {
 			document.getElementById("detail-close")!.addEventListener("click", () => this.close());
 			document.addEventListener("keydown", e => { if (e.key === "Escape") this.close() });
 
-			// TODO: fix disable instances
 			this.delete.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
 			}));
@@ -353,10 +352,8 @@ namespace Employer {
 					tags.appendChild(generateTag(visitData as IParticipantWithVisit, tag));
 				}
 
-				const tagButton = async (name: string, e: MouseEvent) => {
+				const tagButton = async (name: string) => {
 					if (!visitData.visit) return;
-					let button = e.target as HTMLButtonElement;
-					button.disabled = true;
 					let shouldAdd: boolean = visitData.visit.tags.indexOf(name) === -1;
 					await sendRequest(shouldAdd ? "POST" : "DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag: name }, false);
 
@@ -368,26 +365,20 @@ namespace Employer {
 						tags.querySelector(`.tag[data-tag="${name}"]`)!.parentElement!.parentElement!.remove();
 						visitData.visit.tags = visitData.visit.tags.filter(t => t !== name);
 					}
-					button.disabled = false;
 				}
 
-				starAction.addEventListener("click", tagButton.bind(this, "starred"));
-				flagAction.addEventListener("click", tagButton.bind(this, "flagged"));
-				tagAction.addEventListener("click", async () => {
+				starAction.addEventListener("click", asyncHandler(tagButton.bind(this, "starred")));
+				flagAction.addEventListener("click", asyncHandler(tagButton.bind(this, "flagged")));
+				tagAction.addEventListener("click", asyncHandler(async () => {
 					if (!visitData.visit) return;
-					tagAction.disabled = true;
 
 					let tag = (prompt("Tag:") || "").trim().toLowerCase();
-					if (!tag || visitData.visit.tags.indexOf(tag) !== -1) {
-						tagAction.disabled = false;
-						return;
-					}
+					if (!tag || visitData.visit.tags.indexOf(tag) !== -1) return;
 
 					await sendRequest("POST", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
 					tags.appendChild(generateTag(visitData as IParticipantWithVisit, tag));
 					visitData.visit.tags.push(tag);
-					tagAction.disabled = false;
-				});
+				}));
 			}
 			else {
 				timeCell.textContent = "-"
@@ -395,15 +386,13 @@ namespace Employer {
 				flagAction.remove();
 				tagAction.remove();
 
-				addAction.addEventListener("click", async () => {
-					addAction.disabled = true;
+				addAction.addEventListener("click", asyncHandler(async () => {
 					await sendRequest("POST", "/api/visit", { uuid: visitData.participant.uuid }, false);
 					await Promise.all([
 						updateSearchTable(),
 						updateScanningTable()
 					]);
-					addAction.disabled = false;
-				});
+				}));
 			}
 
 			const viewAction = row.querySelector(".view-action") as HTMLButtonElement;

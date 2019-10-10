@@ -39,25 +39,18 @@ type Dataset = { [key: string]: string | undefined };
 function setUpHandlers(classname: string, handler: (dataset: Dataset) => Promise<void>) {
 	let buttons = document.getElementsByClassName(classname) as HTMLCollectionOf<HTMLButtonElement>;
 	for (let i = 0; i < buttons.length; i++) {
-		buttons[i].addEventListener("click", async e => {
-			let button = e.target as HTMLButtonElement;
-			button.disabled = true;
-			try {
-				await handler(button.dataset as Dataset);
-			}
-			finally {
-				button.disabled = false;
-			}
-		});
+		buttons[i].addEventListener("click", asyncHandler(async button => {
+			await handler(button?.dataset as Dataset);
+		}));
 	}
 }
-function asyncHandler(action: () => Promise<void>): (e: MouseEvent) => Promise<void> {
+function asyncHandler(action: (button?: HTMLButtonElement) => Promise<void>): (e: MouseEvent) => Promise<void> {
 	return async (e: MouseEvent) => {
-		const button = e.target as HTMLButtonElement | undefined;
+		const button = e.currentTarget as HTMLButtonElement | undefined;
 		if (!button) return;
 		button.classList.add("is-loading");
 		try {
-			await action();
+			await action(button);
 		}
 		finally {
 			button.classList.remove("is-loading");
