@@ -45,7 +45,7 @@ interface IVisitWithParticipant {
 }
 async function getVisit(request: express.Request, response: express.Response): Promise<IVisitWithParticipant | null> {
 	const user = request.user as IUser | undefined;
-	if (!user || !user.company || !user.company.verified) {
+	if (!user?.company?.verified) {
 		response.status(403).send();
 		return null;
 	}
@@ -177,6 +177,26 @@ apiRoutes.route("/visit/:id")
 			"visit": visit.toObject(),
 			"participant": participant.toObject()
 		});
+	})
+	.delete(isAnEmployer, async (request, response) => {
+		const data = await getVisit(request, response);
+		if (!data) return;
+		const { visit } = data;
+		const user = request.user as IUser;
+
+		const company = await Company.findOne({ name: user.company!.name });
+		if (!company) {
+			response.json({
+				"error": "Could not find company for user"
+			});
+			return;
+		}
+		company.visits = company.visits.filter(v => !v.equals(visit._id));
+		await Promise.all([
+			company.save(),
+			visit.remove()
+		]);
+		response.json({ "success": true });
 	});
 apiRoutes.route("/visit")
 	.get(isAnEmployer, async (request, response) => {

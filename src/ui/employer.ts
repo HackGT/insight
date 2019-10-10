@@ -166,6 +166,10 @@ namespace Employer {
 
 			this.delete.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
+				if (!confirm("Are you sure that you want to delete this visit? All associated data such as tags and notes will be lost!")) return;
+				await sendRequest("DELETE", `/api/visit/${this.openDetail.visit._id}`, undefined, false);
+				await updateTables();
+				this.close();
 			}));
 			this.addVisit.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail) return;
