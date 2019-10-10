@@ -102,6 +102,31 @@ namespace Employer {
 		return control;
 	}
 
+	function tagButtonHandler(visitData: IParticipantWithVisit, tagArea: HTMLDivElement, tag?: string): () => Promise<void> {
+		return async () => {
+			if (!visitData.visit) return;
+
+			if (!tag) {
+				tag = (prompt("Tag:") || "").trim().toLowerCase();
+				if (!tag || visitData.visit.tags.indexOf(tag) !== -1) return;
+			}
+
+			let shouldAdd: boolean = visitData.visit.tags.indexOf(tag) === -1;
+			await sendRequest(shouldAdd ? "POST" : "DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
+
+			if (shouldAdd) {
+				// Gets rid of <em>No tags</em>
+				tagArea.querySelector("em")?.remove();
+				tagArea.appendChild(generateTag(visitData as IParticipantWithVisit, tag));
+				visitData.visit.tags.push(tag);
+			}
+			else {
+				tagArea.querySelector(`.tag[data-tag="${tag}"]`)!.parentElement!.parentElement!.remove();
+				visitData.visit.tags = visitData.visit.tags.filter(t => t !== tag);
+			}
+		}
+	}
+
 	class DetailModalManager {
 		private readonly modal = document.querySelector(".modal") as HTMLDivElement;
 		private openDetail: IParticipantWithPossibleVisit | null = null;
@@ -132,6 +157,13 @@ namespace Employer {
 			document.getElementById("detail-close")!.addEventListener("click", () => this.close());
 			document.addEventListener("keydown", e => { if (e.key === "Escape") this.close() });
 
+			async function updateTables() {
+				return Promise.all([
+					updateSearchTable(),
+					updateScanningTable(),
+				]);
+			}
+
 			this.delete.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
 			}));
@@ -155,19 +187,22 @@ namespace Employer {
 				} as IParticipantWithVisit;
 				this.open(newDetails);
 
-				await Promise.all([
-					updateSearchTable(),
-					updateScanningTable(),
-				]);
+				await updateTables();
 			}));
 			this.addTag.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
+				await tagButtonHandler(this.openDetail as IParticipantWithVisit, this.tags)();
+				await updateTables();
 			}));
 			this.star.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
+				await tagButtonHandler(this.openDetail as IParticipantWithVisit, this.tags, "starred")();
+				await updateTables();
 			}));
 			this.flag.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
+				await tagButtonHandler(this.openDetail as IParticipantWithVisit, this.tags, "flagged")();
+				await updateTables();
 			}));
 			this.addNote.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
@@ -337,6 +372,7 @@ namespace Employer {
 			}
 
 			if (visitData.visit) {
+				const visitDataWithVisit = visitData as IParticipantWithVisit;
 				addAction.remove();
 
 				const time = new Date(visitData.visit.time);
@@ -349,36 +385,12 @@ namespace Employer {
 				// Remove all previous children
 				emptyContainer(tags);
 				for (let tag of visitData.visit.tags) {
-					tags.appendChild(generateTag(visitData as IParticipantWithVisit, tag));
+					tags.appendChild(generateTag(visitDataWithVisit, tag));
 				}
 
-				const tagButton = async (name: string) => {
-					if (!visitData.visit) return;
-					let shouldAdd: boolean = visitData.visit.tags.indexOf(name) === -1;
-					await sendRequest(shouldAdd ? "POST" : "DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag: name }, false);
-
-					if (shouldAdd) {
-						tags.appendChild(generateTag(visitData as IParticipantWithVisit, name));
-						visitData.visit.tags.push(name);
-					}
-					else {
-						tags.querySelector(`.tag[data-tag="${name}"]`)!.parentElement!.parentElement!.remove();
-						visitData.visit.tags = visitData.visit.tags.filter(t => t !== name);
-					}
-				}
-
-				starAction.addEventListener("click", asyncHandler(tagButton.bind(this, "starred")));
-				flagAction.addEventListener("click", asyncHandler(tagButton.bind(this, "flagged")));
-				tagAction.addEventListener("click", asyncHandler(async () => {
-					if (!visitData.visit) return;
-
-					let tag = (prompt("Tag:") || "").trim().toLowerCase();
-					if (!tag || visitData.visit.tags.indexOf(tag) !== -1) return;
-
-					await sendRequest("POST", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
-					tags.appendChild(generateTag(visitData as IParticipantWithVisit, tag));
-					visitData.visit.tags.push(tag);
-				}));
+				starAction.addEventListener("click", asyncHandler(tagButtonHandler(visitDataWithVisit, tags, "starred")));
+				flagAction.addEventListener("click", asyncHandler(tagButtonHandler(visitDataWithVisit, tags, "flagged")));
+				tagAction.addEventListener("click", asyncHandler(tagButtonHandler(visitDataWithVisit, tags)));
 			}
 			else {
 				timeCell.textContent = "-"
