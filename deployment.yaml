@@ -1,0 +1,29 @@
+ogit:
+    branch: master
+
+wants:
+    mongo: true
+
+health:
+  path: /version
+
+secrets:
+  - SESSION_SECRET
+  - EMAIL_KEY
+  - GROUND_TRUTH_URL
+  - GROUND_TRUTH_ID
+  - GROUND_TRUTH_SECRET
+  - S3_REGION
+  - S3_BUCKET
+  - S3_ACCESS_KEY
+  - S3_SECRET_KEY
+  - REGISTRATION_URL
+  - REGISTRATION_KEY
+  - BUGSNAG
+
+
+env:
+  COOKIE_SECURE_ONLY: true
+  EMAIL_FROM: "HackGT Team <hello@hackgt.com>"
+  PRODUCTION: true
+  ADMIN_DOMAINS: 'hack.gt'
