@@ -334,11 +334,12 @@ namespace Employer {
 			if (loadResume) {
 				if (participant.resume) {
 					if (participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
-						this.resume.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + participant.resume.path)}`;
+						this.resume.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + "/" + participant.resume.path)}`;
 					}
 					else {
 						this.resume.src = participant.resume.path;
 					}
+					this.resume.hidden = false;
 				}
 				else {
 					this.resume.hidden = true;
