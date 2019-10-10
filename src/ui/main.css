@@ -83,6 +83,12 @@ a > i {
 	flex-grow: 1;
 	flex-shrink: 0;
 }
+.modal-card-foot > .buttons {
+	width: 100%;
+}
+.buttons > .spacer {
+	flex-grow: 1;
+}
 embed, iframe {
 	width: 100%;
 	height: 90%;

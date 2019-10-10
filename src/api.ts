@@ -114,9 +114,25 @@ apiRoutes.route("/visit/:id/tag")
 
 apiRoutes.route("/visit/:id")
 	.get(isAnEmployer, async (request, response) => {
-		const data = await getVisit(request, response);
-		if (!data) return;
-		const { visit, participant } = data;
+		const user = request.user as IUser | undefined;
+		if (!user?.company?.verified) {
+			response.status(403).send();
+			return;
+		}
+		const participant = await Participant.findOne({ uuid: request.params.id });
+		if (!participant) {
+			response.status(404).json({
+				"error": "Invalid participant ID"
+			});
+			return;
+		}
+		const visit = await Visit.findOne({ participant: request.params.id, company: user.company.name });
+		if (!visit) {
+			response.status(404).json({
+				"error": "No visit found for that participant at your company"
+			});
+			return;
+		}
 
 		response.json({
 			"success": true,
@@ -127,7 +143,7 @@ apiRoutes.route("/visit/:id")
 apiRoutes.route("/visit")
 	.get(isAnEmployer, async (request, response) => {
 		const user = request.user as IUser | undefined;
-		if (!user || !user.company || !user.company.verified) {
+		if (!user?.company?.verified) {
 			response.status(403).send();
 			return;
 		}

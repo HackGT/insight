@@ -62,14 +62,242 @@ namespace Employer {
 		}
 	}
 
-	const modal = document.querySelector(".modal") as HTMLDivElement;
-	document.querySelector(".modal-background")!.addEventListener("click", () => modal.classList.remove("is-active"));
-	modal.querySelector(".delete")!.addEventListener("click", () => modal.classList.remove("is-active"));
-	document.addEventListener("keydown", e => { if (e.key === "Escape") modal.classList.remove("is-active") });
+	function generateTag(visitData: IParticipantWithVisit, tag: string): HTMLSpanElement {
+		let control = document.createElement("div");
+		control.classList.add("control");
+		let tagContainer = document.createElement("div");
+		tagContainer.classList.add("tags", "has-addons");
+		let tagSpan = document.createElement("span");
+		tagSpan.textContent = tag;
+		tagSpan.dataset.tag = tag;
+		tagSpan.dataset.id = visitData.visit._id;
+		tagSpan.classList.add("tag");
+		if (tag === "starred") {
+			tagSpan.classList.add("is-warning");
+		}
+		if (tag === "flagged") {
+			tagSpan.classList.add("is-danger");
+		}
+		let deleteButton = document.createElement("span");
+		deleteButton.classList.add("tag", "is-delete");
+		let locked = false;
+		deleteButton.addEventListener("click", async () => {
+			if (locked) return;
+			locked = true;
+			await sendRequest("DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
+			control.remove();
+			visitData.visit.tags = visitData.visit.tags.filter(t => t !== tag);
+			if (detailModalManager.isOpen) {
+				let tagSpan = document.querySelector(`.tags-column .tag[data-tag="${tag}"][data-id="${visitData.visit._id}"]`);
+				if (tagSpan) {
+					tagSpan.parentElement!.parentElement!.remove();
+				}
+			}
+		});
+
+		tagContainer.appendChild(tagSpan);
+		tagContainer.appendChild(deleteButton);
+		control.appendChild(tagContainer);
+
+		return control;
+	}
+
+	class DetailModalManager {
+		private readonly modal = document.querySelector(".modal") as HTMLDivElement;
+		private openDetail: IParticipantWithPossibleVisit | null = null;
+
+		private readonly name = document.getElementById("detail-name") as HTMLHeadingElement;
+		private readonly major = document.getElementById("detail-major") as HTMLHeadingElement;
+		private readonly timeframe = document.getElementById("detail-timeframe") as HTMLSpanElement;
+		private readonly timeframeComments = document.getElementById("detail-timeframe-comments") as HTMLSpanElement;
+		private readonly programmingLanguages = document.getElementById("detail-programming-languages") as HTMLSpanElement;
+		private readonly fun1Question = document.getElementById("detail-fun-1") as HTMLSpanElement;
+		private readonly fun1Answer = document.getElementById("detail-fun-1-answer") as HTMLSpanElement;
+		private readonly fun2Question = document.getElementById("detail-fun-2") as HTMLSpanElement;
+		private readonly fun2Answer = document.getElementById("detail-fun-2-answer") as HTMLSpanElement;
+		private readonly tags = document.getElementById("detail-tags") as HTMLDivElement;
+		private readonly scanner = document.getElementById("detail-scanner") as HTMLSpanElement;
+		private readonly notes = document.getElementById("detail-notes") as HTMLUListElement;
+		private readonly resume = document.getElementById("detail-resume") as HTMLIFrameElement;
+		private readonly delete = document.getElementById("detail-delete") as HTMLButtonElement;
+		private readonly addVisit = document.getElementById("detail-add-visit") as HTMLButtonElement;
+		private readonly addTag = document.getElementById("detail-add-tag") as HTMLButtonElement;
+		private readonly star = document.getElementById("detail-star") as HTMLButtonElement;
+		private readonly flag = document.getElementById("detail-flag") as HTMLButtonElement;
+		private readonly addNote = document.getElementById("detail-add-note") as HTMLButtonElement;
+
+		constructor() {
+			document.querySelector(".modal-background")!.addEventListener("click", () => this.close());
+			this.modal.querySelector(".delete")!.addEventListener("click", () => this.close());
+			document.getElementById("detail-close")!.addEventListener("click", () => this.close());
+			document.addEventListener("keydown", e => { if (e.key === "Escape") this.close() });
+
+			// TODO: fix disable instances
+			this.delete.addEventListener("click", asyncHandler(async () => {
+				if (!this.openDetail?.visit) return;
+			}));
+			this.addVisit.addEventListener("click", asyncHandler(async () => {
+				if (!this.openDetail) return;
+
+				await sendRequest("POST", "/api/visit", { uuid: this.openDetail.participant.uuid }, false);
+
+				let options: RequestInit = {
+					method: "GET",
+					credentials: "include"
+				};
+				let response: APIResponse = await fetch(`/api/visit/${this.openDetail.participant.uuid}`, options).then(response => response.json());
+				if (!response.success) {
+					alert(response.error);
+					return;
+				}
+				let newDetails = {
+					visit: response.visit,
+					participant: response.participant
+				} as IParticipantWithVisit;
+				this.open(newDetails);
+
+				await Promise.all([
+					updateSearchTable(),
+					updateScanningTable(),
+				]);
+			}));
+			this.addTag.addEventListener("click", asyncHandler(async () => {
+				if (!this.openDetail?.visit) return;
+			}));
+			this.star.addEventListener("click", asyncHandler(async () => {
+				if (!this.openDetail?.visit) return;
+			}));
+			this.flag.addEventListener("click", asyncHandler(async () => {
+				if (!this.openDetail?.visit) return;
+			}));
+			this.addNote.addEventListener("click", asyncHandler(async () => {
+				if (!this.openDetail?.visit) return;
+			}));
+		}
+
+		public get isOpen(): boolean {
+			return this.modal.classList.contains("is-active");
+		}
+
+		public open(visitData: IParticipantWithPossibleVisit) {
+			this.openDetail = visitData;
+			const participant = visitData.participant;
+
+			this.name.textContent = participant.name;
+			this.major.textContent = participant.major ?? "Unknown Major";
+			if (participant.lookingFor?.timeframe?.length) {
+				this.timeframe.textContent = participant.lookingFor.timeframe.join(", ");
+			}
+			else {
+				this.timeframe.innerHTML = "<em>N/A</em>";
+			}
+			if (participant.lookingFor?.comments) {
+				this.timeframeComments.textContent = participant.lookingFor.comments;
+			}
+			else {
+				this.timeframeComments.innerHTML = "<em>N/A</em>";
+			}
+			const details = participant.interestingDetails;
+			if (details) {
+				if (details.favoriteLanguages?.length) {
+					this.programmingLanguages.textContent = details.favoriteLanguages.join(", ");
+				}
+				else {
+					this.programmingLanguages.innerHTML = "<em>N/A</em>";
+				}
+				if (details.fun1) {
+					this.fun1Question.textContent = details.fun1.question;
+					if (details.fun1.answer) {
+						this.fun1Answer.textContent = details.fun1.answer;
+					}
+					else {
+						this.fun1Answer.innerHTML = "<em>N/A</em>";
+					}
+				}
+				else {
+					this.fun1Question.textContent = "";
+					this.fun1Answer.textContent = "";
+				}
+				if (details.fun2) {
+					this.fun2Question.textContent = details.fun2.question;
+					if (details.fun2.answer) {
+						this.fun2Answer.textContent = details.fun2.answer;
+					}
+					else {
+						this.fun2Answer.innerHTML = "<em>N/A</em>";
+					}
+				}
+				else {
+					this.fun2Question.textContent = "";
+					this.fun2Answer.textContent = "";
+				}
+			}
+
+			emptyContainer(this.tags);
+			emptyContainer(this.notes);
+			if (visitData.visit) {
+				this.delete.hidden = false;
+				this.addVisit.hidden = true;
+				this.addTag.hidden = false;
+				this.star.hidden = false;
+				this.flag.hidden = false;
+				this.addNote.hidden = false;
+				if (visitData.visit.tags.length > 0) {
+					for (let tag of visitData.visit.tags) {
+						this.tags.appendChild(generateTag(visitData as IParticipantWithVisit, tag));
+					}
+				}
+				else {
+					this.tags.innerHTML = "<em>No tags</em>";
+				}
+				this.scanner.textContent = `${visitData.visit.scannerID ?? "Direct add"} → ${visitData.visit.employees.map(e => e.name).join(", ")}`;
+				for (let note of visitData.visit.notes) {
+					let noteElement = document.createElement("li");
+					noteElement.textContent = note;
+					this.notes.appendChild(noteElement);
+				}
+				if (visitData.visit.notes.length === 0) {
+					let noteElement = document.createElement("li");
+					noteElement.innerHTML = "<em>No notes yet</em>";
+					this.notes.appendChild(noteElement);
+				}
+			}
+			else {
+				this.delete.hidden = true;
+				this.addVisit.hidden = false;
+				this.addTag.hidden = true;
+				this.star.hidden = true;
+				this.flag.hidden = true;
+				this.addNote.hidden = true;
+				this.scanner.innerHTML = "<em>Not scanned</em>";
+			}
+
+			if (participant.resume) {
+				if (participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
+					this.resume.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + participant.resume.path)}`;
+				}
+				else {
+					this.resume.src = participant.resume.path;
+				}
+			}
+			else {
+				this.resume.hidden = true;
+			}
+			this.modal.classList.add("is-active");
+		}
+
+		public close() {
+			this.openDetail = null;
+			this.modal.classList.remove("is-active");
+		}
+	}
+
+	const detailModalManager = new DetailModalManager();
 
 	class TableManager {
 		private readonly tbody: HTMLTableSectionElement;
 		private readonly template: HTMLTemplateElement;
+		private openDetail: IParticipantWithPossibleVisit | null = null;
 
 		constructor(id: string) {
 			const table = document.getElementById(id);
@@ -78,46 +306,6 @@ namespace Employer {
 			}
 			this.tbody = table.querySelector("tbody") as HTMLTableSectionElement;
 			this.template = document.getElementById("table-row") as HTMLTemplateElement;
-		}
-
-		private generateTag(visitData: IParticipantWithVisit, tag: string): HTMLSpanElement {
-			let control = document.createElement("div");
-			control.classList.add("control");
-			let tagContainer = document.createElement("div");
-			tagContainer.classList.add("tags", "has-addons");
-			let tagSpan = document.createElement("span");
-			tagSpan.textContent = tag;
-			tagSpan.dataset.tag = tag;
-			tagSpan.dataset.id = visitData.visit._id;
-			tagSpan.classList.add("tag");
-			if (tag === "starred") {
-				tagSpan.classList.add("is-warning");
-			}
-			if (tag === "flagged") {
-				tagSpan.classList.add("is-danger");
-			}
-			let deleteButton = document.createElement("span");
-			deleteButton.classList.add("tag", "is-delete");
-			let locked = false;
-			deleteButton.addEventListener("click", async () => {
-				if (locked) return;
-				locked = true;
-				await sendRequest("DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
-				control.remove();
-				visitData.visit.tags = visitData.visit.tags.filter(t => t !== tag);
-				if (modal!.classList.contains("is-active")) {
-					let tagSpan = document.querySelector(`.tags-column .tag[data-tag="${tag}"][data-id="${visitData.visit._id}"]`);
-					if (tagSpan) {
-						tagSpan.parentElement!.parentElement!.remove();
-					}
-				}
-			});
-
-			tagContainer.appendChild(tagSpan);
-			tagContainer.appendChild(deleteButton);
-			control.appendChild(tagContainer);
-
-			return control;
 		}
 
 		public addRow(visitData: IParticipantWithPossibleVisit) {
@@ -162,7 +350,7 @@ namespace Employer {
 				// Remove all previous children
 				emptyContainer(tags);
 				for (let tag of visitData.visit.tags) {
-					tags.appendChild(this.generateTag(visitData as IParticipantWithVisit, tag));
+					tags.appendChild(generateTag(visitData as IParticipantWithVisit, tag));
 				}
 
 				const tagButton = async (name: string, e: MouseEvent) => {
@@ -173,7 +361,7 @@ namespace Employer {
 					await sendRequest(shouldAdd ? "POST" : "DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag: name }, false);
 
 					if (shouldAdd) {
-						tags.appendChild(this.generateTag(visitData as IParticipantWithVisit, name));
+						tags.appendChild(generateTag(visitData as IParticipantWithVisit, name));
 						visitData.visit.tags.push(name);
 					}
 					else {
@@ -196,7 +384,7 @@ namespace Employer {
 					}
 
 					await sendRequest("POST", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
-					tags.appendChild(this.generateTag(visitData as IParticipantWithVisit, tag));
+					tags.appendChild(generateTag(visitData as IParticipantWithVisit, tag));
 					visitData.visit.tags.push(tag);
 					tagAction.disabled = false;
 				});
@@ -208,21 +396,19 @@ namespace Employer {
 				tagAction.remove();
 
 				addAction.addEventListener("click", async () => {
-					tagAction.disabled = true;
+					addAction.disabled = true;
 					await sendRequest("POST", "/api/visit", { uuid: visitData.participant.uuid }, false);
 					await Promise.all([
 						updateSearchTable(),
 						updateScanningTable()
 					]);
-					tagAction.disabled = false;
+					addAction.disabled = false;
 				});
 			}
 
 			const viewAction = row.querySelector(".view-action") as HTMLButtonElement;
-			viewAction.addEventListener("click", async () => {
-				viewAction.disabled = true;
-				await this.showModal(visitData);
-				viewAction.disabled = false;
+			viewAction.addEventListener("click", () => {
+				detailModalManager.open(visitData);
 			});
 
 			this.tbody.appendChild(row);
@@ -230,114 +416,6 @@ namespace Employer {
 
 		public empty() {
 			emptyContainer(this.tbody);
-		}
-
-		public async showModal(visitData: IParticipantWithPossibleVisit) {
-			const participant = visitData.participant;
-
-			const detailName = document.getElementById("detail-name") as HTMLHeadingElement;
-			const detailMajor = document.getElementById("detail-major") as HTMLHeadingElement;
-			const detailTimeframe = document.getElementById("detail-timeframe") as HTMLSpanElement;
-			const detailTimeframeComments = document.getElementById("detail-timeframe-comments") as HTMLSpanElement;
-			const detailProgrammingLanguages = document.getElementById("detail-programming-languages") as HTMLSpanElement;
-			const detailFun1Question = document.getElementById("detail-fun-1") as HTMLSpanElement;
-			const detailFun1Answer = document.getElementById("detail-fun-1-answer") as HTMLSpanElement;
-			const detailFun2Question = document.getElementById("detail-fun-2") as HTMLSpanElement;
-			const detailFun2Answer = document.getElementById("detail-fun-2-answer") as HTMLSpanElement;
-			const detailTags = document.getElementById("detail-tags") as HTMLDivElement;
-			const detailScanner = document.getElementById("detail-scanner") as HTMLSpanElement;
-			const detailNotes = document.getElementById("detail-notes") as HTMLUListElement;
-			const detailResume = document.getElementById("detail-resume") as HTMLIFrameElement;
-
-			detailName.textContent = participant.name;
-			detailMajor.textContent = participant.major ?? "Unknown Major";
-			if (participant.lookingFor?.timeframe?.length) {
-				detailTimeframe.textContent = participant.lookingFor.timeframe.join(", ");
-			}
-			else {
-				detailTimeframe.innerHTML = "<em>N/A</em>";
-			}
-			if (participant.lookingFor?.comments) {
-				detailTimeframeComments.textContent = participant.lookingFor.comments;
-			}
-			else {
-				detailTimeframeComments.innerHTML = "<em>N/A</em>";
-			}
-			const details = participant.interestingDetails;
-			if (details) {
-				if (details.favoriteLanguages?.length) {
-					detailProgrammingLanguages.textContent = details.favoriteLanguages.join(", ");
-				}
-				else {
-					detailProgrammingLanguages.innerHTML = "<em>N/A</em>";
-				}
-				if (details.fun1) {
-					detailFun1Question.textContent = details.fun1.question;
-					if (details.fun1.answer) {
-						detailFun1Answer.textContent = details.fun1.answer;
-					}
-					else {
-						detailFun1Answer.innerHTML = "<em>N/A</em>";
-					}
-				}
-				else {
-					detailFun1Question.textContent = "";
-					detailFun1Answer.textContent = "";
-				}
-				if (details.fun2) {
-					detailFun2Question.textContent = details.fun2.question;
-					if (details.fun2.answer) {
-						detailFun2Answer.textContent = details.fun2.answer;
-					}
-					else {
-						detailFun2Answer.innerHTML = "<em>N/A</em>";
-					}
-				}
-				else {
-					detailFun2Question.textContent = "";
-					detailFun2Answer.textContent = "";
-				}
-			}
-
-			emptyContainer(detailTags);
-			emptyContainer(detailNotes);
-			if (visitData.visit) {
-				if (visitData.visit.tags.length > 0) {
-					for (let tag of visitData.visit.tags) {
-						detailTags.appendChild(this.generateTag(visitData as IParticipantWithVisit, tag));
-					}
-				}
-				else {
-					detailTags.innerHTML = "<em>No tags</em>";
-				}
-				detailScanner.textContent = `${visitData.visit.scannerID ?? "Direct add"} → ${visitData.visit.employees.map(e => e.name).join(", ")}`;
-				for (let note of visitData.visit.notes) {
-					let noteElement = document.createElement("li");
-					noteElement.textContent = note;
-					detailNotes.appendChild(noteElement);
-				}
-				if (visitData.visit.notes.length === 0) {
-					let noteElement = document.createElement("li");
-					noteElement.innerHTML = "<em>No notes yet</em>";
-					detailNotes.appendChild(noteElement);
-				}
-			}
-			else {
-				detailScanner.innerHTML = "<em>Not scanned</em>";
-			}
-
-			if (participant.resume) {
-				if (participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
-					detailResume.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + participant.resume.path)}`;
-				}
-				else {
-					detailResume.src = participant.resume.path;
-				}
-			}
-			else {
-				detailResume.hidden = true;
-			}
-			modal.classList.add("is-active");
 		}
 	}
 

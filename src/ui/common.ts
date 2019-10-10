@@ -51,3 +51,16 @@ function setUpHandlers(classname: string, handler: (dataset: Dataset) => Promise
 		});
 	}
 }
+function asyncHandler(action: () => Promise<void>): (e: MouseEvent) => Promise<void> {
+	return async (e: MouseEvent) => {
+		const button = e.target as HTMLButtonElement | undefined;
+		if (!button) return;
+		button.classList.add("is-loading");
+		try {
+			await action();
+		}
+		finally {
+			button.classList.remove("is-loading");
+		}
+	};
+}

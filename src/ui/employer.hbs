@@ -121,9 +121,51 @@
 				<iframe id="detail-resume"></iframe>
 			</section>
 			<footer class="modal-card-foot">
-				<button class="button is-danger">Delete visit</button>
-				<button class="button">Save changes</button>
-				<button class="button">Close</button>
+				<div class="buttons">
+					<button class="button is-danger" id="detail-delete">
+						<span class="icon is-small">
+							<i class="fas fa-trash-alt"></i>
+						</span>
+						<span>Delete visit</span>
+					</button>
+					<button class="button is-info" id="detail-add-visit">
+						<span class="icon is-small">
+							<i class="fas fa-plus"></i>
+						</span>
+						<span>Add to visits</span>
+					</button>
+
+					<span class="spacer"></span>
+
+					<button class="button is-info" id="detail-add-tag">
+						<span class="icon is-small">
+							<i class="fas fa-plus"></i>
+						</span>
+						<span>Add tag</span>
+					</button>
+					<button class="button is-warning" id="detail-star">
+						<span class="icon is-small">
+							<i class="fas fa-star"></i>
+						</span>
+						<span>Star</span>
+					</button>
+					<button class="button is-danger is-outlined" id="detail-flag">
+						<span class="icon is-small">
+							<i class="fas fa-flag"></i>
+						</span>
+						<span>Flag</span>
+					</button>
+					<button class="button is-primary" id="detail-add-note">
+						<span class="icon is-small">
+							<i class="fas fa-plus"></i>
+						</span>
+						<span>Add note</span>
+					</button>
+
+					<span class="spacer"></span>
+
+					<button class="button" id="detail-close">Close</button>
+				</div>
 			</footer>
 		</div>
 	</article>
