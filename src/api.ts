@@ -1,5 +1,7 @@
 import * as crypto from "crypto";
 import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import * as express from "express";
 import {
 	IUser, User,
@@ -15,7 +17,20 @@ import Agenda from "agenda";
 
 export let apiRoutes = express.Router();
 
-apiRoutes.route("/download")
+apiRoutes.route("/export")
+	.get(apiAuth, async (request, response) => {
+		const jobID = request.query.id as string || "";
+		if (!jobID) {
+			response.status(404).send("Invalid download ID");
+		}
+		const file = path.join(os.tmpdir(), jobID + ".zip");
+		response.attachment("export.zip");
+		let stream = fs.createReadStream(file);
+		stream.on("end", async () => {
+			await fs.promises.unlink(file);
+		});
+		stream.pipe(response);
+	})
 	.post(apiAuth, postParser, async (request, response) => {
 		let user = request.user as IUser | undefined;
 		let type = request.body.type as string || "";
@@ -37,6 +52,9 @@ apiRoutes.route("/download")
 				{ $sort: { time: -1 } }, // Sort newest first
 			])).map(v => v.participant);
 		}
+		else if (type === "selected") {
+			participantIDs = JSON.parse(request.body.ids || "[]");
+		}
 		else {
 			response.json({
 				"error": "Invalid download request type"
@@ -47,9 +65,10 @@ apiRoutes.route("/download")
 		agenda.on("complete:export", (job: Agenda.Job<Agenda.JobAttributesData>) => {
 			if (job.attrs.data.id !== jobID) return;
 
-			response.attachment("export.zip");
-			let stream = fs.createReadStream(job.attrs.data.exportFile);
-			stream.pipe(response);
+			response.json({
+				"success": true,
+				"id": jobID
+			});
 		});
 		await agenda.now("export", { id: jobID, participantIDs });
 	});

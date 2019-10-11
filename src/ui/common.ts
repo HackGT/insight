@@ -11,7 +11,7 @@ interface APIResponse {
 	[other: string]: unknown;
 }
 
-async function sendRequest(method: "POST" | "DELETE" | "PUT" | "PATCH", url: string, data?: GenericObject, reload = true) {
+async function sendRequest(method: "POST" | "DELETE" | "PUT" | "PATCH", url: string, data?: GenericObject, reload = true): Promise<APIResponse> {
 	let options: RequestInit = {
 		method,
 		credentials: "include"
@@ -33,6 +33,7 @@ async function sendRequest(method: "POST" | "DELETE" | "PUT" | "PATCH", url: str
 	else if (reload) {
 		window.location.reload();
 	}
+	return response;
 }
 
 type Dataset = { [key: string]: string | undefined };

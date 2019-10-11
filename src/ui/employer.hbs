@@ -28,6 +28,9 @@
 	</nav>
 	<template id="table-row">
 		<tr>
+			<td id="select">
+				<input type="checkbox" class="participant-selection" />
+			</td>
 			<td id="time"></td>
 			<td id="name"></td>
 			<td id="major"></td>
@@ -219,6 +222,7 @@
 			<table class="table is-hoverable is-fullwidth" id="scanning-table">
 				<thead>
 					<tr>
+						<th></th>
 						<th>Time</th>
 						<th>Name</th>
 						<th>Major</th>
@@ -236,7 +240,43 @@
 		<div class="control is-medium" id="search-control">
 			<input class="input is-medium" type="text" placeholder="Search names, resume content, skills, etc." id="search-box">
 		</div>
-		<br />
+		<div class="field is-grouped">
+			{{!-- <p class="control">
+				<a class="button is-primary">
+					Submit
+				</a>
+			</p> --}}
+			<span class="spacer"></span>
+			<p class="control">
+				<div class="dropdown is-hoverable">
+					<div class="dropdown-trigger">
+						<button class="button">
+							<span class="icon is-small">
+								<i class="fas fa-file-archive"></i>
+							</span>
+							<span>Export...</span>
+							<span class="icon is-small">
+								<i class="fas fa-angle-down"></i>
+							</span>
+						</button>
+					</div>
+					<div class="dropdown-menu">
+						<div class="dropdown-content">
+							<a class="dropdown-item download-selected">
+								Selected participants
+							</a>
+							<a class="dropdown-item download-scanned">
+								All scanned participants
+							</a>
+							<hr class="dropdown-divider">
+							<a class="dropdown-item download-all">
+								All HackGT participants
+							</a>
+						</div>
+					</div>
+				</div>
+			</p>
+		</div>
 		<nav class="pagination">
 			<a class="pagination-previous">Previous</a>
 			<a class="pagination-next">Next page</a>
@@ -269,6 +309,7 @@
 			<table class="table is-hoverable is-fullwidth" id="search-table">
 				<thead>
 					<tr>
+						<th></th>
 						<th>Time</th>
 						<th>Name</th>
 						<th>Major</th>

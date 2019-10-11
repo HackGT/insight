@@ -86,7 +86,7 @@ a > i {
 .modal-card-foot > .buttons {
 	width: 100%;
 }
-.buttons > .spacer {
+.spacer {
 	flex-grow: 1;
 }
 embed, iframe {
@@ -117,4 +117,11 @@ embed, iframe {
 }
 #detail-notes > li > .button {
 	margin: 1px;
+}
+.dropdown-menu {
+	left: auto;
+	right: 0;
+}
+#search-control {
+	margin-bottom: 0.75rem;
 }

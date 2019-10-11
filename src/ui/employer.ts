@@ -454,6 +454,15 @@ namespace Employer {
 				detailModalManager.open(visitData);
 			});
 
+			const selectCell = row.getElementById("select") as HTMLTableCellElement;
+			const checkbox = selectCell.querySelector("input") as HTMLInputElement;
+			checkbox.dataset.id = visitData.participant.uuid;
+
+			selectCell.addEventListener("click", e => {
+				if (e.target === checkbox) return;
+				checkbox.checked = !checkbox.checked;
+			});
+
 			this.tbody.appendChild(row);
 		}
 
@@ -742,5 +751,58 @@ namespace Employer {
 		if (scannerID === null) return;
 
 		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company || "")}/employee/${encodeURIComponent(dataset.email || "")}/scanners/${encodeURIComponent(scannerID)}`);
+	});
+
+	let isDownloadRunning = false;
+	const downloadDropdown = document.querySelector(".dropdown-trigger > .button") as HTMLButtonElement;
+	function downloadHandler(buttons: NodeListOf<Element>, handler: () => Promise<void>) {
+		for (let i = 0; i < buttons.length; i++) {
+			buttons[i].addEventListener("click", async () => {
+				if (isDownloadRunning) return;
+				downloadDropdown.classList.remove("is-hoverable");
+				downloadDropdown.classList.add("is-loading");
+				isDownloadRunning = true;
+				try {
+					await handler();
+				}
+				finally {
+					downloadDropdown.classList.add("is-hoverable");
+					downloadDropdown.classList.remove("is-loading");
+					isDownloadRunning = false;
+				}
+			});
+		}
+	}
+
+	let downloadSelected = document.querySelectorAll(".download-selected");
+	downloadHandler(downloadSelected, async () => {
+		let checkboxes = document.querySelectorAll("input.participant-selection") as NodeListOf<HTMLInputElement>;
+		let selectedUUIDs: string[] = [];
+		for (let j = 0; j < checkboxes.length; j++) {
+			if (checkboxes[j].checked && checkboxes[j].dataset.id) {
+				selectedUUIDs.push(checkboxes[j].dataset.id!);
+				checkboxes[j].checked = false;
+			}
+		}
+		if (selectedUUIDs.length > 0) {
+			let response = await sendRequest("POST", "/api/export", { type: "selected", ids: JSON.stringify(selectedUUIDs) }, false);
+			window.location.assign(`/api/export?id=${response.id}`);
+		}
+		else {
+			alert("Please choose at least one participant to export");
+		}
+	});
+
+	let downloadVisited = document.querySelectorAll(".download-scanned");
+	downloadHandler(downloadVisited, async () => {
+		let response = await sendRequest("POST", "/api/export", { type: "visited" }, false);
+		window.location.assign(`/api/export?id=${response.id}`);
+	});
+
+	let downloadAll = document.querySelectorAll(".download-all");
+	downloadHandler(downloadAll, async () => {
+		if (!confirm("Are you sure that you want to export all participants? This export will take a while to complete.")) return;
+		let response = await sendRequest("POST", "/api/export", { type: "all" }, false);
+		window.location.assign(`/api/export?id=${response.id}`);
 	});
 }
