@@ -152,18 +152,10 @@ namespace Employer {
 			document.getElementById("detail-close")!.addEventListener("click", () => this.close());
 			document.addEventListener("keydown", e => { if (e.key === "Escape") this.close() });
 
-			async function updateTables() {
-				return Promise.all([
-					updateSearchTable(),
-					updateScanningTable(),
-				]);
-			}
-
 			this.delete.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
 				if (!confirm("Are you sure that you want to delete this visit? All associated data such as tags and notes will be lost!")) return;
 				await sendRequest("DELETE", `/api/visit/${this.openDetail.visit._id}`, undefined, false);
-				await updateTables();
 				this.close();
 			}));
 			this.addVisit.addEventListener("click", asyncHandler(async () => {
@@ -171,22 +163,18 @@ namespace Employer {
 
 				await sendRequest("POST", "/api/visit", { uuid: this.openDetail.participant.uuid }, false);
 				await this.getAndRedraw();
-				await updateTables();
 			}));
 			this.addTag.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
 				await tagButtonHandler(this.openDetail as IParticipantWithVisit, this.tags)();
-				await updateTables();
 			}));
 			this.star.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
 				await tagButtonHandler(this.openDetail as IParticipantWithVisit, this.tags, "starred")();
-				await updateTables();
 			}));
 			this.flag.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
 				await tagButtonHandler(this.openDetail as IParticipantWithVisit, this.tags, "flagged")();
-				await updateTables();
 			}));
 			this.addNote.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
@@ -203,23 +191,29 @@ namespace Employer {
 			return this.modal.classList.contains("is-active");
 		}
 
-		public async getAndRedraw() {
+		public async getAndRedraw(visited = true) {
 			if (!this.openDetail) return;
 
-			let options: RequestInit = {
-				method: "GET",
-				credentials: "include"
-			};
-			let response: APIResponse = await fetch(`/api/visit/${this.openDetail.participant.uuid}`, options).then(response => response.json());
-			if (!response.success) {
-				alert(response.error);
-				return;
+			if (visited) {
+				let options: RequestInit = {
+					method: "GET",
+					credentials: "include"
+				};
+				let response: APIResponse = await fetch(`/api/visit/${this.openDetail.participant.uuid}`, options).then(response => response.json());
+				if (!response.success) {
+					alert(response.error);
+					return;
+				}
+				let newDetails = {
+					visit: response.visit,
+					participant: response.participant
+				} as IParticipantWithVisit;
+				this.open(newDetails, false);
 			}
-			let newDetails = {
-				visit: response.visit,
-				participant: response.participant
-			} as IParticipantWithVisit;
-			this.open(newDetails, false);
+			else {
+				let newDetails = { participant: this.openDetail.participant };
+				this.open(newDetails, false);
+			}
 		}
 
 		public open(visitData: IParticipantWithPossibleVisit, loadResume = true) {
@@ -481,6 +475,13 @@ namespace Employer {
 				this.tbody.appendChild(row);
 			}
 			this.rows.set(visitData.participant.uuid, row);
+		}
+
+		public removeRow(uuid: string) {
+			let row = this.rows.get(uuid);
+			if (!row) return;
+			this.tbody.removeChild(row);
+			this.rows.delete(uuid);
 		}
 
 		public empty() {
@@ -909,14 +910,22 @@ namespace Employer {
 				}, 5000) as unknown as number;
 			});
 			this.socket.on("reload-participant", async (visit: IParticipantWithPossibleVisit) => {
-				if (scanningTable.participantIDs.has(visit.participant.uuid)) {
-					scanningTable.addOrUpdateRow(visit);
+				if (scanningTable.participantIDs.has(visit.participant.uuid) || visit.visit) {
+					scanningTable.addOrUpdateRow(visit, true);
+				}
+				let reloadDetailModal = true;
+				if (scanningTable.participantIDs.has(visit.participant.uuid) && !visit.visit) {
+					scanningTable.removeRow(visit.participant.uuid);
+					reloadDetailModal = false; // So that we don't reload a non-existent visit
 				}
 				if (searchTable.participantIDs.has(visit.participant.uuid)) {
 					searchTable.addOrUpdateRow(visit);
 				}
-				if (detailModalManager.currentParticipantID === visit.participant.uuid) {
-					await detailModalManager.getAndRedraw();
+				if (detailModalManager.currentParticipantID === visit.participant.uuid && visit.visit) {
+					await detailModalManager.getAndRedraw(true);
+				}
+				else {
+					await detailModalManager.getAndRedraw(false);
 				}
 			});
 		}

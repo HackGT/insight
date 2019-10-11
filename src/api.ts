@@ -270,7 +270,7 @@ apiRoutes.route("/visit/:id")
 	.delete(isAnEmployer, async (request, response) => {
 		const data = await getVisit(request, response);
 		if (!data) return;
-		const { visit } = data;
+		const { participant, visit } = data;
 		const user = request.user as IUser;
 
 		const company = await Company.findOne({ name: user.company!.name });
@@ -285,6 +285,7 @@ apiRoutes.route("/visit/:id")
 			company.save(),
 			visit.remove()
 		]);
+		webSocketServer.reloadParticipant(company.name, participant, undefined);
 		response.json({ "success": true });
 	});
 apiRoutes.route("/visit")
@@ -393,6 +394,7 @@ apiRoutes.route("/visit")
 				webSocketServer.visitNotification(employee.uuid, participant, visit);
 			}
 		}
+		webSocketServer.reloadParticipant(company.name, participant, visit);
 
 		response.json({
 			"success": true
