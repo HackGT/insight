@@ -81,6 +81,7 @@ serveStatic("/js/admin.js", "admin.js");
 serveStatic("/js/preemployer.js", "preemployer.js");
 serveStatic("/js/employer.js", "employer.js");
 serveStatic("/css/main.css", "main.css");
+serveStatic("/css/bulma-tooltip.min.css", "bulma-tooltip.min.css");
 
 uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 	if (request.session) {

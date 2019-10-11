@@ -53,22 +53,22 @@
 				<div id="tags" class="field is-grouped is-grouped-multiline"></div>
 			</td>
 			<td id="actions">
-				<button class="button add-action">
+				<button class="button tooltip add-action" data-tooltip="Add to visted list">
 					<span class="icon">
 						<i class="fas fa-plus"></i>
 					</span>
 				</button>
-				<button class="button star-action">
+				<button class="button tooltip star-action" data-tooltip="Star">
 					<span class="icon">
 						<i class="fas fa-star"></i>
 					</span>
 				</button>
-				<button class="button flag-action">
+				<button class="button tooltip flag-action" data-tooltip="Flag">
 					<span class="icon">
 						<i class="fas fa-flag"></i>
 					</span>
 				</button>
-				<button class="button tag-action">
+				<button class="button tooltip tag-action" data-tooltip="Add a tag">
 					<span class="icon">
 						<i class="fas fa-tag"></i>
 					</span>
@@ -227,7 +227,7 @@
 	</section>
 	<section id="settings" hidden>
 		<div class="columns">
-			<div class="column is-half is-offset-one-quarter">
+			<div class="column is-two-thirds is-offset-one-quarter">
 				<h1 class="title">Employees</h1>
 				<ul>
 					{{#each this.users}}
