@@ -205,7 +205,7 @@ apiRoutes.route("/visit/:id/note")
 	.post(isAnEmployer, postParser, async (request, response) => {
 		const data = await getVisit(request, response);
 		if (!data) return;
-		const { visit } = data;
+		const { participant, visit } = data;
 
 		const note = (request.body.note as string || "").trim();
 		if (!note) {
@@ -217,12 +217,13 @@ apiRoutes.route("/visit/:id/note")
 
 		visit.notes.push(note);
 		await visit.save();
+		await webSocketServer.reloadParticipant(visit.company, participant, visit);
 		response.json({ "success": true });
 	})
 	.delete(isAnEmployer, postParser, async (request, response) => {
 		const data = await getVisit(request, response);
 		if (!data) return;
-		const { visit } = data;
+		const { participant, visit } = data;
 
 		const note = (request.body.note as string || "").trim();
 		if (!note) {
@@ -234,6 +235,7 @@ apiRoutes.route("/visit/:id/note")
 
 		visit.notes = visit.notes.filter(n => n !== note);
 		await visit.save();
+		await webSocketServer.reloadParticipant(visit.company, participant, visit);
 		response.json({ "success": true });
 	});
 

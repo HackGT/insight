@@ -87,7 +87,6 @@ namespace Employer {
 			if (locked) return;
 			locked = true;
 			await sendRequest("DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
-			control.remove();
 			visitData.visit.tags = visitData.visit.tags.filter(t => t !== tag);
 		});
 
@@ -111,13 +110,9 @@ namespace Employer {
 			await sendRequest(shouldAdd ? "POST" : "DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
 
 			if (shouldAdd) {
-				// Gets rid of <em>No tags</em>
-				tagArea.querySelector("em")?.remove();
-				tagArea.appendChild(generateTag(visitData as IParticipantWithVisit, tag));
 				visitData.visit.tags.push(tag);
 			}
 			else {
-				tagArea.querySelector(`.tag[data-tag="${tag}"]`)!.parentElement!.parentElement!.remove();
 				visitData.visit.tags = visitData.visit.tags.filter(t => t !== tag);
 			}
 		}
@@ -126,6 +121,10 @@ namespace Employer {
 	class DetailModalManager {
 		private readonly modal = document.querySelector(".modal") as HTMLDivElement;
 		private openDetail: IParticipantWithPossibleVisit | null = null;
+		public get currentParticipantID(): string | null {
+			if (!this.openDetail) return null;
+			return this.openDetail.participant.uuid;
+		}
 
 		private readonly name = document.getElementById("detail-name") as HTMLHeadingElement;
 		private readonly major = document.getElementById("detail-major") as HTMLHeadingElement;
@@ -204,7 +203,7 @@ namespace Employer {
 			return this.modal.classList.contains("is-active");
 		}
 
-		private async getAndRedraw() {
+		public async getAndRedraw() {
 			if (!this.openDetail) return;
 
 			let options: RequestInit = {
@@ -909,12 +908,15 @@ namespace Employer {
 					toast.classList.remove("is-active");
 				}, 5000) as unknown as number;
 			});
-			this.socket.on("reload-participant", (visit: IParticipantWithPossibleVisit) => {
+			this.socket.on("reload-participant", async (visit: IParticipantWithPossibleVisit) => {
 				if (scanningTable.participantIDs.has(visit.participant.uuid)) {
 					scanningTable.addOrUpdateRow(visit);
 				}
 				if (searchTable.participantIDs.has(visit.participant.uuid)) {
 					searchTable.addOrUpdateRow(visit);
+				}
+				if (detailModalManager.currentParticipantID === visit.participant.uuid) {
+					await detailModalManager.getAndRedraw();
 				}
 			});
 		}
