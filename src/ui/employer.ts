@@ -375,7 +375,7 @@ namespace Employer {
 	class TableManager {
 		private readonly tbody: HTMLTableSectionElement;
 		private readonly template: HTMLTemplateElement;
-		private openDetail: IParticipantWithPossibleVisit | null = null;
+		private rows: Map<string, HTMLTableRowElement> = new Map();
 
 		constructor(id: string) {
 			const table = document.getElementById(id);
@@ -386,18 +386,18 @@ namespace Employer {
 			this.template = document.getElementById("table-row") as HTMLTemplateElement;
 		}
 
-		public addRow(visitData: IParticipantWithPossibleVisit, atStart = false) {
-			let row = document.importNode(this.template.content, true);
+		public addRow(visitData: IParticipantWithPossibleVisit, insertAtTop = false) {
+			let rowTemplate = document.importNode(this.template.content, true);
 
-			const timeCell = row.getElementById("time") as HTMLTableCellElement;
-			const nameCell = row.getElementById("name") as HTMLTableCellElement;
-			const majorCell = row.getElementById("major") as HTMLTableCellElement;
-			const addAction = row.querySelector(".add-action") as HTMLButtonElement;
-			const starAction = row.querySelector(".star-action") as HTMLButtonElement;
-			const flagAction = row.querySelector(".flag-action") as HTMLButtonElement;
-			const tagAction = row.querySelector(".tag-action") as HTMLButtonElement;
-			const githubLink = row.querySelector(".github") as HTMLAnchorElement;
-			const websiteLink = row.querySelector(".website") as HTMLAnchorElement;
+			const timeCell = rowTemplate.getElementById("time") as HTMLTableCellElement;
+			const nameCell = rowTemplate.getElementById("name") as HTMLTableCellElement;
+			const majorCell = rowTemplate.getElementById("major") as HTMLTableCellElement;
+			const addAction = rowTemplate.querySelector(".add-action") as HTMLButtonElement;
+			const starAction = rowTemplate.querySelector(".star-action") as HTMLButtonElement;
+			const flagAction = rowTemplate.querySelector(".flag-action") as HTMLButtonElement;
+			const tagAction = rowTemplate.querySelector(".tag-action") as HTMLButtonElement;
+			const githubLink = rowTemplate.querySelector(".github") as HTMLAnchorElement;
+			const websiteLink = rowTemplate.querySelector(".website") as HTMLAnchorElement;
 
 			nameCell.textContent = visitData.participant.name;
 			majorCell.textContent = visitData.participant.major || "Unknown";
@@ -425,7 +425,7 @@ namespace Employer {
 				const minutes: string = (time.getMinutes() < 10 ? "0" : "") + time.getMinutes();
 				timeCell.textContent = `${hours}:${minutes} on ${time.getDate()} ${months[time.getMonth()]}`;
 
-				const tags = row.getElementById("tags") as HTMLDivElement;
+				const tags = rowTemplate.getElementById("tags") as HTMLDivElement;
 				// Remove all previous children
 				emptyContainer(tags);
 				for (let tag of visitData.visit.tags) {
@@ -451,12 +451,12 @@ namespace Employer {
 				}));
 			}
 
-			const viewAction = row.querySelector(".view-action") as HTMLButtonElement;
+			const viewAction = rowTemplate.querySelector(".view-action") as HTMLButtonElement;
 			viewAction.addEventListener("click", () => {
 				detailModalManager.open(visitData);
 			});
 
-			const selectCell = row.getElementById("select") as HTMLTableCellElement;
+			const selectCell = rowTemplate.getElementById("select") as HTMLTableCellElement;
 			const checkbox = selectCell.querySelector("input") as HTMLInputElement;
 			checkbox.dataset.id = visitData.participant.uuid;
 
@@ -465,19 +465,30 @@ namespace Employer {
 				checkbox.checked = !checkbox.checked;
 			});
 
-			if (atStart) {
+			let row = rowTemplate.querySelector("tr")!;
+			row.dataset.id = visitData.participant.uuid;
+			let existingRow = this.rows.get(visitData.participant.uuid);
+			if (existingRow) {
+				this.tbody.replaceChild(row, existingRow);
+			}
+			else if (insertAtTop) {
 				this.tbody.insertBefore(row, this.tbody.firstChild);
-				if (this.tbody.children.length > 20) {
-					this.tbody.lastChild?.remove();
+				if (this.rows.size >= 20) {
+					let removed = this.tbody.removeChild(this.tbody.lastChild!) as HTMLElement;
+					if (removed.dataset.id) {
+						this.rows.delete(removed.dataset.id);
+					}
 				}
 			}
 			else {
 				this.tbody.appendChild(row);
 			}
+			this.rows.set(visitData.participant.uuid, row);
 		}
 
 		public empty() {
 			emptyContainer(this.tbody);
+			this.rows = new Map();
 		}
 	}
 
