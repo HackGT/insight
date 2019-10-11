@@ -178,11 +178,11 @@ export interface IParticipant extends RootDocument {
 	};
 	interestingDetails?: {
 		favoriteLanguages?: string[];
-		fun1: {
+		fun1?: {
 			question: string;
 			answer?: string;
 		};
-		fun2: {
+		fun2?: {
 			question: string;
 			answer?: string;
 		};

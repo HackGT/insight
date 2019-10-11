@@ -1,3 +1,5 @@
+import * as crypto from "crypto";
+import * as fs from "fs";
 import * as express from "express";
 import {
 	IUser, User,
@@ -8,8 +10,49 @@ import {
 } from "./schema";
 import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth } from "./middleware";
 import { formatName } from "./common";
+import { agenda } from "./tasks";
+import Agenda from "agenda";
 
 export let apiRoutes = express.Router();
+
+apiRoutes.route("/download")
+	.post(apiAuth, postParser, async (request, response) => {
+		let user = request.user as IUser | undefined;
+		let type = request.body.type as string || "";
+
+		let jobID = crypto.randomBytes(16).toString("hex");
+		let participantIDs: string[] = [];
+		if (type === "all") {
+			participantIDs = (await Participant.find().sort({ "name": 1 })).map(p => p.uuid);
+		}
+		else if (type === "visited") {
+			if (!user?.company?.verified) {
+				response.json({
+					"error": "Must be authenticated as an employer if downloading visited resumes"
+				});
+				return;
+			}
+			participantIDs = (await Visit.aggregate([
+				{ $match: { "company": user.company.name } },
+				{ $sort: { time: -1 } }, // Sort newest first
+			])).map(v => v.participant);
+		}
+		else {
+			response.json({
+				"error": "Invalid download request type"
+			});
+			return;
+		}
+
+		agenda.on("complete:export", (job: Agenda.Job<Agenda.JobAttributesData>) => {
+			if (job.attrs.data.id !== jobID) return;
+
+			response.attachment("export.zip");
+			let stream = fs.createReadStream(job.attrs.data.exportFile);
+			stream.pipe(response);
+		});
+		await agenda.now("export", { id: jobID, participantIDs });
+	});
 
 apiRoutes.route("/search")
 	.get(isAnEmployer, async (request, response) => {
