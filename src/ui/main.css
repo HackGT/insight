@@ -122,6 +122,6 @@ embed, iframe {
 	left: auto;
 	right: 0;
 }
-#search-control {
+#search-control, .progress:not(:last-child) {
 	margin-bottom: 0.75rem;
 }

@@ -1,5 +1,6 @@
 {{#> main title="Home"}}
 	{{#*inline "head-block"}}
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js"></script>
 		<script src="/js/common.js"></script>
 		<script defer src="/js/employer.js"></script>
 	{{/inline}}
@@ -190,6 +191,7 @@
 				<h2 class="subtitle">You're connected to these scanners: <strong>{{join user.company.scannerIDs}}</strong></h2>
 			{{/ifCond}}
 		{{/ifCond}}
+		<progress class="progress" max="100" hidden></progress>
 		<div class="field is-grouped">
 			{{!-- <p class="control">
 				<a class="button is-primary">
@@ -277,6 +279,7 @@
 		<div class="control is-medium" id="search-control">
 			<input class="input is-medium" type="text" placeholder="Search names, resume content, skills, etc." id="search-box">
 		</div>
+		<progress class="progress" max="100" hidden></progress>
 		<div class="field is-grouped">
 			{{!-- <p class="control">
 				<a class="button is-primary">

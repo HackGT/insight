@@ -1,3 +1,5 @@
+declare const io: typeof import("socket.io");
+
 namespace Employer {
 	// Slight differences (due to JSON representation) between these interfaces and the same ones in schema.ts
 	interface IVisit {
@@ -755,6 +757,16 @@ namespace Employer {
 
 	let isDownloadRunning = false;
 	const downloadDropdowns = document.querySelectorAll(".dropdown-trigger > .button") as NodeListOf<HTMLButtonElement>;
+	function getProgressBar(): HTMLProgressElement {
+		let prefix = "";
+		if (scanningContent.hidden === false) {
+			prefix = "#scanning";
+		}
+		else if (searchContent.hidden === false) {
+			prefix = "#search";
+		}
+		return document.querySelector(`${prefix} > progress`) as HTMLProgressElement;
+	}
 	function downloadHandler(buttons: NodeListOf<Element>, handler: () => Promise<void>) {
 		for (let i = 0; i < buttons.length; i++) {
 			buttons[i].addEventListener("click", async () => {
@@ -796,8 +808,8 @@ namespace Employer {
 			}
 		}
 		if (selectedUUIDs.length > 0) {
-			let response = await sendRequest("POST", "/api/export", { type: "selected", ids: JSON.stringify(selectedUUIDs) }, false);
-			window.location.assign(`/api/export?id=${response.id}`);
+			getProgressBar().hidden = false;
+			await sendRequest("POST", "/api/export", { type: "selected", ids: JSON.stringify(selectedUUIDs) }, false);
 		}
 		else {
 			alert("Please choose at least one participant to export");
@@ -806,14 +818,53 @@ namespace Employer {
 
 	let downloadVisited = document.querySelectorAll(".download-scanned");
 	downloadHandler(downloadVisited, async () => {
-		let response = await sendRequest("POST", "/api/export", { type: "visited" }, false);
-		window.location.assign(`/api/export?id=${response.id}`);
+		getProgressBar().hidden = false;
+		await sendRequest("POST", "/api/export", { type: "visited" }, false);
 	});
 
 	let downloadAll = document.querySelectorAll(".download-all");
 	downloadHandler(downloadAll, async () => {
 		if (!confirm("Are you sure that you want to export all participants? This export will take a while to complete.")) return;
-		let response = await sendRequest("POST", "/api/export", { type: "all" }, false);
-		window.location.assign(`/api/export?id=${response.id}`);
+		getProgressBar().hidden = false;
+		await sendRequest("POST", "/api/export", { type: "all" }, false);
 	});
+
+	class WebSocketManager {
+		public static async connect() {
+			const socket = io({
+				query: await WebSocketManager.authorize()
+			});
+			socket.on("reconnection_attempt", async () => {
+				(socket as any).io.opts.query = await WebSocketManager.authorize();
+			});
+			return new WebSocketManager(socket);
+		}
+		public static async authorize(): Promise<GenericObject> {
+			let options: RequestInit = {
+				method: "GET",
+				credentials: "include"
+			};
+			let response: APIResponse = await fetch("/api/authorize", options).then(response => response.json());
+
+			return {
+				uuid: response.uuid as string,
+				time: response.time as number,
+				token: response.token as string
+			}
+		}
+
+		constructor(private readonly socket: SocketIO.Server) {
+			this.socket.on("export-progress", (progress: { percentage: number }) => {
+				let progressBar = getProgressBar();
+				progressBar.value = progress.percentage;
+			});
+			this.socket.on("export-complete", (progress: { id: string }) => {
+				let progressBar = getProgressBar();
+				progressBar.removeAttribute("value");
+				progressBar.hidden = true;
+				window.location.assign(`/api/export?id=${progress.id}`);
+			});
+		}
+	}
+	WebSocketManager.connect();
 }

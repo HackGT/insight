@@ -10,12 +10,30 @@ import {
 	IParticipant, Participant,
 	createNew, Model
 } from "./schema";
-import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth } from "./middleware";
-import { formatName } from "./common";
+import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth, authenticateWithRedirect } from "./middleware";
+import { formatName, config } from "./common";
 import { agenda } from "./tasks";
 import Agenda from "agenda";
 
 export let apiRoutes = express.Router();
+
+// Used to authorize WebSocket connections
+apiRoutes.route("/authorize")
+	.get(authenticateWithRedirect, async (request, response) => {
+		let user = request.user as IUser;
+		let time = Date.now();
+
+		response.json({
+			"success": true,
+			"uuid": user.uuid,
+			"time": time.toString(),
+			"token": crypto
+				.createHmac("sha256", config.secrets.apiKey + time)
+				.update(user.uuid)
+				.digest()
+				.toString("hex")
+		});
+	});
 
 apiRoutes.route("/export")
 	.get(apiAuth, async (request, response) => {
@@ -24,11 +42,15 @@ apiRoutes.route("/export")
 			response.status(404).send("Invalid download ID");
 		}
 		const file = path.join(os.tmpdir(), jobID + ".zip");
-		response.attachment("export.zip");
 		let stream = fs.createReadStream(file);
 		stream.on("end", async () => {
 			await fs.promises.unlink(file);
 		});
+		stream.on("error", err => {
+			console.error(err);
+			response.status(404).send("Invalid download ID");
+		});
+		response.attachment("export.zip");
 		stream.pipe(response);
 	})
 	.post(apiAuth, postParser, async (request, response) => {
@@ -61,16 +83,8 @@ apiRoutes.route("/export")
 			});
 			return;
 		}
-
-		agenda.on("complete:export", (job: Agenda.Job<Agenda.JobAttributesData>) => {
-			if (job.attrs.data.id !== jobID) return;
-
-			response.json({
-				"success": true,
-				"id": jobID
-			});
-		});
-		await agenda.now("export", { id: jobID, participantIDs });
+		await agenda.now("export", { id: jobID, participantIDs, requesterUUID: user?.uuid });
+		response.json({ "success": true, "id": jobID });
 	});
 
 apiRoutes.route("/search")

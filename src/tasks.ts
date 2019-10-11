@@ -9,6 +9,7 @@ import { config, wait, S3_ENGINE, formatSize } from "./common";
 import { getAllParticipants } from "./registration";
 import { Participant, createNew, IParticipant, IVisit } from "./schema";
 import { isAdmin } from "./middleware";
+import { webSocketServer } from "./app";
 
 export const agenda = new Agenda({ db: { address: config.server.mongoURL } });
 
@@ -73,6 +74,7 @@ agenda.define("parse-missing-resumes", { concurrency: 1, priority: "low" }, asyn
 
 agenda.define("export", { concurrency: 1, priority: "normal" }, async (job, done) => {
 	const startTime = Date.now();
+	let requesterUUID: string | undefined = job.attrs.data.requesterUUID;
 	let participantIDs: string[] = job.attrs.data.participantIDs;
 	let participants: (IParticipant & { visitData?: IVisit })[] = await Participant.aggregate([
 		{ $match: { uuid: { $in: participantIDs } } },
@@ -96,12 +98,20 @@ agenda.define("export", { concurrency: 1, priority: "normal" }, async (job, done
 		job.attrs.data.size = formatSize(archive.pointer());
 		job.attrs.data.exportFile = exportFile;
 		await job.save();
+		if (requesterUUID) {
+			webSocketServer.exportComplete(requesterUUID, job.attrs.data.id);
+		}
 		done();
 	});
 	archive.on("error", err => done(err));
 	archive.pipe(output);
 
-	for (let participant of participants) {
+	for (let [i, participant] of participants.entries()) {
+		if (requesterUUID) {
+			let percentage = Math.round((i / participants.length) * 100);
+			webSocketServer.exportUpdate(requesterUUID, percentage);
+		}
+
 		let folderName = `${participant.name} - ${participant.uuid}`;
 
 		if (participant.resume?.path) {

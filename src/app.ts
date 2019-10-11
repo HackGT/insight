@@ -1,3 +1,4 @@
+import * as http from "http";
 import express from "express";
 import compression from "compression";
 import cookieParser from "cookie-parser";
@@ -114,6 +115,10 @@ if (bugsnagMiddleware) {
 	app.use(bugsnagMiddleware.errorHandler);
 }
 
-app.listen(PORT, () => {
+let server = http.createServer(app);
+import { WebSocketServer } from "./websocket";
+export const webSocketServer = new WebSocketServer(server);
+
+server.listen(PORT, () => {
 	console.log(`Insight system v${VERSION_NUMBER} @ ${VERSION_HASH} started on port ${PORT}`);
 });

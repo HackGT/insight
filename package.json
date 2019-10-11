@@ -32,6 +32,7 @@
     "@types/passport": "^1.0.1",
     "@types/passport-oauth2": "^1.4.8",
     "@types/request": "^2.48.3",
+    "@types/socket.io": "^2.1.4",
     "@types/word-extractor": "^0.3.0",
     "agenda": "^2.1.0",
     "agendash": "^1.0.0",
@@ -58,6 +59,7 @@
     "pdf-parse": "^1.1.1",
     "pdf2json": "^1.1.8",
     "request": "^2.88.0",
+    "socket.io": "^2.3.0",
     "typescript": "^3.7.0-dev.20191009",
     "word-extractor": "^0.3.0"
   }
