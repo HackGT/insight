@@ -89,12 +89,6 @@ namespace Employer {
 			await sendRequest("DELETE", `/api/visit/${visitData.visit._id}/tag`, { tag }, false);
 			control.remove();
 			visitData.visit.tags = visitData.visit.tags.filter(t => t !== tag);
-			if (detailModalManager.isOpen) {
-				let tagSpan = document.querySelector(`.tags-column .tag[data-tag="${tag}"][data-id="${visitData.visit._id}"]`);
-				if (tagSpan) {
-					tagSpan.parentElement!.parentElement!.remove();
-				}
-			}
 		});
 
 		tagContainer.appendChild(tagSpan);
@@ -386,7 +380,11 @@ namespace Employer {
 			this.template = document.getElementById("table-row") as HTMLTemplateElement;
 		}
 
-		public addRow(visitData: IParticipantWithPossibleVisit, insertAtTop = false) {
+		public get participantIDs(): Set<string> {
+			return new Set(this.rows.keys());
+		}
+
+		public addOrUpdateRow(visitData: IParticipantWithPossibleVisit, insertAtTop = false) {
 			let rowTemplate = document.importNode(this.template.content, true);
 
 			const timeCell = rowTemplate.getElementById("time") as HTMLTableCellElement;
@@ -654,7 +652,7 @@ namespace Employer {
 		scanningPagination.update(response);
 		let visits = response.visits as (IVisit & { participantData: IParticipant })[];
 		for (let visit of visits) {
-			scanningTable.addRow({
+			scanningTable.addOrUpdateRow({
 				participant: visit.participantData,
 				visit
 			});
@@ -692,7 +690,7 @@ namespace Employer {
 		searchPagination.update(response);
 		let participants = response.participants as (IParticipant & { visitData?: IVisit })[];
 		for (let participant of participants) {
-			searchTable.addRow({
+			searchTable.addOrUpdateRow({
 				participant,
 				visit: participant.visitData
 			});
@@ -898,7 +896,7 @@ namespace Employer {
 			});
 			this.socket.on("visit", (visit: IParticipantWithVisit) => {
 				this.visit = visit;
-				scanningTable.addRow(visit, true);
+				scanningTable.addOrUpdateRow(visit, true);
 
 				toast.querySelector(".name")!.textContent = visit.participant.name;
 				toast.querySelector(".scanner")!.textContent = visit.visit.scannerID;
@@ -910,6 +908,14 @@ namespace Employer {
 				this.toastCloseTimeout = setTimeout(() => {
 					toast.classList.remove("is-active");
 				}, 5000) as unknown as number;
+			});
+			this.socket.on("reload-participant", (visit: IParticipantWithPossibleVisit) => {
+				if (scanningTable.participantIDs.has(visit.participant.uuid)) {
+					scanningTable.addOrUpdateRow(visit);
+				}
+				if (searchTable.participantIDs.has(visit.participant.uuid)) {
+					searchTable.addOrUpdateRow(visit);
+				}
 			});
 		}
 	}

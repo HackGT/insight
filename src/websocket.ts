@@ -5,7 +5,7 @@ import { config } from "./common";
 import { User, IParticipant, IVisit } from "./schema";
 
 export class WebSocketServer {
-	private readonly sockets: Map<string, socketio.Socket> = new Map();
+	private readonly sockets: Map<string, socketio.Socket[]> = new Map();
 
 	constructor(server: http.Server) {
 		const io = socketio(server);
@@ -28,23 +28,42 @@ export class WebSocketServer {
 				socket.disconnect();
 				return;
 			}
-			this.sockets.set(uuid, socket);
+			let sockets = this.sockets.get(uuid) ?? [];
+			sockets.push(socket);
+			this.sockets.set(uuid, sockets);
 		});
 	}
 
 	public exportUpdate(uuid: string, percentage: number) {
-		let socket = this.sockets.get(uuid);
-		if (!socket) return;
-		socket.emit("export-progress", { percentage });
+		let sockets = this.sockets.get(uuid);
+		if (!sockets) return;
+		for (let socket of sockets) {
+			socket.volatile.emit("export-progress", { percentage });
+		}
 	}
 	public exportComplete(uuid: string, id: string) {
-		let socket = this.sockets.get(uuid);
-		if (!socket) return;
-		socket.emit("export-complete", { id });
+		let sockets = this.sockets.get(uuid);
+		if (!sockets) return;
+		for (let socket of sockets) {
+			socket.emit("export-complete", { id });
+		}
 	}
 	public visitNotification(uuid: string, participant: IParticipant, visit: IVisit) {
-		let socket = this.sockets.get(uuid);
-		if (!socket) return;
-		socket.emit("visit", { participant, visit });
+		let sockets = this.sockets.get(uuid);
+		if (!sockets) return;
+		for (let socket of sockets) {
+			socket.emit("visit", { participant, visit });
+		}
+	}
+	public async reloadParticipant(company: string, participant: IParticipant, visit?: IVisit) {
+		// Only send this event to people from the same company
+		let users = await User.find({ "company.name": company, "company.verified": true });
+		for (let user of users) {
+			let sockets = this.sockets.get(user.uuid);
+			if (!sockets) continue;
+			for (let socket of sockets) {
+				socket.emit("reload-participant", { participant, visit });
+			}
+		}
 	}
 }

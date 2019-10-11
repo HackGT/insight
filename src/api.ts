@@ -163,7 +163,7 @@ apiRoutes.route("/visit/:id/tag")
 	.post(isAnEmployer, postParser, async (request, response) => {
 		const data = await getVisit(request, response);
 		if (!data) return;
-		const { visit } = data;
+		const { participant, visit } = data;
 
 		const tag = (request.body.tag as string || "").trim().toLowerCase();
 		if (!tag) {
@@ -177,12 +177,14 @@ apiRoutes.route("/visit/:id/tag")
 		tags.add(tag);
 		visit.tags = [...tags];
 		await visit.save();
+		await webSocketServer.reloadParticipant(visit.company, participant, visit);
+
 		response.json({ "success": true });
 	})
 	.delete(isAnEmployer, postParser, async (request, response) => {
 		const data = await getVisit(request, response);
 		if (!data) return;
-		const { visit } = data;
+		const { participant, visit } = data;
 
 		const tag = (request.body.tag as string || "").trim().toLowerCase();
 		if (!tag) {
@@ -194,6 +196,8 @@ apiRoutes.route("/visit/:id/tag")
 
 		visit.tags = visit.tags.filter(t => t !== tag);
 		await visit.save();
+		await webSocketServer.reloadParticipant(visit.company, participant, visit);
+
 		response.json({ "success": true });
 	});
 
