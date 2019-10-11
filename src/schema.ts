@@ -132,8 +132,14 @@ export interface IVisit extends RootDocument {
 }
 
 export const Visit = mongoose.model<Model<IVisit>>("Visit", new mongoose.Schema({
-	participant: String,
-	company: String,
+	participant: {
+		type: String,
+		index: true
+	},
+	company: {
+		type: String,
+		index: true
+	},
 	tags: [String],
 	notes: [String],
 	time: Date,
@@ -151,7 +157,10 @@ export interface ICompany extends RootDocument {
 }
 
 export const Company = mongoose.model<Model<ICompany>>("Company", new mongoose.Schema({
-	name: String,
+	name: {
+		type: String,
+		index: true
+	},
 	visits: [mongoose.Types.ObjectId]
 }));
 
@@ -185,7 +194,10 @@ export interface IParticipant extends RootDocument {
 }
 
 export const Participant = mongoose.model<Model<IParticipant>>("Participant", new mongoose.Schema({
-	uuid: String,
+	uuid: {
+		type: String,
+		index: true
+	},
 	name: String,
 	email: String,
 	school: String,

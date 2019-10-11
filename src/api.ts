@@ -20,22 +20,24 @@ apiRoutes.route("/search")
 			page = 0;
 		}
 
-		let participants = await Participant
-			.find(
-				{ "$text": { "$search": query } },
-				{ "score": { "$meta": "textScore" } }
-			)
-			.sort({ "score": { $meta: "textScore" } })
-			.skip(page * PAGE_SIZE)
-			.limit(PAGE_SIZE);
-		let visits = await Promise.all(participants.map(participant => Visit.findOne({ participant: participant.uuid })));
+		let participants = await Participant.aggregate([
+			{ $match: { "$text": { "$search": query } } },
+			{ $skip: page * PAGE_SIZE },
+			{ $limit: PAGE_SIZE },
+			{ $sort: { score: { "$meta": "textScore" } } },
+			{ $lookup: {
+				from: "visits",
+				localField: "uuid",
+				foreignField: "participant",
+				as: "visitData"
+			} },
+			{ $unwind: { path: "$visitData", preserveNullAndEmptyArrays: true } }, // Turns arrays of 0 to 1 documents into that document or unsets the field
+			{ $project: { "resume.extractedText": 0 } } // Not needed so let's reduce response size
+		])
 
 		response.json({
 			"success": true,
-			"results": participants.map((participant, i) => ({
-				participant: participant.toObject(),
-				visit: visits[i] ? visits[i]!.toObject() : null
-			}))
+			participants
 		});
 	});
 
@@ -211,19 +213,23 @@ apiRoutes.route("/visit")
 		if (isNaN(page) || page < 0) {
 			page = 0;
 		}
-		let visits = await Visit
-			.find({ "company": user.company.name })
-			.sort({ "time": "desc" })
-			.skip(page * PAGE_SIZE)
-			.limit(PAGE_SIZE);
-		let participants = await Promise.all(visits.map(visit => Participant.findOne({ uuid: visit.participant })));
+		let visits = await Visit.aggregate([
+			{ $match: { "company": user.company.name } },
+			{ $skip: page * PAGE_SIZE },
+			{ $limit: PAGE_SIZE },
+			{ $lookup: {
+				from: "participants",
+				localField: "participant",
+				foreignField: "uuid",
+				as: "participantData"
+			} },
+			{ $unwind: { path: "$participantData" } }, // Turns array of 1 document into just that document
+			{ $project: { "participantData.resume.extractedText": 0 } } // Reduces size of response
+		]);
 
 		response.json({
 			"success": true,
-			"visits": visits.map((visit, i) => ({
-				visit: visit.toObject(),
-				participant: participants[i] ? participants[i]!.toObject() : null
-			}))
+			visits,
 		});
 	})
 	.post(apiAuth, postParser, async (request, response) => {

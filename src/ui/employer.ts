@@ -460,9 +460,12 @@ namespace Employer {
 			alert(response.error);
 			return;
 		}
-		let visits = response.visits as IParticipantWithVisit[];
+		let visits = response.visits as (IVisit & { participantData: IParticipant })[];
 		for (let visit of visits) {
-			scanningTable.addRow(visit);
+			scanningTable.addRow({
+				participant: visit.participantData,
+				visit
+			});
 		}
 	}
 
@@ -493,9 +496,12 @@ namespace Employer {
 			alert(response.error);
 			return;
 		}
-		let results = response.results as IParticipantWithPossibleVisit[];
-		for (let result of results) {
-			searchTable.addRow(result);
+		let participants = response.participants as (IParticipant & { visitData?: IVisit })[];
+		for (let participant of participants) {
+			searchTable.addRow({
+				participant,
+				visit: participant.visitData
+			});
 		}
 		searchControl.classList.remove("is-loading");
 	}
