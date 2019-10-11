@@ -10,7 +10,10 @@
 			<h2 class="subtitle">{{user.email}}</h2>
 			<p>In order to start using {{siteTitle}}, you'll need to be associated with company.</p>
 			{{#if user.company.name}}
-				<p>You're currently pending approval to join <strong>{{user.company.name}}</strong>.</p>
+				<br />
+				<article class="message is-info">
+					<div class="message-body">You're currently pending approval to join <strong>{{user.company.name}}</strong>.</div>
+				</article>
 			{{/if}}
 			<p class="content">
 				<div class="field has-addons">
