@@ -10,7 +10,7 @@ import WordExtractor from "word-extractor";
 import * as express from "express";
 import { authenticateWithRedirect, uploadHandler } from "./middleware";
 import { IUser, User, IS3Options, Participant } from "./schema";
-import { S3_ENGINE } from "./common";
+import { S3_ENGINE, config } from "./common";
 import { agenda } from "./tasks";
 
 interface IStorageEngine {
@@ -113,20 +113,40 @@ export class S3StorageEngine implements IStorageEngine {
 	}
 }
 
+export function publicLink(file: string): string {
+	file = path.basename(file);
+	let time = Date.now();
+	let key = crypto
+		.createHmac("sha256", config.secrets.apiKey + time)
+		.update(file)
+		.digest()
+		.toString("hex");
+	return `${file}?key=${key}&time=${time}`;
+}
+
 export let storageRoutes = express.Router();
 
 storageRoutes.route("/:file")
 	.get(async (request, response) => {
 		let user = request.user as IUser | undefined;
 
+		const KEY_VALID_TIME = 60000; // 1 minute
+		let key = request.query.key as string || "";
+		let time = parseInt(request.query.time as string || "");
+		let correctHash = crypto
+			.createHmac("sha256", config.secrets.apiKey + time)
+			.update(request.params.file)
+			.digest()
+			.toString("hex");
+
 		// Access:
 		// - All employers can GET all resumes
 		// - Participants can GET their own resume
-		if (!user) {
+		if (!user && (key !== correctHash || (Date.now() - time) > KEY_VALID_TIME)) {
 			response.status(401).send();
 			return;
 		}
-		else if (user.type !== "employer") {
+		else if (user && user.type !== "employer") {
 			let participant = await Participant.findOne({ uuid: user.uuid });
 			if (!participant || !participant.resume || participant.resume.path !== request.params.file) {
 				response.status(403).send();
@@ -134,6 +154,13 @@ storageRoutes.route("/:file")
 			}
 		}
 
+		if (request.query.public === "true") {
+			response.json({
+				"success": true,
+				"link": publicLink(request.params.file),
+			});
+			return;
+		}
 		try {
 			let stream = await S3_ENGINE.readFile(request.params.file);
 			if (request.query.download === "true") {

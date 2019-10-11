@@ -332,17 +332,31 @@ namespace Employer {
 			}
 
 			if (loadResume) {
+				this.resume.hidden = true;
 				if (participant.resume) {
 					if (participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
-						this.resume.src = `http://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + "/" + participant.resume.path)}`;
+						// Word documents require a public link so that Microsoft can access the document
+						let options: RequestInit = {
+							method: "GET",
+							credentials: "include"
+						};
+						fetch(`/${this.openDetail.participant.resume?.path}?public=true`, options)
+							.then(response => response.json() as Promise<APIResponse>)
+							.then(response => {
+								if (!participant.resume) return;
+								if (!response.success) {
+									alert(response.error);
+									return;
+								}
+								this.resume.src = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + "/uploads/" + response.link)}`;
+								this.resume.hidden = false;
+							});
 					}
 					else {
+						// PDFs and images don't require a public link
 						this.resume.src = participant.resume.path;
+						this.resume.hidden = false;
 					}
-					this.resume.hidden = false;
-				}
-				else {
-					this.resume.hidden = true;
 				}
 			}
 			this.modal.classList.add("is-active");
