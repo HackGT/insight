@@ -125,3 +125,32 @@ embed, iframe {
 #search-control, .progress:not(:last-child) {
 	margin-bottom: 0.75rem;
 }
+.message.toast {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: -100px;
+	margin: 0;
+	z-index: 1000;
+	text-align: center;
+	border-radius: 0;
+	transition: bottom 0.25s ease-in-out;
+}
+.message.toast.is-active {
+	bottom: 0;
+}
+.message.toast > .message-body {
+	border-radius: 0;
+	border-width: 4px 0 0 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.message.toast > .message-body > .button {
+	margin-left: 0.75rem;
+}
+.message.toast > .message-body > .delete {
+	position: absolute;
+	top: 30px;
+	right: 30px;
+}

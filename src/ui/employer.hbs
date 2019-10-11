@@ -180,6 +180,18 @@
 			</footer>
 		</div>
 	</article>
+	<article class="message is-info toast">
+		<div class="message-body">
+			<span><span class="name"></span> (<strong>Scanner ID:</strong> <span class="scanner"></span>)</span>
+			<button class="button view">
+				<span>View</span>
+				<span class="icon">
+					<i class="fas fa-external-link-alt"></i>
+				</span>
+			</button>
+			<button class="delete"></button>
+		</div>
+	</article>
 	<section id="scanning">
 		<h1 class="title">Scanning</h1>
 		{{#ifCond user.company.scannerIDs.length 0}}

@@ -386,7 +386,7 @@ namespace Employer {
 			this.template = document.getElementById("table-row") as HTMLTemplateElement;
 		}
 
-		public addRow(visitData: IParticipantWithPossibleVisit) {
+		public addRow(visitData: IParticipantWithPossibleVisit, atStart = false) {
 			let row = document.importNode(this.template.content, true);
 
 			const timeCell = row.getElementById("time") as HTMLTableCellElement;
@@ -465,7 +465,15 @@ namespace Employer {
 				checkbox.checked = !checkbox.checked;
 			});
 
-			this.tbody.appendChild(row);
+			if (atStart) {
+				this.tbody.insertBefore(row, this.tbody.firstChild);
+				if (this.tbody.children.length > 20) {
+					this.tbody.lastChild?.remove();
+				}
+			}
+			else {
+				this.tbody.appendChild(row);
+			}
 		}
 
 		public empty() {
@@ -829,6 +837,9 @@ namespace Employer {
 		await sendRequest("POST", "/api/export", { type: "all" }, false);
 	});
 
+	const toast = document.querySelector(".message.toast") as HTMLDivElement;
+	toast.querySelector(".delete")?.addEventListener("click", () => toast.classList.remove("is-active"));
+
 	class WebSocketManager {
 		public static async connect() {
 			const socket = io({
@@ -853,6 +864,9 @@ namespace Employer {
 			}
 		}
 
+		private toastCloseTimeout: number | null = null;
+		private visit: IParticipantWithVisit | null = null;
+
 		constructor(private readonly socket: SocketIO.Server) {
 			this.socket.on("export-progress", (progress: { percentage: number }) => {
 				let progressBar = getProgressBar();
@@ -863,6 +877,28 @@ namespace Employer {
 				progressBar.removeAttribute("value");
 				progressBar.hidden = true;
 				window.location.assign(`/api/export?id=${progress.id}`);
+			});
+
+			toast.querySelector(".view")!.addEventListener("click", () => {
+				if (this.visit) {
+					detailModalManager.open(this.visit);
+				}
+				toast.classList.remove("is-active");
+			});
+			this.socket.on("visit", (visit: IParticipantWithVisit) => {
+				this.visit = visit;
+				scanningTable.addRow(visit, true);
+
+				toast.querySelector(".name")!.textContent = visit.participant.name;
+				toast.querySelector(".scanner")!.textContent = visit.visit.scannerID;
+
+				toast.classList.add("is-active");
+				if (this.toastCloseTimeout) {
+					clearTimeout(this.toastCloseTimeout);
+				}
+				this.toastCloseTimeout = setTimeout(() => {
+					toast.classList.remove("is-active");
+				}, 5000) as unknown as number;
 			});
 		}
 	}

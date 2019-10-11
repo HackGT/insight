@@ -14,6 +14,7 @@ import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth, authenti
 import { formatName, config } from "./common";
 import { agenda } from "./tasks";
 import Agenda from "agenda";
+import { webSocketServer } from "./app";
 
 export let apiRoutes = express.Router();
 
@@ -358,23 +359,34 @@ apiRoutes.route("/visit")
 			});
 			return;
 		}
-
-		let visit = createNew(Visit, {
-			participant: participant.uuid,
-			company: company.name,
-			tags: [],
-			notes: [],
-			time: new Date(),
-			scannerID: scannerID || null,
-			employees: scanningEmployees.map(employee => ({
-				uuid: employee.uuid,
-				name: formatName(employee),
-				email: employee.email
-			}))
-		});
-		company.visits.push(visit._id);
+		let visit = await Visit.findOne({ company: company.name, participant: participant.uuid });
+		if (visit) {
+			visit.time = new Date();
+		}
+		else {
+			visit = createNew(Visit, {
+				participant: participant.uuid,
+				company: company.name,
+				tags: [],
+				notes: [],
+				time: new Date(),
+				scannerID: scannerID || null,
+				employees: scanningEmployees.map(employee => ({
+					uuid: employee.uuid,
+					name: formatName(employee),
+					email: employee.email
+				}))
+			});
+			company.visits.push(visit._id);
+		}
 		await visit.save();
 		await company.save();
+
+		if (visit.scannerID) {
+			for (let employee of scanningEmployees) {
+				webSocketServer.visitNotification(employee.uuid, participant, visit);
+			}
+		}
 
 		response.json({
 			"success": true
