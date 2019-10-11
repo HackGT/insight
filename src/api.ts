@@ -20,11 +20,12 @@ apiRoutes.route("/search")
 			page = 0;
 		}
 
+		let total = await Participant.countDocuments({ "$text": { "$search": query } });
 		let participants = await Participant.aggregate([
 			{ $match: { "$text": { "$search": query } } },
+			{ $sort: { score: { "$meta": "textScore" } } },
 			{ $skip: page * PAGE_SIZE },
 			{ $limit: PAGE_SIZE },
-			{ $sort: { score: { "$meta": "textScore" } } },
 			{ $lookup: {
 				from: "visits",
 				localField: "uuid",
@@ -37,6 +38,9 @@ apiRoutes.route("/search")
 
 		response.json({
 			"success": true,
+			page,
+			pageSize: PAGE_SIZE,
+			total,
 			participants
 		});
 	});
@@ -213,8 +217,10 @@ apiRoutes.route("/visit")
 		if (isNaN(page) || page < 0) {
 			page = 0;
 		}
+		let total = await Visit.countDocuments({ "company": user.company.name });
 		let visits = await Visit.aggregate([
 			{ $match: { "company": user.company.name } },
+			{ $sort: { time: -1  } }, // Sort newest first
 			{ $skip: page * PAGE_SIZE },
 			{ $limit: PAGE_SIZE },
 			{ $lookup: {
@@ -229,7 +235,10 @@ apiRoutes.route("/visit")
 
 		response.json({
 			"success": true,
-			visits,
+			page,
+			pageSize: PAGE_SIZE,
+			total,
+			visits
 		});
 	})
 	.post(apiAuth, postParser, async (request, response) => {

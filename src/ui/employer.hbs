@@ -187,6 +187,34 @@
 				<h2 class="subtitle">You're connected to these scanners: <strong>{{join user.company.scannerIDs}}</strong></h2>
 			{{/ifCond}}
 		{{/ifCond}}
+		<nav class="pagination">
+			<a class="pagination-previous">Previous</a>
+			<a class="pagination-next">Next page</a>
+			<ul class="pagination-list">
+				<li class="first-page" hidden>
+					<a class="pagination-link">1</a>
+				</li>
+				<li class="first-page" hidden>
+					<span class="pagination-ellipsis">&hellip;</span>
+				</li>
+				<li>
+					<a class="pagination-link previous-page" hidden>45</a>
+				</li>
+				<li>
+					<a class="pagination-link is-current">1</a>
+				</li>
+				<li>
+					<a class="pagination-link next-page" hidden>47</a>
+				</li>
+				<li class="last-page" hidden>
+					<span class="pagination-ellipsis">&hellip;</span>
+				</li>
+				<li class="last-page" hidden>
+					<a class="pagination-link">86</a>
+				</li>
+			</ul>
+		</nav>
+		<br />
 		<div class="table-container">
 			<table class="table is-hoverable is-fullwidth" id="scanning-table">
 				<thead>
@@ -208,6 +236,34 @@
 		<div class="control is-medium" id="search-control">
 			<input class="input is-medium" type="text" placeholder="Search names, resume content, skills, etc." id="search-box">
 		</div>
+		<br />
+		<nav class="pagination">
+			<a class="pagination-previous">Previous</a>
+			<a class="pagination-next">Next page</a>
+			<ul class="pagination-list">
+				<li class="first-page" hidden>
+					<a class="pagination-link">1</a>
+				</li>
+				<li class="first-page" hidden>
+					<span class="pagination-ellipsis">&hellip;</span>
+				</li>
+				<li>
+					<a class="pagination-link previous-page" hidden>45</a>
+				</li>
+				<li>
+					<a class="pagination-link is-current">1</a>
+				</li>
+				<li>
+					<a class="pagination-link next-page" hidden>47</a>
+				</li>
+				<li class="last-page" hidden>
+					<span class="pagination-ellipsis">&hellip;</span>
+				</li>
+				<li class="last-page" hidden>
+					<a class="pagination-link">86</a>
+				</li>
+			</ul>
+		</nav>
 		<br />
 		<div class="table-container">
 			<table class="table is-hoverable is-fullwidth" id="search-table">

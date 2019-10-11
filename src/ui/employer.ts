@@ -462,18 +462,166 @@ namespace Employer {
 		}
 	}
 
+	interface IPagingResponse {
+		page: number;
+		pageSize: number;
+		total: number;
+	}
+	class PaginationController {
+		private readonly nav: HTMLDivElement;
+		private readonly previousButton: HTMLAnchorElement;
+		private readonly nextButton: HTMLAnchorElement;
+		private readonly firstPage: HTMLAnchorElement;
+		private readonly firstPageGroup: NodeListOf<HTMLUListElement>;
+		private readonly previousPage: HTMLAnchorElement;
+		private readonly currentPage: HTMLAnchorElement;
+		private readonly nextPage: HTMLAnchorElement;
+		private readonly lastPageGroup: NodeListOf<HTMLUListElement>;
+		private readonly lastPage: HTMLAnchorElement;
+		// Pages are 0 indexed internally
+		// Pages are displayed as 1 indexed
+		private pageSize: number = 0;
+		private page: number = 0;
+		private maxPage: number = 0;
+		private totalItems: number = 0;
+
+		constructor(container: string, onUpdate: (page?: number) => Promise<void>) {
+			this.nav = document.querySelector(`#${container} > nav.pagination`) as HTMLDivElement;
+			this.previousButton = this.nav.querySelector(".pagination-previous") as HTMLAnchorElement;
+			this.nextButton = this.nav.querySelector(".pagination-next") as HTMLAnchorElement;
+			this.firstPage = this.nav.querySelector(".first-page > a") as HTMLAnchorElement;
+			this.firstPageGroup = this.nav.querySelectorAll(".first-page");
+			this.previousPage = this.nav.querySelector(".previous-page") as HTMLAnchorElement;
+			this.currentPage = this.nav.querySelector(".is-current") as HTMLAnchorElement;
+			this.nextPage = this.nav.querySelector(".next-page") as HTMLAnchorElement;
+			this.lastPageGroup = this.nav.querySelectorAll(".last-page");
+			this.lastPage = this.nav.querySelector(".last-page > a") as HTMLAnchorElement;
+
+			const pageHandler = async (e: MouseEvent) => {
+				let link = e.currentTarget as HTMLAnchorElement;
+				try {
+					link.setAttribute("disabled", "disabled");
+					let page = 0;
+					if (link.textContent === "Previous") {
+						page = this.previousPageNumber;
+					}
+					else if (link.textContent === "Next page") {
+						page = this.nextPageNumber;
+					}
+					else {
+						page = parseInt(link.textContent ?? "") - 1;
+					}
+					await onUpdate(page)
+				}
+				finally {
+					if (link.textContent === "Previous" && this.page === 0) {
+						link.setAttribute("disabled", "disabled");
+					}
+					else if (link.textContent === "Next page" && this.page === this.maxPage) {
+						link.setAttribute("disabled", "disabled");
+					}
+					else {
+						link.removeAttribute("disabled");
+					}
+				}
+			};
+			this.nextButton.addEventListener("click", pageHandler);
+			this.previousButton.addEventListener("click", pageHandler);
+			this.firstPage.addEventListener("click", pageHandler);
+			this.previousPage.addEventListener("click", pageHandler);
+			this.currentPage.addEventListener("click", pageHandler);
+			this.nextPage.addEventListener("click", pageHandler);
+			this.lastPage.addEventListener("click", pageHandler);
+		}
+
+		public get nextPageNumber(): number {
+			let nextPage = this.page + 1;
+			if (nextPage > this.maxPage) {
+				nextPage = this.maxPage;
+			}
+			return nextPage;
+		}
+		public get previousPageNumber(): number {
+			let previousPage = this.page - 1;
+			if (previousPage < 0) {
+				previousPage = 0;
+			}
+			return previousPage;
+		}
+
+		update(response: IPagingResponse) {
+			this.pageSize = response.pageSize;
+			this.page = response.page;
+			this.totalItems = response.total;
+			this.maxPage = Math.floor(this.totalItems / this.pageSize);
+
+			if (this.page === 0) {
+				this.previousButton.setAttribute("disabled", "disabled")
+			}
+			else {
+				this.previousButton.removeAttribute("disabled");
+			}
+			if (this.page === this.maxPage) {
+				this.nextButton.setAttribute("disabled", "disabled")
+			}
+			else {
+				this.nextButton.removeAttribute("disabled");
+			}
+
+			if (this.page >= 2) {
+				this.firstPage.textContent = "1";
+				for (let i = 0; i < this.firstPageGroup.length; i++) {
+					this.firstPageGroup[i].hidden = false;
+				}
+			}
+			else {
+				for (let i = 0; i < this.firstPageGroup.length; i++) {
+					this.firstPageGroup[i].hidden = true;
+				}
+			}
+			if (this.page >= 1) {
+				this.previousPage.textContent = this.page.toString();
+				this.previousPage.hidden = false;
+			}
+			else {
+				this.previousPage.hidden = true;
+			}
+			this.currentPage.textContent = (this.page + 1).toString();
+			if (this.page < this.maxPage) {
+				this.nextPage.textContent = (this.page + 2).toString();
+				this.nextPage.hidden = false;
+			}
+			else {
+				this.nextPage.hidden = true;
+			}
+			if (this.page < this.maxPage - 1) {
+				this.lastPage.textContent = (this.maxPage + 1).toString();
+				for (let i = 0; i < this.lastPageGroup.length; i++) {
+					this.lastPageGroup[i].hidden = false;
+				}
+			}
+			else {
+				for (let i = 0; i < this.lastPageGroup.length; i++) {
+					this.lastPageGroup[i].hidden = true;
+				}
+			}
+		}
+	}
+
 	const scanningTable = new TableManager("scanning-table");
-	async function updateScanningTable() {
+	const scanningPagination = new PaginationController("scanning", updateScanningTable);
+	async function updateScanningTable(page: number = 0) {
 		scanningTable.empty();
 		let options: RequestInit = {
 			method: "GET",
 			credentials: "include"
 		};
-		let response: APIResponse = await fetch("/api/visit", options).then(response => response.json());
+		let response: APIResponse & IPagingResponse = await fetch(`/api/visit?page=${page}`, options).then(response => response.json());
 		if (!response.success) {
 			alert(response.error);
 			return;
 		}
+		scanningPagination.update(response);
 		let visits = response.visits as (IVisit & { participantData: IParticipant })[];
 		for (let visit of visits) {
 			scanningTable.addRow({
@@ -484,11 +632,12 @@ namespace Employer {
 	}
 
 	const searchTable = new TableManager("search-table");
+	const searchPagination = new PaginationController("search", updateSearchTable);
 	const searchControl = document.getElementById("search-control") as HTMLDivElement;
 	const searchBox = document.getElementById("search-box") as HTMLInputElement;
 
 	const debounceTimeout = 500; // Milliseconds to wait before content is rendered to avoid hitting the server for every keystroke
-	function debounce(func: (...args: unknown[]) => void): (...args: unknown[]) => void {
+	function debounce(func: (...args: any[]) => void): (...args: any[]) => void {
 		let timer: number | null = null;
 		return () => {
 			searchControl.classList.add("is-loading");
@@ -498,18 +647,19 @@ namespace Employer {
 			timer = setTimeout(func, debounceTimeout) as unknown as number;
 		};
 	}
-	async function updateSearchTable() {
+	async function updateSearchTable(page: number = 0) {
 		searchTable.empty();
 		let query = searchBox.value;
 		let options: RequestInit = {
 			method: "GET",
 			credentials: "include"
 		};
-		let response: APIResponse = await fetch(`/api/search?q=${query}`, options).then(response => response.json());
+		let response: APIResponse & IPagingResponse = await fetch(`/api/search?q=${encodeURIComponent(query)}&page=${page}`, options).then(response => response.json());
 		if (!response.success) {
 			alert(response.error);
 			return;
 		}
+		searchPagination.update(response);
 		let participants = response.participants as (IParticipant & { visitData?: IVisit })[];
 		for (let participant of participants) {
 			searchTable.addRow({
