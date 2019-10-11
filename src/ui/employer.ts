@@ -754,20 +754,24 @@ namespace Employer {
 	});
 
 	let isDownloadRunning = false;
-	const downloadDropdown = document.querySelector(".dropdown-trigger > .button") as HTMLButtonElement;
+	const downloadDropdowns = document.querySelectorAll(".dropdown-trigger > .button") as NodeListOf<HTMLButtonElement>;
 	function downloadHandler(buttons: NodeListOf<Element>, handler: () => Promise<void>) {
 		for (let i = 0; i < buttons.length; i++) {
 			buttons[i].addEventListener("click", async () => {
 				if (isDownloadRunning) return;
-				downloadDropdown.classList.remove("is-hoverable");
-				downloadDropdown.classList.add("is-loading");
+				for (let j = 0; j < downloadDropdowns.length; j++) {
+					downloadDropdowns[j].classList.remove("is-hoverable");
+					downloadDropdowns[j].classList.add("is-loading");
+				}
 				isDownloadRunning = true;
 				try {
 					await handler();
 				}
 				finally {
-					downloadDropdown.classList.add("is-hoverable");
-					downloadDropdown.classList.remove("is-loading");
+					for (let j = 0; j < downloadDropdowns.length; j++) {
+						downloadDropdowns[j].classList.add("is-hoverable");
+						downloadDropdowns[j].classList.remove("is-loading");
+					}
 					isDownloadRunning = false;
 				}
 			});
@@ -776,7 +780,14 @@ namespace Employer {
 
 	let downloadSelected = document.querySelectorAll(".download-selected");
 	downloadHandler(downloadSelected, async () => {
-		let checkboxes = document.querySelectorAll("input.participant-selection") as NodeListOf<HTMLInputElement>;
+		let prefix = "";
+		if (scanningContent.hidden === false) {
+			prefix = "#scanning";
+		}
+		else if (searchContent.hidden === false) {
+			prefix = "#search";
+		}
+		let checkboxes = document.querySelectorAll(`${prefix} input.participant-selection`) as NodeListOf<HTMLInputElement>;
 		let selectedUUIDs: string[] = [];
 		for (let j = 0; j < checkboxes.length; j++) {
 			if (checkboxes[j].checked && checkboxes[j].dataset.id) {
