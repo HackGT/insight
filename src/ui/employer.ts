@@ -323,29 +323,32 @@ namespace Employer {
 			if (loadResume) {
 				this.resume.hidden = true;
 				if (participant.resume) {
-					if (participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
-						// Word documents require a public link so that Microsoft can access the document
-						let options: RequestInit = {
-							method: "GET",
-							credentials: "include"
-						};
-						fetch(`/${this.openDetail.participant.resume?.path}?public=true`, options)
-							.then(response => response.json() as Promise<APIResponse>)
-							.then(response => {
-								if (!participant.resume) return;
-								if (!response.success) {
-									alert(response.error);
-									return;
-								}
-								this.resume.src = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(window.location.origin + "/uploads/" + response.link)}`;
-								this.resume.hidden = false;
-							});
-					}
-					else {
-						// PDFs and images don't require a public link
-						this.resume.src = participant.resume.path;
-						this.resume.hidden = false;
-					}
+					// Get a time-limited public link to the resume for use with Google / Microsoft viewer
+					let options: RequestInit = {
+						method: "GET",
+						credentials: "include"
+					};
+					fetch(`/${this.openDetail.participant.resume?.path}?public=true`, options)
+						.then(response => response.json() as Promise<APIResponse>)
+						.then(response => {
+							if (!participant.resume) return;
+							if (!response.success) {
+								alert(response.error);
+								return;
+							}
+							let link = window.location.origin + "/uploads/" + response.link;
+							link = encodeURIComponent(link);
+
+							if (participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
+								// Special viewer for Word documents
+								this.resume.src = `https://view.officeapps.live.com/op/view.aspx?src=${link}`;
+							}
+							else {
+								// Google Drive Viewer supports a bunch of formats including PDFs, Pages, images
+								this.resume.src = `https://drive.google.com/viewerng/viewer?embedded=true&url=${link}`;
+							}
+							this.resume.hidden = false;
+						});
 				}
 			}
 			this.modal.classList.add("is-active");
