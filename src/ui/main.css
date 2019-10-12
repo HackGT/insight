@@ -118,7 +118,7 @@ embed, iframe {
 #detail-notes > li > .button {
 	margin: 1px;
 }
-.dropdown-menu {
+.dropdown-menu.far-right {
 	left: auto;
 	right: 0;
 }
@@ -153,4 +153,14 @@ embed, iframe {
 	position: absolute;
 	top: 30px;
 	right: 30px;
+}
+a.dropdown-item {
+	padding-right: 1rem;
+}
+.dropdown-item > label {
+	display: flex;
+	align-items: center;
+}
+.dropdown-item > label > input {
+	margin-right: 0.5rem;
 }

@@ -224,7 +224,7 @@
 							</span>
 						</button>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-menu far-right">
 						<div class="dropdown-content">
 							<a class="dropdown-item download-selected">
 								Selected participants
@@ -293,13 +293,31 @@
 		</div>
 		<progress class="progress" max="100" hidden></progress>
 		<div class="field is-grouped">
-			{{!-- <p class="control">
-				<a class="button is-primary">
-					Submit
-				</a>
-			</p> --}}
+			<div class="control">
+				<div class="dropdown is-hoverable">
+					<div class="dropdown-trigger">
+						<button class="button">
+							<span class="icon is-small">
+								<i class="fas fa-filter"></i>
+							</span>
+							<span>Filter by tags...</span>
+							<span class="icon is-small">
+								<i class="fas fa-angle-down"></i>
+							</span>
+						</button>
+					</div>
+					<div class="dropdown-menu">
+						<div class="dropdown-content" id="filter-menu">
+							<hr class="dropdown-divider">
+							<a class="dropdown-item" id="filter-none">
+								None
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
 			<span class="spacer"></span>
-			<p class="control">
+			<div class="control">
 				<div class="dropdown is-hoverable">
 					<div class="dropdown-trigger">
 						<button class="button">
@@ -312,7 +330,7 @@
 							</span>
 						</button>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-menu far-right">
 						<div class="dropdown-content">
 							<a class="dropdown-item download-selected">
 								Selected participants
@@ -327,7 +345,7 @@
 						</div>
 					</div>
 				</div>
-			</p>
+			</div>
 		</div>
 		<nav class="pagination">
 			<a class="pagination-previous">Previous</a>

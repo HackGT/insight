@@ -663,8 +663,9 @@ namespace Employer {
 	const searchPagination = new PaginationController("search", updateSearchTable);
 	const searchControl = document.getElementById("search-control") as HTMLDivElement;
 	const searchBox = document.getElementById("search-box") as HTMLInputElement;
+	const searchFilterContainer = document.getElementById("filter-menu") as HTMLDivElement;
 
-	const debounceTimeout = 500; // Milliseconds to wait before content is rendered to avoid hitting the server for every keystroke
+	const debounceTimeout = 250; // Milliseconds to wait before content is rendered to avoid hitting the server for every keystroke
 	function debounce(func: (...args: any[]) => void): (...args: any[]) => void {
 		let timer: number | null = null;
 		return () => {
@@ -675,14 +676,17 @@ namespace Employer {
 			timer = setTimeout(func, debounceTimeout) as unknown as number;
 		};
 	}
+
+	let filterTags: Set<string> = new Set();
 	async function updateSearchTable(page: number = 0) {
 		searchTable.empty();
-		let query = searchBox.value;
+		let query = encodeURIComponent(searchBox.value);
 		let options: RequestInit = {
 			method: "GET",
 			credentials: "include"
 		};
-		let response: APIResponse & IPagingResponse = await fetch(`/api/search?q=${encodeURIComponent(query)}&page=${page}`, options).then(response => response.json());
+		let filter = encodeURIComponent(JSON.stringify(Array.from(filterTags)));
+		let response: APIResponse & IPagingResponse = await fetch(`/api/search?q=${query}&page=${page}&filter=${filter}`, options).then(response => response.json());
 		if (!response.success) {
 			alert(response.error);
 			return;
@@ -698,6 +702,57 @@ namespace Employer {
 		searchControl.classList.remove("is-loading");
 	}
 	searchBox.addEventListener("keydown", debounce(updateSearchTable));
+	async function updateFilterList() {
+		let existingTags = document.querySelectorAll(".dropdown-item.tag-filter");
+		for (let i = 0; i < existingTags.length; i++) {
+			existingTags[i].remove();
+		}
+
+		let options: RequestInit = {
+			method: "GET",
+			credentials: "include"
+		};
+		let response: APIResponse = await fetch(`/api/tags`, options).then(response => response.json());
+		if (!response.success) {
+			alert(response.error);
+			return;
+		}
+		let tags = response.tags as string[];
+		for (let i = tags.length - 1; i >= 0; i--) {
+			let dropdownItem = document.createElement("a");
+			dropdownItem.classList.add("dropdown-item", "tag-filter");
+			let label = document.createElement("label");
+			label.classList.add("checkbox");
+			let input = document.createElement("input");
+			input.type = "checkbox";
+			input.dataset.value = tags[i];
+			input.addEventListener("change", debounce(() => {
+				if (!input.dataset.value) return;
+				if (input.checked) {
+					filterTags.add(input.dataset.value);
+				}
+				else {
+					filterTags.delete(input.dataset.value);
+				}
+				updateSearchTable();
+			}));
+
+			let span = document.createElement("span");
+			span.textContent = tags[i];
+			label.appendChild(input);
+			label.appendChild(span);
+			dropdownItem.appendChild(label);
+			searchFilterContainer.insertBefore(dropdownItem, searchFilterContainer.firstChild);
+		}
+	}
+	document.getElementById("filter-none")!.addEventListener("click", () => {
+		let tagCheckboxes = document.querySelectorAll(".dropdown-item.tag-filter input") as NodeListOf<HTMLInputElement>;
+		for (let i = 0; i < tagCheckboxes.length; i++) {
+			tagCheckboxes[i].checked = false;
+		}
+		filterTags.clear();
+		updateSearchTable();
+	});
 
 	enum Tabs {
 		Scanning,
@@ -729,6 +784,7 @@ namespace Employer {
 			searchContent.hidden = false;
 			settingsContent.hidden = true;
 
+			await updateFilterList();
 			await updateSearchTable();
 		}
 		else if (tab === Tabs.Settings) {

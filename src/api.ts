@@ -13,7 +13,6 @@ import {
 import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth, authenticateWithRedirect } from "./middleware";
 import { formatName, config } from "./common";
 import { agenda } from "./tasks";
-import Agenda from "agenda";
 import { webSocketServer } from "./app";
 
 export let apiRoutes = express.Router();
@@ -96,22 +95,34 @@ apiRoutes.route("/search")
 		if (isNaN(page) || page < 0) {
 			page = 0;
 		}
+		let filterTags: string[] = [];
+		try {
+			let json = JSON.parse(request.query.filter);
+			if (Array.isArray(json)) filterTags = json;
+		}
+		catch {}
 
-		let total = await Participant.countDocuments({ "$text": { "$search": query } });
-		let participants = await Participant.aggregate([
-			{ $match: { "$text": { "$search": query } } },
-			{ $sort: { score: { "$meta": "textScore" } } },
-			{ $skip: page * PAGE_SIZE },
-			{ $limit: PAGE_SIZE },
-			{ $lookup: {
-				from: "visits",
-				localField: "uuid",
-				foreignField: "participant",
-				as: "visitData"
-			} },
-			{ $unwind: { path: "$visitData", preserveNullAndEmptyArrays: true } }, // Turns arrays of 0 to 1 documents into that document or unsets the field
-			{ $project: { "resume.extractedText": 0 } } // Not needed so let's reduce response size
-		])
+		let pipeline: any[] = [];
+		if (query || filterTags.length === 0) {
+			pipeline.push({ $match: { "$text": { "$search": query } } });
+			pipeline.push({ $sort: { score: { "$meta": "textScore" } } });
+		}
+		pipeline.push({ $lookup: {
+			from: "visits",
+			localField: "uuid",
+			foreignField: "participant",
+			as: "visitData"
+		} });
+		pipeline.push({ $unwind: { path: "$visitData", preserveNullAndEmptyArrays: true } }); // Turns arrays of 0 to 1 documents into that document or unsets the field
+		if (filterTags.length > 0) {
+			pipeline.push({ $match: { "visitData.tags": { $elemMatch: { $in: filterTags } } } });
+		}
+		let total = (await Participant.aggregate(pipeline)).length;
+		pipeline.push({ $skip: page * PAGE_SIZE });
+		pipeline.push({ $limit: PAGE_SIZE });
+		pipeline.push({ $project: { "resume.extractedText": 0 } }); // Not needed so let's reduce response size
+
+		let participants = await Participant.aggregate(pipeline);
 
 		response.json({
 			"success": true,
@@ -149,6 +160,26 @@ async function getVisit(request: express.Request, response: express.Response): P
 	return { visit, participant };
 }
 
+apiRoutes.route("/tags")
+	.get(isAnEmployer, async (request, response) => {
+		const user = request.user as IUser | undefined;
+		if (!user?.company?.verified) {
+			response.status(403).send();
+			return;
+		}
+
+		let tagResults: { tags: string[] }[] = await Visit.aggregate([
+			{ $match: { company: user.company.name } },
+			{ $unwind: "$tags" },
+			{ $group: { _id: "tags", tags: { $addToSet: "$tags" } } }
+		]);
+		let tags = tagResults[0]?.tags ?? [];
+		tags = tags.sort();
+		response.json({
+			"success": true,
+			tags
+		});
+	});
 apiRoutes.route("/visit/:id/tag")
 	.get(isAnEmployer, async (request, response) => {
 		const data = await getVisit(request, response);
