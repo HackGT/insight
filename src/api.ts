@@ -37,6 +37,7 @@ apiRoutes.route("/authorize")
 
 apiRoutes.route("/export")
 	.get(apiAuth, async (request, response) => {
+		response.setHeader("Cache-Control", "no-store");
 		const jobID = request.query.id as string || "";
 		if (!jobID) {
 			response.status(404).send("Invalid download ID");

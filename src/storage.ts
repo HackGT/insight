@@ -128,6 +128,7 @@ export let storageRoutes = express.Router();
 
 storageRoutes.route("/:file")
 	.get(async (request, response) => {
+		response.setHeader("Cache-Control", "no-store");
 		let user = request.user as IUser | undefined;
 
 		const KEY_VALID_TIME = 60000; // 1 minute
