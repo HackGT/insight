@@ -131,7 +131,6 @@ storageRoutes.route("/:file")
 		response.setHeader("Cache-Control", "no-store");
 		let user = request.user as IUser | undefined;
 
-		const KEY_VALID_TIME = 60000; // 1 minute
 		let key = request.query.key as string || "";
 		let time = parseInt(request.query.time as string || "");
 		let correctHash = crypto
@@ -143,7 +142,7 @@ storageRoutes.route("/:file")
 		// Access:
 		// - All employers can GET all resumes
 		// - Participants can GET their own resume
-		if (!user && (key !== correctHash || (Date.now() - time) > KEY_VALID_TIME)) {
+		if (!user && key !== correctHash) {
 			response.status(401).send();
 			return;
 		}
