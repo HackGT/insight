@@ -892,7 +892,7 @@ namespace Employer {
 			await sendRequest("POST", "/api/export", { type: "selected", ids: JSON.stringify(selectedUUIDs) }, false);
 		}
 		else {
-			alert("Please choose at least one participant to export");
+			alert("Please choose at least one profiles to export");
 		}
 	});
 
@@ -904,7 +904,7 @@ namespace Employer {
 
 	let downloadAll = document.querySelectorAll(".download-all");
 	downloadHandler(downloadAll, async () => {
-		if (!confirm("Are you sure that you want to export all participants? This export will take a while to complete.")) return;
+		if (!confirm("Are you sure that you want to export all profiles? This export will take a while to complete.")) return;
 		getProgressBar().hidden = false;
 		await sendRequest("POST", "/api/export", { type: "all" }, false);
 	});
