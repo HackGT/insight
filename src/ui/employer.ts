@@ -445,6 +445,10 @@ namespace Employer {
 				}));
 			}
 
+			const nameAction = rowTemplate.querySelector(".name-link") as HTMLTableCellElement;
+			nameAction.addEventListener("click", () => {
+				detailModalManager.open(visitData);
+			});
 			const viewAction = rowTemplate.querySelector(".view-action") as HTMLButtonElement;
 			viewAction.addEventListener("click", () => {
 				detailModalManager.open(visitData);

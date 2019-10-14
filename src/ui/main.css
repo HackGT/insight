@@ -164,3 +164,11 @@ a.dropdown-item {
 .dropdown-item > label > input {
 	margin-right: 0.5rem;
 }
+
+.name-link {
+	text-decoration: none;
+	cursor: pointer;
+}
+.name-link:hover {
+	text-decoration: underline;
+}
