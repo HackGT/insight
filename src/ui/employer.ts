@@ -78,7 +78,7 @@ namespace Employer {
 			tagSpan.classList.add("is-warning");
 		}
 		if (tag === "flagged") {
-			tagSpan.classList.add("is-danger");
+			tagSpan.classList.add("is-success");
 		}
 		let deleteButton = document.createElement("span");
 		deleteButton.classList.add("tag", "is-delete");
