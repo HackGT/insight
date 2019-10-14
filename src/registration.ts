@@ -56,7 +56,7 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 	while (true) {
 		let data = await query<{ users: UserData[] }>(`
 			query ($page: ID!) {
-				users(n: 50, pagination_token: $page, filter: { accepted: true }) {
+				users(n: 50, pagination_token: $page, filter: { accepted: true, confirmed: true }) {
 					id,
 					name,
 					email,
@@ -135,6 +135,7 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 		// TODO: make configurable in admin panel somehow?
 		if (user.application && user.application.type === "Participant") {
 			participant.major = getQuestionAnswer(user.application, "major");
+			participant.school = getQuestionAnswer(user.application, "school");
 			participant.githubUsername = getQuestionAnswer(user.application, "github");
 			participant.website = getQuestionAnswer(user.application, "website");
 			participant.lookingFor = {
@@ -163,6 +164,42 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 				};
 			}
 		}
+		else if (user.application && user.application.type === "Mentor") {
+			participant.major = getQuestionAnswer(user.application, "major");
+			participant.school = getQuestionAnswer(user.application, "school");
+			participant.interestingDetails = {
+				favoriteLanguages: getQuestionAnswers(user.application, "tools")
+			};
+			if (user.confirmation) {
+				let resume = user.confirmation.data.find(q => q.name === "resume");
+				if (!participant.resume && resume && resume.file) {
+					participant.resume = {
+						path: resume.file.path,
+						size: resume.file.size
+					};
+				}
+				participant.lookingFor = {
+					timeframe: getQuestionAnswers(user.confirmation, "employment")
+				};
+			}
+		}
+		else if (user.application && user.application.type === "Volunteer") {
+			participant.major = getQuestionAnswer(user.application, "major");
+			participant.school = getQuestionAnswer(user.application, "school");
+			if (user.confirmation) {
+				let resume = user.confirmation.data.find(q => q.name === "resume");
+				if (!participant.resume && resume && resume.file) {
+					participant.resume = {
+						path: resume.file.path,
+						size: resume.file.size
+					};
+				}
+				participant.lookingFor = {
+					timeframe: getQuestionAnswers(user.confirmation, "employment")
+				};
+			}
+		}
+		// TODO: add Organizer branch
 
 		return participant;
 	}));
