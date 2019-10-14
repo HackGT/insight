@@ -139,12 +139,12 @@ namespace Employer {
 		private readonly scanner = document.getElementById("detail-scanner") as HTMLSpanElement;
 		private readonly notes = document.getElementById("detail-notes") as HTMLUListElement;
 		private readonly resume = document.getElementById("detail-resume") as HTMLIFrameElement;
-		private readonly delete = document.getElementById("detail-delete") as HTMLButtonElement;
-		private readonly addVisit = document.getElementById("detail-add-visit") as HTMLButtonElement;
-		private readonly addTag = document.getElementById("detail-add-tag") as HTMLButtonElement;
-		private readonly star = document.getElementById("detail-star") as HTMLButtonElement;
-		private readonly flag = document.getElementById("detail-flag") as HTMLButtonElement;
-		private readonly addNote = document.getElementById("detail-add-note") as HTMLButtonElement;
+		private readonly delete = document.querySelectorAll(".detail-delete") as NodeListOf<HTMLButtonElement>;
+		private readonly addVisit = document.querySelectorAll(".detail-add-visit") as NodeListOf<HTMLButtonElement>;
+		private readonly addTag = document.querySelectorAll(".detail-add-tag") as NodeListOf<HTMLButtonElement>;
+		private readonly star = document.querySelectorAll(".detail-star") as NodeListOf<HTMLButtonElement>;
+		private readonly flag = document.querySelectorAll(".detail-flag") as NodeListOf<HTMLButtonElement>;
+		private readonly addNote = document.querySelectorAll(".detail-add-note") as NodeListOf<HTMLButtonElement>;
 
 		constructor() {
 			document.querySelector(".modal-background")!.addEventListener("click", () => this.close());
@@ -152,31 +152,31 @@ namespace Employer {
 			document.getElementById("detail-close")!.addEventListener("click", () => this.close());
 			document.addEventListener("keydown", e => { if (e.key === "Escape") this.close() });
 
-			this.delete.addEventListener("click", asyncHandler(async () => {
+			forEachInNodeList(this.delete, el => el.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
 				if (!confirm("Are you sure that you want to delete this visit? All associated data such as tags and notes will be lost!")) return;
 				await sendRequest("DELETE", `/api/visit/${this.openDetail.visit._id}`, undefined, false);
 				this.close();
-			}));
-			this.addVisit.addEventListener("click", asyncHandler(async () => {
+			})));
+			forEachInNodeList(this.addVisit, el => el.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail) return;
 
 				await sendRequest("POST", "/api/visit", { uuid: this.openDetail.participant.uuid }, false);
 				await this.getAndRedraw();
-			}));
-			this.addTag.addEventListener("click", asyncHandler(async () => {
+			})));
+			forEachInNodeList(this.addTag, el => el.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
 				await tagButtonHandler(this.openDetail as IParticipantWithVisit, this.tags)();
-			}));
-			this.star.addEventListener("click", asyncHandler(async () => {
+			})));
+			forEachInNodeList(this.star, el => el.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
 				await tagButtonHandler(this.openDetail as IParticipantWithVisit, this.tags, "starred")();
-			}));
-			this.flag.addEventListener("click", asyncHandler(async () => {
+			})));
+			forEachInNodeList(this.flag, el => el.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
 				await tagButtonHandler(this.openDetail as IParticipantWithVisit, this.tags, "flagged")();
-			}));
-			this.addNote.addEventListener("click", asyncHandler(async () => {
+			})));
+			forEachInNodeList(this.addNote, el => el.addEventListener("click", asyncHandler(async () => {
 				if (!this.openDetail?.visit) return;
 
 				const note = (prompt("New note:") || "").trim();
@@ -184,7 +184,7 @@ namespace Employer {
 
 				await sendRequest("POST", `/api/visit/${this.openDetail.visit._id}/note`, { note }, false);
 				await this.getAndRedraw();
-			}));
+			})));
 		}
 
 		public get isOpen(): boolean {
@@ -273,12 +273,12 @@ namespace Employer {
 			emptyContainer(this.tags);
 			emptyContainer(this.notes);
 			if (visitData.visit) {
-				this.delete.hidden = false;
-				this.addVisit.hidden = true;
-				this.addTag.hidden = false;
-				this.star.hidden = false;
-				this.flag.hidden = false;
-				this.addNote.hidden = false;
+				forEachInNodeList(this.delete, el => el.hidden = false);
+				forEachInNodeList(this.addVisit, el => el.hidden = true);
+				forEachInNodeList(this.addTag, el => el.hidden = false);
+				forEachInNodeList(this.star, el => el.hidden = false);
+				forEachInNodeList(this.flag, el => el.hidden = false);
+				forEachInNodeList(this.addNote, el => el.hidden = false);
 				if (visitData.visit.tags.length > 0) {
 					for (let tag of visitData.visit.tags) {
 						this.tags.appendChild(generateTag(visitData as IParticipantWithVisit, tag));
@@ -311,12 +311,12 @@ namespace Employer {
 				}
 			}
 			else {
-				this.delete.hidden = true;
-				this.addVisit.hidden = false;
-				this.addTag.hidden = true;
-				this.star.hidden = true;
-				this.flag.hidden = true;
-				this.addNote.hidden = true;
+				forEachInNodeList(this.delete, el => el.hidden = true);
+				forEachInNodeList(this.addVisit, el => el.hidden = false);
+				forEachInNodeList(this.addTag, el => el.hidden = true);
+				forEachInNodeList(this.star, el => el.hidden = true);
+				forEachInNodeList(this.flag, el => el.hidden = true);
+				forEachInNodeList(this.addNote, el => el.hidden = true);
 				this.scanner.innerHTML = "<em>Not scanned</em>";
 			}
 
@@ -605,14 +605,10 @@ namespace Employer {
 
 			if (this.page >= 2) {
 				this.firstPage.textContent = "1";
-				for (let i = 0; i < this.firstPageGroup.length; i++) {
-					this.firstPageGroup[i].hidden = false;
-				}
+				forEachInNodeList(this.firstPageGroup, el => el.hidden = false);
 			}
 			else {
-				for (let i = 0; i < this.firstPageGroup.length; i++) {
-					this.firstPageGroup[i].hidden = true;
-				}
+				forEachInNodeList(this.firstPageGroup, el => el.hidden = true);
 			}
 			if (this.page >= 1) {
 				this.previousPage.textContent = this.page.toString();
@@ -631,14 +627,10 @@ namespace Employer {
 			}
 			if (this.page < this.maxPage - 1) {
 				this.lastPage.textContent = (this.maxPage + 1).toString();
-				for (let i = 0; i < this.lastPageGroup.length; i++) {
-					this.lastPageGroup[i].hidden = false;
-				}
+				forEachInNodeList(this.lastPageGroup, el => el.hidden = false);
 			}
 			else {
-				for (let i = 0; i < this.lastPageGroup.length; i++) {
-					this.lastPageGroup[i].hidden = true;
-				}
+				forEachInNodeList(this.lastPageGroup, el => el.hidden = true);
 			}
 		}
 	}
@@ -711,9 +703,7 @@ namespace Employer {
 	searchBox.addEventListener("keydown", debounce(updateSearchTable));
 	async function updateFilterList() {
 		let existingTags = document.querySelectorAll(".dropdown-item.tag-filter");
-		for (let i = 0; i < existingTags.length; i++) {
-			existingTags[i].remove();
-		}
+		forEachInNodeList(existingTags, el => el.remove());
 
 		let options: RequestInit = {
 			method: "GET",
@@ -754,9 +744,7 @@ namespace Employer {
 	}
 	document.getElementById("filter-none")!.addEventListener("click", () => {
 		let tagCheckboxes = document.querySelectorAll(".dropdown-item.tag-filter input") as NodeListOf<HTMLInputElement>;
-		for (let i = 0; i < tagCheckboxes.length; i++) {
-			tagCheckboxes[i].checked = false;
-		}
+		forEachInNodeList(tagCheckboxes, el => el.checked = false);
 		filterTags.clear();
 		updateSearchTable();
 	});

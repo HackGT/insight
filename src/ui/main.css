@@ -76,7 +76,7 @@ a > i {
 }
 
 .modal-card {
-	height: calc(95vh - 40px);
+	height: calc(100vh - 40px);
 	width: calc(90vw - 40px);
 }
 .modal-title {
@@ -110,7 +110,7 @@ embed, iframe {
 	display: flex;
 	flex-direction: column;
 	padding-top: 10px;
-	padding-bottom: 5px;
+	padding-bottom: 0px;
 }
 #detail-notes > li:not(.no-prefix)::before {
 	content: "– ";
@@ -171,4 +171,38 @@ a.dropdown-item {
 }
 .name-link:hover {
 	text-decoration: underline;
+}
+
+.modal-mobile-foot {
+	display: none;
+}
+@media only screen and (max-width: 768px) {
+	.modal-card {
+		max-height: 100vh;
+		height: calc(100vh - 20px);
+		width: calc(100vw - 20px);
+	}
+	.modal-card-body {
+		padding: 10px;
+		border-bottom-left-radius: 6px;
+		border-bottom-right-radius: 6px;
+	}
+	#detail-close {
+		display: none;
+	}
+	.modal-card-foot {
+		display: none;
+	}
+	.modal-mobile-foot {
+		display: block;
+	}
+	hr {
+		margin: 0.5rem 0;
+	}
+	.button.is-fullwidth {
+		margin: 0.5rem 0;
+	}
+	embed, iframe {
+		flex-shrink: 0;
+	}
 }

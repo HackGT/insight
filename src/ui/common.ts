@@ -58,3 +58,9 @@ function asyncHandler(action: (button?: HTMLButtonElement) => Promise<void>): (e
 		}
 	};
 }
+
+function forEachInNodeList<E extends Node> (collection: NodeListOf<E>, func: (element: E) => void) {
+	for (let i = 0; i < collection.length; i++) {
+		func(collection[i]);
+	}
+}
