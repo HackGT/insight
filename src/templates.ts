@@ -72,6 +72,8 @@ export let uiRoutes = express.Router();
 
 function serveStatic(url: string, file: string) {
 	uiRoutes.route(url).get((request, response) => {
+		// Only let browsers cache our static content (i.e. skip CloudFlare's cache)
+		response.header("Cache-Control", "private");
 		response.type(path.extname(file));
 		fs.createReadStream(path.resolve("src/ui", file)).pipe(response);
 	});
