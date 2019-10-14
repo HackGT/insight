@@ -36,7 +36,11 @@
 						</div>
 					</div>
 					<div class="control">
-						<button id="submit-company-request" class="button">Request to join</button>
+						{{#if user.company.name}}
+							<button id="submit-company-request" class="button">Change company</button>
+						{{else}}
+							<button id="submit-company-request" class="button">Request to join</button>
+						{{/if}}
 					</div>
 				</div>
 			</p>
