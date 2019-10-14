@@ -5,6 +5,7 @@ import Agenda from "agenda";
 const Agendash = require("agendash");
 import * as express from "express";
 import archiver from "archiver";
+import * as json2csv from "json2csv";
 import { config, wait, S3_ENGINE, formatSize } from "./common";
 import { getAllParticipants } from "./registration";
 import { Participant, createNew, IParticipant, IVisit } from "./schema";
@@ -99,7 +100,7 @@ agenda.define("export", { concurrency: 1, priority: "normal" }, async (job, done
 		job.attrs.data.exportFile = exportFile;
 		await job.save();
 		if (requesterUUID) {
-			webSocketServer.exportComplete(requesterUUID, job.attrs.data.id);
+			webSocketServer.exportComplete(requesterUUID, job.attrs.data.id, "zip");
 		}
 		done();
 	});
@@ -150,6 +151,68 @@ Notes: ${participant.visitData.notes.join(", ")}
 		}
 	}
 	archive.finalize();
+});
+
+agenda.define("export-csv", { concurrency: 1, priority: "normal" }, async job => {
+	const startTime = Date.now();
+	let requesterUUID: string | undefined = job.attrs.data.requesterUUID;
+	let participantIDs: string[] = job.attrs.data.participantIDs;
+	let participants: (IParticipant & { visitData?: IVisit })[] = await Participant.aggregate([
+		{ $match: { uuid: { $in: participantIDs } } },
+		{ $sort: { name: 1 } }, // Sort newest first
+		{ $lookup: {
+			from: "visits",
+			localField: "uuid",
+			foreignField: "participant",
+			as: "visitData"
+		} },
+		{ $unwind: { path: "$visitData", preserveNullAndEmptyArrays: true } } // Turns array of 1 document into just that document
+	]);
+
+	const exportFile = path.join(os.tmpdir(), job.attrs.data.id + ".csv");
+	const output = fs.createWriteStream(exportFile);
+
+	interface IRow {
+		Name: string;
+		Email: string;
+		Major?: string;
+		School?: string;
+		GitHub?: string;
+		Website?: string;
+		"Looking for"?: string;
+		"Looking for (comments)"?: string;
+	}
+	const fields: (keyof IRow)[] = ["Name", "Email", "Major", "School", "GitHub", "Website", "Looking for", "Looking for (comments)"];
+	let data: IRow[] = [];
+
+	for (let [i, participant] of participants.entries()) {
+		if (requesterUUID) {
+			let percentage = Math.round((i / participants.length) * 100);
+			webSocketServer.exportUpdate(requesterUUID, percentage);
+		}
+		data.push({
+			Name: participant.name,
+			Email: participant.email,
+			Major: participant.major || "Unknown",
+			School: participant.school,
+			GitHub: participant.githubUsername,
+			Website: participant.website,
+			"Looking for": participant.lookingFor?.timeframe?.join(", ") || "N/A",
+			"Looking for (comments)": participant.lookingFor?.comments || "N/A"
+		});
+	}
+
+	let csv = await json2csv.parseAsync(data, { fields });
+	output.write(csv);
+	output.close();
+
+	job.attrs.data.elapsedTime = ((Date.now() - startTime) / 1000).toFixed(1) + " seconds";
+	job.attrs.data.total = participants.length;
+	job.attrs.data.exportFile = exportFile;
+	await job.save();
+	if (requesterUUID) {
+		webSocketServer.exportComplete(requesterUUID, job.attrs.data.id, "csv");
+	}
 });
 
 export async function startTaskEngine() {

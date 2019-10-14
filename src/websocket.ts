@@ -53,11 +53,11 @@ export class WebSocketServer {
 			socket.volatile.emit("export-progress", { percentage });
 		}
 	}
-	public exportComplete(uuid: string, id: string) {
+	public exportComplete(uuid: string, id: string, filetype: string) {
 		let sockets = this.sockets.get(uuid);
 		if (!sockets) return;
 		for (let socket of sockets) {
-			socket.emit("export-complete", { id });
+			socket.emit("export-complete", { id, filetype });
 		}
 	}
 	public visitNotification(uuid: string, participant: IParticipant, visit: IVisit) {

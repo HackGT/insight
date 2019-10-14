@@ -42,7 +42,13 @@ apiRoutes.route("/export")
 		if (!jobID) {
 			response.status(404).send("Invalid download ID");
 		}
-		const file = path.join(os.tmpdir(), jobID + ".zip");
+		let filetype = request.query.filetype as string || "";
+		if (filetype !== "zip" && filetype !== "csv") {
+			response.status(400).send();
+			return;
+		}
+
+		const file = path.join(os.tmpdir(), jobID + "." + filetype);
 		let stream = fs.createReadStream(file);
 		stream.on("end", async () => {
 			await fs.promises.unlink(file);
@@ -51,12 +57,19 @@ apiRoutes.route("/export")
 			console.error(err);
 			response.status(404).send("Invalid download ID");
 		});
-		response.attachment("export.zip");
+		response.attachment(`export.${filetype}`);
 		stream.pipe(response);
 	})
 	.post(apiAuth, postParser, async (request, response) => {
 		let user = request.user as IUser | undefined;
 		let type = request.body.type as string || "";
+		let filetype = request.body.filetype as "zip" | "csv" || "";
+		if (filetype !== "zip" && filetype !== "csv") {
+			response.json({
+				"error": "Invalid download file type"
+			});
+			return;
+		}
 
 		let jobID = crypto.randomBytes(16).toString("hex");
 		let participantIDs: string[] = [];
@@ -84,7 +97,9 @@ apiRoutes.route("/export")
 			});
 			return;
 		}
-		await agenda.now("export", { id: jobID, participantIDs, requesterUUID: user?.uuid });
+
+		const jobName = filetype === "csv" ? "export-csv" : "export";
+		await agenda.now(jobName, { id: jobID, participantIDs, requesterUUID: user?.uuid });
 		response.json({ "success": true, "id": jobID });
 	});
 

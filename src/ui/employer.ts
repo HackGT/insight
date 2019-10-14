@@ -835,9 +835,9 @@ namespace Employer {
 		}
 		return document.querySelector(`${prefix} > progress`) as HTMLProgressElement;
 	}
-	function downloadHandler(buttons: NodeListOf<Element>, handler: () => Promise<void>) {
+	function downloadHandler(buttons: NodeListOf<Element>, handler: (filetype: "zip" | "csv") => Promise<void>) {
 		for (let i = 0; i < buttons.length; i++) {
-			buttons[i].addEventListener("click", async () => {
+			buttons[i].addEventListener("click", async e => {
 				if (isDownloadRunning) return;
 				for (let j = 0; j < downloadDropdowns.length; j++) {
 					downloadDropdowns[j].classList.remove("is-hoverable");
@@ -845,7 +845,13 @@ namespace Employer {
 				}
 				isDownloadRunning = true;
 				try {
-					await handler();
+					let target = e.currentTarget as Element;
+					if (target.classList.contains("zip")) {
+						await handler("zip");
+					}
+					else if (target.classList.contains("csv")) {
+						await handler("csv");
+					}
 				}
 				finally {
 					for (let j = 0; j < downloadDropdowns.length; j++) {
@@ -859,7 +865,7 @@ namespace Employer {
 	}
 
 	let downloadSelected = document.querySelectorAll(".download-selected");
-	downloadHandler(downloadSelected, async () => {
+	downloadHandler(downloadSelected, async filetype => {
 		let prefix = "";
 		if (scanningContent.hidden === false) {
 			prefix = "#scanning";
@@ -877,24 +883,24 @@ namespace Employer {
 		}
 		if (selectedUUIDs.length > 0) {
 			getProgressBar().hidden = false;
-			await sendRequest("POST", "/api/export", { type: "selected", ids: JSON.stringify(selectedUUIDs) }, false);
+			await sendRequest("POST", "/api/export", { type: "selected", ids: JSON.stringify(selectedUUIDs), filetype }, false);
 		}
 		else {
-			alert("Please choose at least one profiles to export");
+			alert("Please choose at least one profile to export");
 		}
 	});
 
 	let downloadVisited = document.querySelectorAll(".download-scanned");
-	downloadHandler(downloadVisited, async () => {
+	downloadHandler(downloadVisited, async filetype => {
 		getProgressBar().hidden = false;
-		await sendRequest("POST", "/api/export", { type: "visited" }, false);
+		await sendRequest("POST", "/api/export", { type: "visited", filetype }, false);
 	});
 
 	let downloadAll = document.querySelectorAll(".download-all");
-	downloadHandler(downloadAll, async () => {
+	downloadHandler(downloadAll, async filetype => {
 		if (!confirm("Are you sure that you want to export all profiles? This export will take a while to complete.")) return;
 		getProgressBar().hidden = false;
-		await sendRequest("POST", "/api/export", { type: "all" }, false);
+		await sendRequest("POST", "/api/export", { type: "all", filetype }, false);
 	});
 
 	const toast = document.querySelector(".message.toast") as HTMLDivElement;
@@ -932,11 +938,11 @@ namespace Employer {
 				let progressBar = getProgressBar();
 				progressBar.value = progress.percentage;
 			});
-			this.socket.on("export-complete", (progress: { id: string }) => {
+			this.socket.on("export-complete", (progress: { id: string, filetype: string }) => {
 				let progressBar = getProgressBar();
 				progressBar.removeAttribute("value");
 				progressBar.hidden = true;
-				window.location.assign(`/api/export?id=${progress.id}`);
+				window.location.assign(`/api/export?id=${progress.id}&filetype=${progress.filetype}`);
 			});
 
 			toast.querySelector(".view")!.addEventListener("click", () => {
