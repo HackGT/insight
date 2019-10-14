@@ -205,4 +205,13 @@ a.dropdown-item {
 	embed, iframe {
 		flex-shrink: 0;
 	}
+	/* Hide Major, Links, Tags columns on mobile */
+	tr td:nth-child(4), th:nth-child(4),
+	tr td:nth-child(5), th:nth-child(5),
+	tr td:nth-child(6), th:nth-child(6) {
+		display: none;
+	}
+	.view-action {
+		margin-top: 5px;
+	}
 }
