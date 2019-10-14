@@ -31,6 +31,18 @@ export class WebSocketServer {
 			let sockets = this.sockets.get(uuid) ?? [];
 			sockets.push(socket);
 			this.sockets.set(uuid, sockets);
+
+			socket.on("disconnect", () => {
+				let sockets = this.sockets.get(uuid);
+				if (!sockets) return;
+				sockets = sockets.filter(s => s.id !== socket.id);
+				if (sockets.length > 0) {
+					this.sockets.set(uuid, sockets);
+				}
+				else {
+					this.sockets.delete(uuid);
+				}
+			});
 		});
 	}
 
