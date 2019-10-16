@@ -99,7 +99,7 @@ apiRoutes.route("/export")
 		}
 
 		const jobName = filetype === "csv" ? "export-csv" : "export";
-		await agenda.now(jobName, { id: jobID, participantIDs, requesterUUID: user?.uuid });
+		await agenda.now(jobName, { id: jobID, participantIDs, requesterUUID: user?.uuid, requesterName: user?.name });
 		response.json({ "success": true, "id": jobID });
 	});
 
