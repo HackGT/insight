@@ -234,40 +234,39 @@ namespace Employer {
 			else {
 				this.timeframeComments.innerHTML = "<em>N/A</em>";
 			}
+
 			const details = participant.interestingDetails;
-			if (details) {
-				if (details.favoriteLanguages?.length) {
-					this.programmingLanguages.textContent = details.favoriteLanguages.join(", ");
+			if (details?.favoriteLanguages?.length) {
+				this.programmingLanguages.textContent = details.favoriteLanguages.join(", ");
+			}
+			else {
+				this.programmingLanguages.innerHTML = "<em>N/A</em>";
+			}
+			if (details?.fun1) {
+				this.fun1Question.textContent = details.fun1.question;
+				if (details.fun1.answer) {
+					this.fun1Answer.textContent = details.fun1.answer;
 				}
 				else {
-					this.programmingLanguages.innerHTML = "<em>N/A</em>";
+					this.fun1Answer.innerHTML = "<em>N/A</em>";
 				}
-				if (details.fun1) {
-					this.fun1Question.textContent = details.fun1.question;
-					if (details.fun1.answer) {
-						this.fun1Answer.textContent = details.fun1.answer;
-					}
-					else {
-						this.fun1Answer.innerHTML = "<em>N/A</em>";
-					}
-				}
-				else {
-					this.fun1Question.textContent = "";
-					this.fun1Answer.textContent = "";
-				}
-				if (details.fun2) {
-					this.fun2Question.textContent = details.fun2.question;
-					if (details.fun2.answer) {
-						this.fun2Answer.textContent = details.fun2.answer;
-					}
-					else {
-						this.fun2Answer.innerHTML = "<em>N/A</em>";
-					}
+			}
+			else {
+				this.fun1Question.textContent = "";
+				this.fun1Answer.textContent = "";
+			}
+			if (details?.fun2) {
+				this.fun2Question.textContent = details.fun2.question;
+				if (details.fun2.answer) {
+					this.fun2Answer.textContent = details.fun2.answer;
 				}
 				else {
-					this.fun2Question.textContent = "";
-					this.fun2Answer.textContent = "";
+					this.fun2Answer.innerHTML = "<em>N/A</em>";
 				}
+			}
+			else {
+				this.fun2Question.textContent = "";
+				this.fun2Answer.textContent = "";
 			}
 
 			emptyContainer(this.tags);
