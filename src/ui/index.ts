@@ -30,6 +30,7 @@ namespace Index {
 
 	const resumeUpload = document.getElementById("resume-upload") as HTMLInputElement;
 	resumeUpload.addEventListener("change", () => {
+		resumeUpload.disabled = true;
 		if (!resumeUpload.files) return;
 		if (resumeUpload.files.length) {
 			const fileNameElement = document.querySelector(".file-name") as HTMLElement;
@@ -43,6 +44,7 @@ namespace Index {
 		};
 		xhr.upload.onerror = () => {
 			alert(`Upload error: ${xhr.statusText}`);
+			resumeUpload.disabled = false;
 		};
 		xhr.onload = () => {
 			window.location.reload();

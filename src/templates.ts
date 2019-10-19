@@ -6,6 +6,7 @@ import * as Handlebars from "handlebars";
 import { config, formatName } from "./common";
 import { authenticateWithRedirect, isAdmin } from "./middleware";
 import { TemplateContent, User, IUser, Company, ICompany, Participant } from "./schema";
+import { agenda } from "./tasks";
 
 Handlebars.registerHelper("ifCond", function (this: any, v1: any, v2: any, options: any) {
 	if (v1 === v2) {
@@ -128,6 +129,11 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 	}
 	else {
 		let participant = await Participant.findOne({ uuid: user.uuid });
+		let resumeParseJobs = await agenda.jobs({ "name": "parse-resume", "data.uuid": user.uuid });
+		let invalidResume = false;
+		if (resumeParseJobs[0]?.attrs.failReason) {
+			invalidResume = true;
+		}
 
 		interface IFormattedParticipant {
 			name: string;
@@ -142,7 +148,8 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 			fun2: string | undefined;
 			fun2Answer: string;
 			resume: string | undefined;
-			resumeText: string | undefined;
+			resumeText: string;
+			resumeFailReason: string | undefined;
 		}
 		let formattedParticipant: IFormattedParticipant | null = null;
 		if (participant) {
@@ -158,8 +165,9 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 				fun1Answer: participant.interestingDetails?.fun1?.answer ?? "N/A",
 				fun2: participant.interestingDetails?.fun2?.question,
 				fun2Answer: participant.interestingDetails?.fun2?.answer ?? "N/A",
-				resume: participant.resume?.path,
-				resumeText: participant.resume?.extractedText?.trim().replace(/(\r?\n){2,}/g, "\n")
+				resume: invalidResume ? undefined : participant.resume?.path,
+				resumeText: participant.resume?.extractedText?.trim().replace(/(\r?\n){2,}/g, "\n") ?? "Your resume is currently being parsed. Check back in a few minutes.",
+				resumeFailReason: resumeParseJobs[0]?.attrs.failReason
 			};
 		}
 

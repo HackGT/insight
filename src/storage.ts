@@ -198,7 +198,7 @@ storageRoutes.route("/")
 		// Access:
 		// - Only participants can update their resumes
 		// - Participants can only update their own resume
-		if (!user || !participant || user.type !== "participant" || (participant.resume?.path && path.basename(participant.resume.path) !== request.params.file)) {
+		if (!user || !participant || user.type !== "participant") {
 			if (resume) {
 				await fs.promises.unlink(resume.path);
 			}

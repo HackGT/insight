@@ -60,7 +60,10 @@
 				{{else}}
 					<br />
 					<article class="message is-danger">
-						<div class="message-body">You don't currently have a resume uploaded!</div>
+						<div class="message-body">
+							<p>You don't currently have a resume uploaded!</p>
+							<p><strong>Reason:</strong> {{participant.resumeFailReason}}</p>
+						</div>
 					</article>
 					<div class="field">
 						<div class="file is-centered has-name">
