@@ -120,6 +120,11 @@ export function isAnEmployer(request: express.Request, response: express.Respons
 			response.redirect("/");
 			return;
 		}
+		let user = request.user as IUser | undefined;
+		if (!user?.company?.verified) {
+			response.redirect("/");
+			return;
+		}
 		next();
 	});
 }

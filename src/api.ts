@@ -605,7 +605,15 @@ apiRoutes.route("/company/:company")
 
 apiRoutes.route("/company/:company/join")
 	// Request to join company
-	.post(isAnEmployer, async (request, response) => {
+	.post(async (request, response) => {
+		let uuid = (request.user as IUser | undefined)?.uuid;
+		let user = await User.findOne({ uuid });
+		if (user?.type !== "employer") {
+			response.status(403).json({
+				"error": "Must be an employer"
+			})
+			return;
+		}
 		let company = await Company.findOne({ name: request.params.company });
 		if (!company) {
 			response.status(400).json({
@@ -613,7 +621,6 @@ apiRoutes.route("/company/:company/join")
 			});
 			return;
 		}
-		let user = await User.findOne({ uuid: (request.user as IUser).uuid });
 		if (!user) {
 			response.status(400).json({
 				"error": "Unknown user"
