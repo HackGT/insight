@@ -37,6 +37,7 @@ namespace Index {
 		}
 		let xhr = new XMLHttpRequest();
 		xhr.upload.onprogress = e => {
+			// TODO: add progress bar
 			let percent = Math.round(100 * e.loaded / e.total);
 			console.log(percent);
 		};
@@ -46,7 +47,7 @@ namespace Index {
 		xhr.onload = () => {
 			window.location.reload();
 		};
-		xhr.open("POST", resumeUpload.dataset.action || "");
+		xhr.open("POST", "/uploads");
 
 		let form = new FormData();
 		form.append("resume", resumeUpload.files[0]);

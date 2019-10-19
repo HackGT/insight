@@ -162,9 +162,9 @@ storageRoutes.route("/:file")
 			response.status(401).send();
 			return;
 		}
-		else if (user && user.type !== "employer") {
+		else if (user && user.type !== "employer" && !user.admin) {
 			let participant = await Participant.findOne({ uuid: user.uuid });
-			if (!participant || !participant.resume || path.basename(participant.resume.path) !== request.params.file) {
+			if (!participant || !participant.resume?.path || path.basename(participant.resume.path) !== request.params.file) {
 				response.status(403).send();
 				return;
 			}
@@ -187,7 +187,9 @@ storageRoutes.route("/:file")
 		catch {
 			response.status(404).send("The requested file could not be found");
 		}
-	})
+	});
+
+storageRoutes.route("/")
 	.post(authenticateWithRedirect, uploadHandler.single("resume"), async (request, response) => {
 		let user = await User.findOne({ uuid: (request.user as IUser).uuid });
 		let participant = await Participant.findOne({ uuid: user ? user.uuid : "" });
@@ -196,7 +198,7 @@ storageRoutes.route("/:file")
 		// Access:
 		// - Only participants can update their resumes
 		// - Participants can only update their own resume
-		if (!user || !participant || user.type !== "participant" || (participant.resume && path.basename(participant.resume.path) !== request.params.file)) {
+		if (!user || !participant || user.type !== "participant" || (participant.resume?.path && path.basename(participant.resume.path) !== request.params.file)) {
 			if (resume) {
 				await fs.promises.unlink(resume.path);
 			}
