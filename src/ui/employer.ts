@@ -211,8 +211,7 @@ namespace Employer {
 				this.open(newDetails, false);
 			}
 			else {
-				let newDetails = { participant: this.openDetail.participant };
-				this.open(newDetails, false);
+				this.open(this.openDetail, false);
 			}
 		}
 
@@ -969,10 +968,8 @@ namespace Employer {
 				if (scanningTable.participantIDs.has(visit.participant.uuid) || visit.visit) {
 					scanningTable.addOrUpdateRow(visit, true);
 				}
-				let reloadDetailModal = true;
 				if (scanningTable.participantIDs.has(visit.participant.uuid) && !visit.visit) {
 					scanningTable.removeRow(visit.participant.uuid);
-					reloadDetailModal = false; // So that we don't reload a non-existent visit
 				}
 				if (searchTable.participantIDs.has(visit.participant.uuid)) {
 					searchTable.addOrUpdateRow(visit);
