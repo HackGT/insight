@@ -12,6 +12,7 @@
 		"moduleResolution": "node"
 	},
 	"files": [
+		"index.ts",
 		"admin.ts",
 		"common.ts",
 		"preemployer.ts",

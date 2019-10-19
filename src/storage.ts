@@ -66,6 +66,22 @@ export class S3StorageEngine implements IStorageEngine {
 		await s3.headObject(object).promise();
 		return s3.getObject(object).createReadStream();
 	}
+	public async deleteFile(name: string): Promise<void> {
+		AWS.config.update({
+			region: this.options.region,
+			credentials: new AWS.Credentials({
+				accessKeyId: this.options.accessKey,
+				secretAccessKey: this.options.secretKey
+			})
+		});
+		let s3 = new AWS.S3();
+		const object = {
+			Bucket: this.options.bucket,
+			Key: name
+		};
+		// Will throw if the object does not exist
+		await s3.deleteObject(object);
+	}
 	public async getText(name: string): Promise<string | null> {
 		return new Promise(async (resolve, reject) => {
 			try {
@@ -148,7 +164,7 @@ storageRoutes.route("/:file")
 		}
 		else if (user && user.type !== "employer") {
 			let participant = await Participant.findOne({ uuid: user.uuid });
-			if (!participant || !participant.resume || participant.resume.path !== request.params.file) {
+			if (!participant || !participant.resume || path.basename(participant.resume.path) !== request.params.file) {
 				response.status(403).send();
 				return;
 			}
@@ -180,17 +196,27 @@ storageRoutes.route("/:file")
 		// Access:
 		// - Only participants can update their resumes
 		// - Participants can only update their own resume
-		if (!user || !participant || user.type !== "participant" || !participant.resume || participant.resume.path !== request.params.file) {
+		if (!user || !participant || user.type !== "participant" || (participant.resume && path.basename(participant.resume.path) !== request.params.file)) {
 			if (resume) {
 				await fs.promises.unlink(resume.path);
 			}
 			response.status(403).send();
 			return;
 		}
+		if (participant.resume?.path) {
+			try {
+				await S3_ENGINE.deleteFile(participant.resume.path);
+			}
+			catch (err) {
+				console.error("Could not delete existing resume from S3:", err);
+			}
+		}
 		await S3_ENGINE.saveFile(resume.path, resume.filename);
 		await fs.promises.unlink(resume.path);
-		participant.resume.path = resume.filename;
-		participant.resume.size = resume.size;
+		participant.resume = {
+			path: "uploads/" + resume.filename,
+			size: resume.size
+		};
 		await participant.save();
 		await agenda.now("parse-resume", { uuid: participant.uuid });
 

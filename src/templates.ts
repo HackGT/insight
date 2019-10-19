@@ -5,7 +5,7 @@ import * as Handlebars from "handlebars";
 
 import { config, formatName } from "./common";
 import { authenticateWithRedirect, isAdmin } from "./middleware";
-import { TemplateContent, User, IUser, Company, ICompany } from "./schema";
+import { TemplateContent, User, IUser, Company, ICompany, Participant } from "./schema";
 
 Handlebars.registerHelper("ifCond", function (this: any, v1: any, v2: any, options: any) {
 	if (v1 === v2) {
@@ -35,6 +35,7 @@ Handlebars.registerHelper("formatName", (name: { first: string; preferred: strin
 	return formatName({ name } as IUser);
 });
 
+
 if (config.server.isProduction) {
 	Handlebars.registerPartial("main", fs.readFileSync(path.resolve("src/ui", "partials", "main.hbs"), "utf8"));
 }
@@ -63,6 +64,7 @@ export class Template<T extends TemplateContent> {
 	}
 }
 
+const IndexTemplate = new Template("index.hbs");
 const PreEmployerTemplate = new Template("preemployer.hbs");
 const EmployerTemplate = new Template("employer.hbs");
 const LoginTemplate = new Template("login.hbs");
@@ -82,6 +84,7 @@ serveStatic("/js/common.js", "common.js");
 serveStatic("/js/admin.js", "admin.js");
 serveStatic("/js/preemployer.js", "preemployer.js");
 serveStatic("/js/employer.js", "employer.js");
+serveStatic("/js/index.js", "index.js");
 serveStatic("/css/main.css", "main.css");
 serveStatic("/css/bulma-tooltip.min.css", "bulma-tooltip.min.css");
 
@@ -124,7 +127,47 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 		}
 	}
 	else {
-		response.send("Participant content here");
+		let participant = await Participant.findOne({ uuid: user.uuid });
+
+		interface IFormattedParticipant {
+			name: string;
+			email: string;
+			school: string;
+			major: string;
+			lookingFor: string;
+			lookingForComments: string;
+			favoriteLanguages: string;
+			fun1: string | undefined;
+			fun1Answer: string;
+			fun2: string | undefined;
+			fun2Answer: string;
+			resume: string | undefined;
+			resumeText: string | undefined;
+		}
+		let formattedParticipant: IFormattedParticipant | null = null;
+		if (participant) {
+			formattedParticipant = {
+				name: participant.name,
+				email: participant.email,
+				school: participant.school ?? "N/A",
+				major: participant.major ?? "N/A",
+				lookingFor: participant.lookingFor?.timeframe?.join(", ") ?? "N/A",
+				lookingForComments: participant.lookingFor?.comments ?? "N/A",
+				favoriteLanguages: participant.interestingDetails?.favoriteLanguages?.join(", ") ?? "None",
+				fun1: participant.interestingDetails?.fun1?.question,
+				fun1Answer: participant.interestingDetails?.fun1?.answer ?? "N/A",
+				fun2: participant.interestingDetails?.fun2?.question,
+				fun2Answer: participant.interestingDetails?.fun2?.answer ?? "N/A",
+				resume: participant.resume?.path,
+				resumeText: participant.resume?.extractedText?.trim().replace(/(\r?\n){2,}/g, "\n")
+			};
+		}
+
+		let templateData = {
+			user,
+			participant: formattedParticipant
+		};
+		response.send(IndexTemplate.render(templateData));
 	}
 });
 
