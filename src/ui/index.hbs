@@ -20,56 +20,50 @@
 					<div class="message-body">You're currently pending approval to join <strong>{{user.company.name}}</strong>.</div>
 				</article>
 			{{/if}}
-			{{#if participant}}
-				<p class="content">
-					<ul>
-						<li><strong>Name:</strong> {{participant.name}}</li>
-						<li><strong>Email:</strong> {{participant.email}}</li>
-						<li><strong>School:</strong> {{participant.school}}</li>
-						<li><strong>Major:</strong> {{participant.major}}</li>
-						<li><strong>Looking for:</strong> {{participant.lookingFor}}</li>
-						<li><strong>Looking for (comments):</strong> {{participant.lookingForComments}}</li>
-						<li><strong>Favorite programming languages:</strong> {{participant.favoriteLanguages}}</li>
-						{{#if participant.fun1}}
-							<li><strong>{{participant.fun1}}:</strong> {{participant.fun1Answer}}</li>
-						{{/if}}
-						{{#if participant.fun2}}
-							<li><strong>{{participant.fun2}}:</strong> {{participant.fun2Answer}}</li>
-						{{/if}}
-					</ul>
-				</p>
-				<div class="content">
-					{{#if participant.resume}}
-						<strong>Resume:</strong>
-						<iframe id="resume" data-path="{{participant.resume}}"></iframe>
-						<div class="field">
-							<div class="file is-centered has-name">
-								<label class="file-label">
-									<input class="file-input" type="file" id="resume-upload" data-action="/{{participant.resume}}">
-									<span class="file-cta">
-										<span class="file-icon">
-											<i class="fas fa-file-upload"></i>
-										</span>
-										<span class="file-label">
-											Update your resume
-										</span>
-									</span>
-									<span class="file-name">
-										No file selected
-									</span>
-								</label>
-							</div>
-						</div>
-
-						<strong>Extracted resume content (used for searches):</strong>
-						<textarea class="textarea" readonly id="resume-text">{{participant.resumeText}}</textarea>
+			<p class="content">
+				<ul>
+					<li><strong>Name:</strong> {{participant.name}}</li>
+					<li><strong>Email:</strong> {{participant.email}}</li>
+					<li><strong>School:</strong> {{participant.school}}</li>
+					<li><strong>Major:</strong> {{participant.major}}</li>
+					<li><strong>Looking for:</strong> {{participant.lookingFor}}</li>
+					<li><strong>Looking for (comments):</strong> {{participant.lookingForComments}}</li>
+					<li><strong>Favorite programming languages:</strong> {{participant.favoriteLanguages}}</li>
+					{{#if participant.fun1}}
+						<li><strong>{{participant.fun1}}:</strong> {{participant.fun1Answer}}</li>
 					{{/if}}
-				</div>
-			{{else}}
-				<p class="content">It looks like you're not a participant at this HackGT event and aren't visible to sponsors.</p>
-				<p class="content"><em>Did you log in with the same email address that you used to apply?</em> If not, please log out and log back in with the correct account.</p>
-				<p class="content">Please contact a HackGT organizer at <a href="mailto:hello@hack.gt">hello@hack.gt</a> if you believe this is incorrect.</p>
-			{{/if}}
+					{{#if participant.fun2}}
+						<li><strong>{{participant.fun2}}:</strong> {{participant.fun2Answer}}</li>
+					{{/if}}
+				</ul>
+			</p>
+			<div class="content">
+				{{#if participant.resume}}
+					<strong>Resume:</strong>
+					<iframe id="resume" data-path="{{participant.resume}}"></iframe>
+					<div class="field">
+						<div class="file is-centered has-name">
+							<label class="file-label">
+								<input class="file-input" type="file" id="resume-upload" data-action="/{{participant.resume}}">
+								<span class="file-cta">
+									<span class="file-icon">
+										<i class="fas fa-file-upload"></i>
+									</span>
+									<span class="file-label">
+										Update your resume
+									</span>
+								</span>
+								<span class="file-name">
+									No file selected
+								</span>
+							</label>
+						</div>
+					</div>
+
+					<strong>Extracted resume content (used for searches):</strong>
+					<textarea class="textarea" readonly id="resume-text">{{participant.resumeText}}</textarea>
+				{{/if}}
+			</div>
 
 			<br />
 			<div class="field is-grouped is-grouped-centered">
