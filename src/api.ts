@@ -8,7 +8,8 @@ import {
 	ICompany, Company,
 	IVisit, Visit,
 	IParticipant, Participant,
-	createNew, Model
+	IScanner, Scanner,
+	createNew, Model,
 } from "./schema";
 import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth, authenticateWithRedirect } from "./middleware";
 import { formatName, config } from "./common";
@@ -16,6 +17,74 @@ import { agenda } from "./tasks";
 import { webSocketServer } from "./app";
 
 export let apiRoutes = express.Router();
+
+let scannerRoutes = express.Router();
+apiRoutes.use("/scanner", apiAuth, scannerRoutes);
+
+scannerRoutes.post("/heartbeat", postParser, async (request, response) => {
+	let scannerID = (request.body.scanner as string || "").trim().toLowerCase();
+	if (!scannerID) {
+		response.json({
+			"error": "Invalid scanner ID"
+		});
+		return;
+	}
+
+	let scanner = await Scanner.findOne({ id: scannerID });
+	let now = new Date();
+	if (scanner) {
+		scanner.turnedOn = now;
+		scanner.lastContact = now;
+	}
+	else {
+		scanner = createNew(Scanner, {
+			id: scannerID,
+			turnedOn: now,
+			lastContact: now,
+			batteryPercentage: 0,
+			batteryVoltage: 0
+		});
+	}
+	await scanner.save();
+	response.json({ "success": true });
+});
+scannerRoutes.post("/battery", postParser, async (request, response) => {
+	let scannerID = (request.body.scanner as string || "").trim().toLowerCase();
+	let batteryVoltage = parseInt((request.body.batteryVoltage as string || "").trim());
+	let batteryPercentage = parseInt((request.body.batteryPercentage as string || "").trim());
+	if (!scannerID) {
+		response.json({
+			"error": "Invalid scanner ID"
+		});
+		return;
+	}
+	if (isNaN(batteryVoltage) || isNaN(batteryPercentage)) {
+		response.json({
+			"error": "Invalid battery voltage or percentage"
+		});
+		return;
+	}
+
+	let scanner = await Scanner.findOne({ id: scannerID });
+	let now = new Date();
+	if (scanner) {
+		scanner.lastContact = now;
+		scanner.batteryVoltage = batteryVoltage;
+		scanner.batteryPercentage = batteryPercentage;
+	}
+	else {
+		scanner = createNew(Scanner, {
+			id: scannerID,
+			turnedOn: now,
+			lastContact: now,
+			batteryPercentage,
+			batteryVoltage
+		});
+	}
+	await scanner.save();
+	response.json({ "success": true });
+});
+
 
 // Used to authorize WebSocket connections
 apiRoutes.route("/authorize")
