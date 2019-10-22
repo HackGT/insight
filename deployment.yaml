@@ -20,6 +20,7 @@ secrets:
   - REGISTRATION_URL
   - REGISTRATION_KEY
   - BUGSNAG
+  - API_KEY
 
 
 env:
