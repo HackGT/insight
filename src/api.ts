@@ -105,6 +105,7 @@ apiRoutes.route("/export")
 
 apiRoutes.route("/search")
 	.get(isAnEmployer, async (request, response) => {
+		const user = request.user as IUser;
 		let query: string = request.query.q || "";
 		const PAGE_SIZE = 20;
 		let page = parseInt(request.query.page, 10);
@@ -129,7 +130,6 @@ apiRoutes.route("/search")
 			foreignField: "participant",
 			as: "visitData"
 		} });
-		pipeline.push({ $unwind: { path: "$visitData", preserveNullAndEmptyArrays: true } }); // Turns arrays of 0 to 1 documents into that document or unsets the field
 		if (filterTags.length > 0) {
 			pipeline.push({ $match: { "visitData.tags": { $elemMatch: { $in: filterTags } } } });
 		}
@@ -139,6 +139,13 @@ apiRoutes.route("/search")
 		pipeline.push({ $project: { "resume.extractedText": 0 } }); // Not needed so let's reduce response size
 
 		let participants = await Participant.aggregate(pipeline);
+
+		// visitData will be returned from MongoDB as an array containing _all_ visits
+		// Make sure that visitData is turned from an array into the single company visit or else null
+		participants = participants.map(p => ({
+			...p,
+			visitData: p.visitData.filter((v: IVisit) => v.company === user.company?.name)[0] ?? null
+		}));
 
 		response.json({
 			"success": true,
