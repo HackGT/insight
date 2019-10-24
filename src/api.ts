@@ -21,6 +21,7 @@ export let apiRoutes = express.Router();
 let scannerRoutes = express.Router();
 apiRoutes.use("/scanner", apiAuth, scannerRoutes);
 
+scannerRoutes.get("/time", (request, response) => { response.send(Date.now()) });
 scannerRoutes.post("/heartbeat", postParser, async (request, response) => {
 	let scannerID = (request.body.scanner as string || "").trim().toLowerCase();
 	if (!scannerID) {
