@@ -519,6 +519,10 @@
 								<strong>{{formatName this.name}}</strong> ({{this.email}})
 								<button class="button is-success is-outlined confirm-employee" data-company="{{../user.company.name}}"
 									data-email="{{this.email}}">Confirm</button>
+								{{#ifCond this.uuid ../user.uuid}}{{else}}
+								<button class="button is-danger is-outlined remove-employee" data-company="{{../user.company.name}}"
+									data-email="{{this.email}}">Delete</button>
+								{{/ifCond}}
 							</li>
 						{{/each}}
 					</ul>
