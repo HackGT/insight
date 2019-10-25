@@ -19,7 +19,7 @@ export class WebSocketServer {
 				.update(uuid)
 				.digest()
 				.toString("hex");
-			if (token !== correctToken || (Date.now() - time) > 60000) {
+			if (token !== correctToken /*|| (Date.now() - time) > 60000*/) {
 				socket.disconnect();
 				return;
 			}
