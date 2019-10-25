@@ -27,7 +27,8 @@ function arduinoAuth(request: express.Request, response: express.Response, next:
 	let auth = bodyText.shift();
 	let message = bodyText.join("\n");
 	if (!auth || auth.indexOf(" ") === -1) {
-		response.json({ "error": "Invalid authorization" });
+		console.log("Invalid authorization:", auth);
+		response.status(401).json({ "error": "Invalid authorization" });
 		return;
 	}
 	let hash = auth.split(" ")[0];
@@ -38,12 +39,15 @@ function arduinoAuth(request: express.Request, response: express.Response, next:
 		.digest()
 		.toString("hex");
 	if (hash !== correctHash) {
-		response.json({ "error": "Invalid HMAC hash" });
+		console.log("Invalid HMAC hash:", hash, correctHash);
+		response.status(401).json({ "error": "Invalid HMAC hash" });
 		return;
 	}
 	if (isNaN(time) || Math.abs(Date.now() - (time * 1000)) > 60000) {
-		response.json({ "error": "Expired or invalid HMAC hash" });
-		return;
+		console.log("Expired or invalid HMAC hash:", time * 1000, Date.now());
+		// TODO: temporarily disabled while we search for a RTC
+		// response.status(401).json({ "error": "Expired or invalid HMAC hash" });
+		// return;
 	}
 	request.body = message;
 	next();
@@ -106,6 +110,71 @@ scannerRoutes.post("/battery", bodyParser.text({ type: "text/plain" }), arduinoA
 		});
 	}
 	await scanner.save();
+	response.json({ "success": true });
+});
+// TODO: deduplicate this handler
+scannerRoutes.post("/visit", bodyParser.text({ type: "text/plain" }), arduinoAuth, async (request, response) => {
+	let body = request.body.split("|");
+	let scannerID = body[0].trim().toLowerCase();
+	let uuid = body[1]?.trim().toLowerCase();
+
+	let scanningEmployees = await User.find({ "company.verified": true, "company.scannerIDs": scannerID });
+	if (scanningEmployees.length === 0) {
+		console.log("Invalid scanner ID:", scannerID);
+		response.status(400).json({
+			"error": "Invalid scanner ID"
+		});
+		return;
+	}
+
+	// Scanners are guaranteed to belong to only a single company
+	let company = await Company.findOne({ name: scanningEmployees[0].company?.name });
+	if (!company) {
+		console.log("Could not match scanner to company:", scannerID, scanningEmployees[0].name);
+		response.status(400).json({
+			"error": "Could not match scanner to company"
+		});
+		return;
+	}
+
+	let participant = await Participant.findOne({ uuid });
+	if (!participant) {
+		console.log("Invalid UUID:", uuid);
+		response.status(400).json({
+			"error": "Invalid UUID"
+		});
+		return;
+	}
+	let visit = await Visit.findOne({ company: company.name, participant: participant.uuid });
+	if (visit) {
+		visit.time = new Date();
+	}
+	else {
+		visit = createNew(Visit, {
+			participant: participant.uuid,
+			company: company.name,
+			tags: [],
+			notes: [],
+			time: new Date(),
+			scannerID: scannerID || null,
+			employees: scanningEmployees.map(employee => ({
+				uuid: employee.uuid,
+				name: formatName(employee),
+				email: employee.email
+			}))
+		});
+		company.visits.push(visit._id);
+	}
+	await visit.save();
+	await company.save();
+
+	if (visit.scannerID) {
+		for (let employee of scanningEmployees) {
+			webSocketServer.visitNotification(employee.uuid, participant, visit);
+		}
+	}
+	webSocketServer.reloadParticipant(company.name, participant, visit);
+
 	response.json({ "success": true });
 });
 
