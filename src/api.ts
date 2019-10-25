@@ -15,21 +15,43 @@ import { postParser, isAdmin, isAdminOrEmployee, isAnEmployer, apiAuth, authenti
 import { formatName, config } from "./common";
 import { agenda } from "./tasks";
 import { webSocketServer } from "./app";
+import bodyParser = require("body-parser");
 
 export let apiRoutes = express.Router();
 
 let scannerRoutes = express.Router();
-apiRoutes.use("/scanner", apiAuth, scannerRoutes);
+apiRoutes.use("/scanner", scannerRoutes);
 
-scannerRoutes.get("/time", (request, response) => { response.send(Date.now()) });
-scannerRoutes.post("/heartbeat", postParser, async (request, response) => {
-	let scannerID = (request.body.scanner as string || "").trim().toLowerCase();
-	if (!scannerID) {
-		response.json({
-			"error": "Invalid scanner ID"
-		});
+function arduinoAuth(request: express.Request, response: express.Response, next: express.NextFunction) {
+	let bodyText = request.body.toString("utf-8").split("\n");
+	let auth = bodyText.shift();
+	let message = bodyText.join("\n");
+	if (!auth || auth.indexOf(" ") === -1) {
+		response.json({ "error": "Invalid authorization" });
 		return;
 	}
+	let hash = auth.split(" ")[0];
+	let time = parseInt(auth.split(" ")[1]);
+	let correctHash = crypto
+		.createHmac("sha256", config.secrets.apiKey + time.toString())
+		.update(message)
+		.digest()
+		.toString("hex");
+	if (hash !== correctHash) {
+		response.json({ "error": "Invalid HMAC hash" });
+		return;
+	}
+	if (isNaN(time) || Math.abs(Date.now() - (time * 1000)) > 60000) {
+		response.json({ "error": "Expired or invalid HMAC hash" });
+		return;
+	}
+	request.body = message;
+	next();
+}
+
+scannerRoutes.get("/time", (request, response) => { response.send(Math.round(Date.now() / 1000).toString()) });
+scannerRoutes.post("/heartbeat", bodyParser.text({ type: "text/plain" }), arduinoAuth, async (request, response) => {
+	let scannerID = request.body.split("|")[0].trim().toLowerCase();
 
 	let scanner = await Scanner.findOne({ id: scannerID });
 	let now = new Date();
@@ -49,10 +71,11 @@ scannerRoutes.post("/heartbeat", postParser, async (request, response) => {
 	await scanner.save();
 	response.json({ "success": true });
 });
-scannerRoutes.post("/battery", postParser, async (request, response) => {
-	let scannerID = (request.body.scanner as string || "").trim().toLowerCase();
-	let batteryVoltage = parseInt((request.body.batteryVoltage as string || "").trim());
-	let batteryPercentage = parseInt((request.body.batteryPercentage as string || "").trim());
+scannerRoutes.post("/battery", bodyParser.text({ type: "text/plain" }), arduinoAuth, async (request, response) => {
+	let body = request.body.split("|");
+	let scannerID = body[0].trim().toLowerCase();
+	let batteryVoltage = parseInt(body[1]);
+	let batteryPercentage = parseInt(body[2]);
 	if (!scannerID) {
 		response.json({
 			"error": "Invalid scanner ID"
