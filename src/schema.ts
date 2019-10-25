@@ -164,6 +164,25 @@ export const Company = mongoose.model<Model<ICompany>>("Company", new mongoose.S
 	visits: [mongoose.Types.ObjectId]
 }));
 
+export interface IScanner extends RootDocument {
+	id: string;
+	turnedOn: Date;
+	lastContact: Date;
+	batteryVoltage: number;
+	batteryPercentage: number;
+}
+
+export const Scanner = mongoose.model<Model<IScanner>>("Scanner", new mongoose.Schema({
+	id: {
+		type: String,
+		index: true
+	},
+	turnedOn: Date,
+	lastContact: Date,
+	batteryVoltage: Number,
+	batteryPercentage: Number
+}));
+
 export interface IParticipant extends RootDocument {
 	uuid: string;
 	name: string;
