@@ -65,6 +65,10 @@ function setUpHandlers(classname: string, handler: (dataset: Dataset) => Promise
 		}));
 	}
 }
+async function handler(id: string, handler: (dataset: Dataset) => Promise<void>) {
+	let company = document.getElementById(id);
+	await handler(company?.dataset as Dataset);
+}
 function asyncHandler(action: (button?: HTMLButtonElement) => Promise<void>): (e: MouseEvent) => Promise<void> {
 	return async (e: MouseEvent) => {
 		const button = e.currentTarget as HTMLButtonElement | undefined;

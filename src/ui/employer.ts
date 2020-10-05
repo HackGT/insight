@@ -138,7 +138,7 @@ namespace Employer {
 		private readonly fun2Question = document.getElementById("detail-fun-2") as HTMLSpanElement;
 		private readonly fun2Answer = document.getElementById("detail-fun-2-answer") as HTMLSpanElement;
 		private readonly tags = document.getElementById("detail-tags") as HTMLDivElement;
-		private readonly scanner = document.getElementById("detail-scanner") as HTMLSpanElement;
+		// private readonly scanner = document.getElementById("detail-scanner") as HTMLSpanElement;
 		private readonly notes = document.getElementById("detail-notes") as HTMLUListElement;
 		private readonly resume = document.getElementById("detail-resume") as HTMLIFrameElement;
 		private readonly delete = document.querySelectorAll(".detail-delete") as NodeListOf<HTMLButtonElement>;
@@ -287,7 +287,7 @@ namespace Employer {
 				else {
 					this.tags.innerHTML = "<em>No tags</em>";
 				}
-				this.scanner.textContent = `${visitData.visit.scannerID ?? "Direct add"} → ${visitData.visit.employees.map(e => e.name).join(", ")}`;
+				// this.scanner.textContent = `${visitData.visit.scannerID ?? "Direct add"} → ${visitData.visit.employees.map(e => e.name).join(", ")}`;
 				for (let note of visitData.visit.notes) {
 					let noteElement = document.createElement("li");
 					noteElement.textContent = note;
@@ -317,7 +317,7 @@ namespace Employer {
 				forEachInNodeList(this.star, el => el.hidden = true);
 				forEachInNodeList(this.flag, el => el.hidden = true);
 				forEachInNodeList(this.addNote, el => el.hidden = true);
-				this.scanner.innerHTML = "<em>Not scanned</em>";
+				// this.scanner.innerHTML = "<em>Not scanned</em>";
 			}
 
 			if (loadResume) {
@@ -794,7 +794,6 @@ namespace Employer {
 	}
 	scanningTab.addEventListener("click", async () => {
 		await setTab(Tabs.Scanning);
-		await setCompanyInfo();
 	});
 	searchTab.addEventListener("click", async () => {
 		await setTab(Tabs.Search);
@@ -823,14 +822,66 @@ namespace Employer {
 
 		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company || "")}/employee/${encodeURIComponent(dataset.email || "")}/scanners/${encodeURIComponent(scannerID)}`);
 	});
-	async function setCompanyInfo() {
-		let companyInfo = document.getElementById("company-name");
-		const result = await fetchSpecificSponsor("National Security Innovation Networ");
-		console.log(result);
-		if (companyInfo) {
-			companyInfo.innerHTML = result.name;
+	handler("company-name", async dataset => {
+		await setCompanyInfo(dataset.company || "")
+	})
+	async function setCompanyInfo(company:string) {
+		let companyName = document.getElementById("company-name");
+		let companyAbout= document.getElementById("company-about");
+		let companyWebsite = document.getElementById("company-website") as HTMLAnchorElement;
+		let companyEventInformation = document.getElementById("company-eventInformation");
+		let companyChallengeInformation = document.getElementById("company-challengeInformation");
+		let companyRecruiting = document.getElementById("company-recruiting");
+		let companyAdditionalInfo = document.getElementById("company-additionalInfo");
+		let companyModeratorLink = document.getElementById("company-moderatorLink") as HTMLAnchorElement;
+		if (company == "") {
+			if (companyName) {
+				companyName.innerHTML = "Error reading company name!"
+			} else {
+				console.log("companyName not found")
+			}
+		}
+		const result = await fetchSpecificSponsor(company);
+		if (companyName) {
+			companyName.innerHTML = result.name;
 		} else {
-			console.log("not found")
+			console.log("companyName not found")
+		}
+		if (companyAbout) {
+			companyAbout.innerHTML = result.about || "N/A";
+		} else {
+			console.log("companyAbout not found")
+		}
+		if (companyWebsite) {
+			companyWebsite.href = result.website || "https://insight.hack.gt";
+			companyWebsite.innerHTML = result.website || "N/A";
+		} else {
+			console.log("companyWebsite not found")
+		}
+		if (companyEventInformation) {
+			companyEventInformation.innerHTML = result.eventInformation || "N/A";
+		} else {
+			console.log("companyEventInformation not found")
+		}
+		if (companyChallengeInformation) {
+			companyChallengeInformation.innerHTML = result.challengeInformation || "N/A";
+		} else {
+			console.log("companyChallengeInformation not found")
+		}
+		if (companyRecruiting) {
+			companyRecruiting.innerHTML = result.recruiting || "N/A";
+		} else {
+			console.log("companyRecruiting not found")
+		}
+		if (companyAdditionalInfo) {
+			companyAdditionalInfo.innerHTML = result.additionalInfo || "N/A";
+		} else {
+			console.log("companyAdditionalInfo not found")
+		}
+		if (companyModeratorLink) {
+			companyModeratorLink.href = result.moderatorLink || "N/A";
+		} else {
+			console.log("companyModeratorLink not found")
 		}
 	}
 

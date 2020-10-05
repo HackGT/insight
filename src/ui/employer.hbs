@@ -111,7 +111,7 @@
 					</div>
 					<div class="column">
 						<h4 class="title is-4">Your notes</h4>
-						<p><strong>Scanner:</strong> <span id="detail-scanner"></span></p>
+						{{!-- <p><strong>Scanner:</strong> <span id="detail-scanner"></span></p> --}}
 						<div class="side-by-side-flex">
 							<strong>Tags:</strong>
 							<div class="field is-grouped is-grouped-multiline" id="detail-tags"></div>
@@ -242,7 +242,50 @@
 				<h2 class="subtitle">You're connected to these scanners: <strong>{{join user.company.scannerIDs}}</strong></h2>
 			{{/ifCond}}
 		{{/ifCond}} --}}
-		<p id="company-name"></p>
+		<h2 class="subtitle" id="company-name" data-company="{{../user.company.name}}"></h2>
+		<p>Contact a HackGT Staff Member if you wish to change the information below!</p>
+		<div class="side-by-side-flex">
+			<div>
+				<div class="side-by-side-flex"><b>About: </b><p id="company-about"></p></div>
+				<div class="side-by-side-flex"><b>Website: </b><a id="company-website" target="_blank"></a></div>
+				<div class="side-by-side-flex"><b>Event Information: </b><p id="company-eventInformation"></p></div>
+				<div class="side-by-side-flex"><b>Challenge Information: </b><p id="company-challengeInformation"></p></div>
+				<div class="side-by-side-flex"><b>Recruiting: </b><p id="company-recruiting"></p></div>
+				<div class="side-by-side-flex"><b>Additional Info: </b><p id="company-additionalInfo"></p></div>
+			</div>
+			<div class="bluejeans">
+				<button class="button"><a id="company-moderatorLink" target="_blank">Join Call</a></p></button>
+			</div>
+		
+		</div>
+		<nav class="pagination">
+			<a class="pagination-previous">Previous</a>
+			<a class="pagination-next">Next page</a>
+			<ul class="pagination-list">
+				<li class="first-page" hidden>
+					<a class="pagination-link">1</a>
+				</li>
+				<li class="first-page" hidden>
+					<span class="pagination-ellipsis">&hellip;</span>
+				</li>
+				<li>
+					<a class="pagination-link previous-page" hidden>45</a>
+				</li>
+				<li>
+					<a class="pagination-link is-current">1</a>
+				</li>
+				<li>
+					<a class="pagination-link next-page" hidden>47</a>
+				</li>
+				<li class="last-page" hidden>
+					<span class="pagination-ellipsis">&hellip;</span>
+				</li>
+				<li class="last-page" hidden>
+					<a class="pagination-link">86</a>
+				</li>
+			</ul>
+		</nav>
+		<br />
 		<progress class="progress" max="100" hidden></progress>
 		<div class="field is-grouped">
 			{{!-- <p class="control">
@@ -278,19 +321,19 @@
 								</span>
 								<span>Selected profiles as .csv</span>
 							</a>
-							<hr class="dropdown-divider">
+							{{!-- <hr class="dropdown-divider">
 							<a class="dropdown-item download-scanned zip">
 								<span class="icon is-small">
 									<i class="fas fa-file-archive"></i>
 								</span>
-								<span>All scanned profiles as .zip</span>
+								<span>All profiles as .zip</span>
 							</a>
 							<a class="dropdown-item download-scanned csv">
 								<span class="icon is-small">
 									<i class="fas fa-file-csv"></i>
 								</span>
-								<span>All scanned profiles as .csv</span>
-							</a>
+								<span>All profiles as .csv</span>
+							</a> --}}
 							<hr class="dropdown-divider">
 							<a class="dropdown-item download-all zip">
 								<span class="icon is-small">
@@ -309,34 +352,6 @@
 				</div>
 			</div>
 		</div>
-		<nav class="pagination">
-			<a class="pagination-previous">Previous</a>
-			<a class="pagination-next">Next page</a>
-			<ul class="pagination-list">
-				<li class="first-page" hidden>
-					<a class="pagination-link">1</a>
-				</li>
-				<li class="first-page" hidden>
-					<span class="pagination-ellipsis">&hellip;</span>
-				</li>
-				<li>
-					<a class="pagination-link previous-page" hidden>45</a>
-				</li>
-				<li>
-					<a class="pagination-link is-current">1</a>
-				</li>
-				<li>
-					<a class="pagination-link next-page" hidden>47</a>
-				</li>
-				<li class="last-page" hidden>
-					<span class="pagination-ellipsis">&hellip;</span>
-				</li>
-				<li class="last-page" hidden>
-					<a class="pagination-link">86</a>
-				</li>
-			</ul>
-		</nav>
-		<br />
 		<div class="table-container">
 			<table class="table is-hoverable is-fullwidth" id="scanning-table">
 				<thead>
@@ -496,14 +511,9 @@
 					{{#each this.users}}
 						<li class="single-line-button">
 							<span class="icon"><i class="fas fa-user-tie"></i></span>
-							<strong>{{formatName this.name}}</strong> ({{this.email}})&nbsp;&nbsp;|&nbsp;&nbsp;Scanner(s):
-							{{#if this.company.scannerIDs.length}}
-								<strong>{{join this.company.scannerIDs}}</strong>
-							{{else}}
-								<em>None</em>
-							{{/if}}
-							<button class="button is-link is-outlined set-scanner" data-company="{{../user.company.name}}"
-									data-email="{{this.email}}" data-scanners="{{join this.company.scannerIDs}}">Scanners</button>
+							<strong>{{formatName this.name}}</strong> ({{this.email}})&nbsp;&nbsp;
+							{{!-- <button class="button is-link is-outlined set-scanner" data-company="{{../user.company.name}}"
+									data-email="{{this.email}}" data-scanners="{{join this.company.scannerIDs}}">Scanners</button> --}}
 							{{#ifCond this.uuid ../user.uuid}}{{else}}
 								<button class="button is-danger is-outlined remove-employee" data-company="{{../user.company.name}}" data-email="{{this.email}}">Remove</button>
 							{{/ifCond}}

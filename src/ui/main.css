@@ -42,6 +42,11 @@ a > i {
 	display: block;
 }
 
+.bluejeans {
+	margin: auto;
+  	width: 50%;
+}
+
 .single-line-button {
 	line-height: 2.25em; /* Same height as button */
 	margin: 10px 0;
