@@ -187,10 +187,11 @@ export interface IParticipant extends RootDocument {
 	uuid: string;
 	name: string;
 	email: string;
-	school?: string;
+	university?: string;
+	year?: string;
 	major?: string;
-	githubUsername?: string;
 	website?: string;
+	timezone?: string;
 	lookingFor?: {
 		timeframe?: string[];
 		comments?: string;
@@ -219,10 +220,11 @@ export const Participant = mongoose.model<Model<IParticipant>>("Participant", ne
 	},
 	name: String,
 	email: String,
-	school: String,
+	university: String,
+	year: String,
 	major: String,
-	githubUsername: String,
 	website: String,
+	timezone: String,
 	lookingFor: {
 		timeframe: [String],
 		comments: String
@@ -248,8 +250,10 @@ export const Participant = mongoose.model<Model<IParticipant>>("Participant", ne
 	flagForUpdate: Boolean
 }).index({
 	"name": "text",
-	"school": "text",
+	"university": "text",
 	"major": "text",
+	"year": "text",
+	"timezone": "text",
 	"lookingFor.timeframe": "text",
 	"lookingFor.comments": "text",
 	"interestingDetails.favoriteLanguages": "text",
@@ -260,8 +264,10 @@ export const Participant = mongoose.model<Model<IParticipant>>("Participant", ne
 	"weights": {
 		// Default weight is 1
 		"name": 1,
-		"school": 2,
+		"university": 2,
 		"major": 2,
+		"year": 2,
+		"timezone": 2,
 		"lookingFor.timeframe": 5,
 		"lookingFor.comments": 5,
 		"interestingDetails.favoriteLanguages": 5,

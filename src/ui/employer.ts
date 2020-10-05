@@ -21,9 +21,11 @@ namespace Employer {
 		uuid: string;
 		name: string;
 		email: string;
-		school?: string;
+		university?: string;
 		major?: string;
-		githubUsername?: string;
+		year?: string;
+		timezone?: string;
+		// githubUsername?: string;
 		website?: string;
 		lookingFor?: {
 			timeframe?: string[];
@@ -388,18 +390,18 @@ namespace Employer {
 			const starAction = rowTemplate.querySelector(".star-action") as HTMLButtonElement;
 			const flagAction = rowTemplate.querySelector(".flag-action") as HTMLButtonElement;
 			const tagAction = rowTemplate.querySelector(".tag-action") as HTMLButtonElement;
-			const githubLink = rowTemplate.querySelector(".github") as HTMLAnchorElement;
+			// const githubLink = rowTemplate.querySelector(".github") as HTMLAnchorElement;
 			const websiteLink = rowTemplate.querySelector(".website") as HTMLAnchorElement;
 
 			nameCell.textContent = visitData.participant.name;
 			majorCell.textContent = visitData.participant.major || "Unknown";
-			if (visitData.participant.githubUsername) {
-				let username = visitData.participant.githubUsername.replace(/https:\/\/(www\.)?github.com\/?/ig, "");
-				githubLink.href = `https://github.com/${username}`;
-			}
-			else {
-				githubLink.parentElement!.remove();
-			}
+			// if (visitData.participant.githubUsername) {
+			// 	let username = visitData.participant.githubUsername.replace(/https:\/\/(www\.)?github.com\/?/ig, "");
+			// 	githubLink.href = `https://github.com/${username}`;
+			// }
+			// else {
+			// 	githubLink.parentElement!.remove();
+			// }
 			if (visitData.participant.website) {
 				websiteLink.href = visitData.participant.website;
 			}
@@ -792,6 +794,7 @@ namespace Employer {
 	}
 	scanningTab.addEventListener("click", async () => {
 		await setTab(Tabs.Scanning);
+		await setCompanyInfo();
 	});
 	searchTab.addEventListener("click", async () => {
 		await setTab(Tabs.Search);
@@ -820,6 +823,16 @@ namespace Employer {
 
 		await sendRequest("PATCH", `/api/company/${encodeURIComponent(dataset.company || "")}/employee/${encodeURIComponent(dataset.email || "")}/scanners/${encodeURIComponent(scannerID)}`);
 	});
+	async function setCompanyInfo() {
+		let companyInfo = document.getElementById("company-name");
+		const result = await fetchSpecificSponsor("National Security Innovation Networ");
+		console.log(result);
+		if (companyInfo) {
+			companyInfo.innerHTML = result.name;
+		} else {
+			console.log("not found")
+		}
+	}
 
 	let isDownloadRunning = false;
 	const downloadDropdowns = document.querySelectorAll(".dropdown-trigger > .button") as NodeListOf<HTMLButtonElement>;

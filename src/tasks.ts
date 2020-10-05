@@ -124,8 +124,7 @@ agenda.define("export", { concurrency: 1, priority: "normal" }, async (job, done
 `Name: ${participant.name}
 Email: ${participant.email}
 Major: ${participant.major || "Unknown"}
-School: ${participant.school || "Unknown"}
-GitHub: ${participant.githubUsername || "None"}
+School: ${participant.university || "Unknown"}
 Website: ${participant.website || "None"}
 
 Looking for: ${participant.lookingFor?.timeframe?.join(", ") || "Not specified"}
@@ -177,12 +176,11 @@ agenda.define("export-csv", { concurrency: 1, priority: "normal" }, async job =>
 		Email: string;
 		Major?: string;
 		School?: string;
-		GitHub?: string;
 		Website?: string;
 		"Looking for"?: string;
 		"Looking for (comments)"?: string;
 	}
-	const fields: (keyof IRow)[] = ["Name", "Email", "Major", "School", "GitHub", "Website", "Looking for", "Looking for (comments)"];
+	const fields: (keyof IRow)[] = ["Name", "Email", "Major", "School", "Website", "Looking for", "Looking for (comments)"];
 	let data: IRow[] = [];
 
 	for (let [i, participant] of participants.entries()) {
@@ -194,8 +192,7 @@ agenda.define("export-csv", { concurrency: 1, priority: "normal" }, async job =>
 			Name: participant.name,
 			Email: participant.email,
 			Major: participant.major || "Unknown",
-			School: participant.school,
-			GitHub: participant.githubUsername,
+			School: participant.university,
 			Website: participant.website,
 			"Looking for": participant.lookingFor?.timeframe?.join(", ") || "N/A",
 			"Looking for (comments)": participant.lookingFor?.comments || "N/A"

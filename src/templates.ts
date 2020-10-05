@@ -108,6 +108,7 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 		company = await Company.findOne({ "name": user.company.name });
 	}
 
+	//where we render if the user is type employer
 	if (user.type === "employer") {
 		let templateData = {
 			user,
@@ -127,6 +128,8 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 			response.send(PreEmployerTemplate.render(templateData));
 		}
 	}
+
+	//user is not type employer
 	else {
 		let participant = await Participant.findOne({ uuid: user.uuid });
 		let resumeParseJobs = await agenda.jobs({ "name": "parse-resume", "data.uuid": user.uuid });
@@ -156,7 +159,7 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 			formattedParticipant = {
 				name: participant.name,
 				email: participant.email,
-				school: participant.school ?? "N/A",
+				school: participant.university ?? "N/A",
 				major: participant.major ?? "N/A",
 				lookingFor: participant.lookingFor?.timeframe?.join(", ") ?? "N/A",
 				lookingForComments: participant.lookingFor?.comments ?? "N/A",

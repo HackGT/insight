@@ -133,15 +133,40 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 
 		// This section must be updated to match current registration questions
 		// TODO: make configurable in admin panel somehow?
-		if (user.application && user.application.type === "Participant") {
+		if (user.application && user.application.type === "Participant-Emerging") {
 			participant.major = getQuestionAnswer(user.application, "major");
-			participant.school = getQuestionAnswer(user.application, "school");
-			participant.githubUsername = getQuestionAnswer(user.application, "github");
+			participant.university = getQuestionAnswer(user.application, "university");
 			participant.website = getQuestionAnswer(user.application, "website");
-			participant.lookingFor = {
-				timeframe: getQuestionAnswers(user.application, "employment"),
-				comments: getQuestionAnswer(user.application, "employment-2")
-			};
+			participant.year = getQuestionAnswer(user.application, "year");
+			participant.timezone = getQuestionAnswer(user.application, "timezone")
+
+			let resume = user.application.data.find(q => q.name === "resume");
+			if (!participant.resume && resume && resume.file) {
+				participant.resume = {
+					path: resume.file.path,
+					size: resume.file.size
+				};
+			}
+			if (user.confirmation) {
+				participant.interestingDetails = {
+					favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),
+					fun1: {
+						question: getQuestionLabel(user.confirmation, "fun") || "Unknown",
+						answer: getQuestionAnswer(user.confirmation, "fun"),
+					},
+					fun2: {
+						question: getQuestionLabel(user.confirmation, "fun-2") || "Unknown",
+						answer: getQuestionAnswer(user.confirmation, "fun-2"),
+					}
+				};
+			}
+		}
+		else if (user.application && user.application.type === "Participant-General") {
+			participant.major = getQuestionAnswer(user.application, "major");
+			participant.university = getQuestionAnswer(user.application, "university");
+			participant.website = getQuestionAnswer(user.application, "website");
+			participant.year = getQuestionAnswer(user.application, "year");
+			participant.timezone = getQuestionAnswer(user.application, "timezone")
 
 			let resume = user.application.data.find(q => q.name === "resume");
 			if (!participant.resume && resume && resume.file) {
@@ -166,9 +191,9 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 		}
 		else if (user.application && user.application.type === "Mentor") {
 			participant.major = getQuestionAnswer(user.application, "major");
-			participant.school = getQuestionAnswer(user.application, "school");
+			participant.university = getQuestionAnswer(user.application, "school");
 			participant.interestingDetails = {
-				favoriteLanguages: getQuestionAnswers(user.application, "tools")
+				favoriteLanguages: getQuestionAnswers(user.application, "skills")
 			};
 			if (user.confirmation) {
 				let resume = user.confirmation.data.find(q => q.name === "resume");
@@ -178,25 +203,6 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 						size: resume.file.size
 					};
 				}
-				participant.lookingFor = {
-					timeframe: getQuestionAnswers(user.confirmation, "employment")
-				};
-			}
-		}
-		else if (user.application && user.application.type === "Volunteer") {
-			participant.major = getQuestionAnswer(user.application, "major");
-			participant.school = getQuestionAnswer(user.application, "school");
-			if (user.confirmation) {
-				let resume = user.confirmation.data.find(q => q.name === "resume");
-				if (!participant.resume && resume && resume.file) {
-					participant.resume = {
-						path: resume.file.path,
-						size: resume.file.size
-					};
-				}
-				participant.lookingFor = {
-					timeframe: getQuestionAnswers(user.confirmation, "employment")
-				};
 			}
 		}
 		// TODO: add Organizer branch
@@ -229,7 +235,7 @@ export async function isParticipant(uuid: string): Promise<boolean> {
 		}
 	`, { uuid });
 
-	const participantBranches = ["Participant", "Mentor", "Volunteer", "Organizer"];
+	const participantBranches = ["Participant-Emerging", "Participant-General", "Mentor", "Volunteer", "Staff", "Partner"];
 	if (!data.user || !data.user.confirmed || !data.user.accepted || !data.user.application || !participantBranches.includes(data.user.application.type)) {
 		return false;
 	}
