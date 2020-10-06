@@ -14,16 +14,16 @@ namespace Index {
 					alert(response.error);
 					return;
 				}
-				let link = window.location.origin + "/uploads/" + response.link;
-				link = encodeURIComponent(link);
+				let link = "/uploads/" + response.link;
+				// link = encodeURIComponent(link);
 
 				if (path.toLowerCase().indexOf(".doc") !== -1) {
 					// Special viewer for Word documents
-					resume.src = `https://view.officeapps.live.com/op/view.aspx?src=${link}`;
+					resume.src = `${link}`;
 				}
 				else {
 					// Google Drive Viewer supports a bunch of formats including PDFs, Pages, images
-					resume.src = `https://drive.google.com/viewerng/viewer?embedded=true&url=${link}`;
+					resume.src = `${link}`;
 				}
 			});
 	}

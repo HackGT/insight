@@ -25,23 +25,24 @@ namespace Employer {
 		major?: string;
 		year?: string;
 		timezone?: string;
+		gdpr?: string;
 		// githubUsername?: string;
 		website?: string;
-		lookingFor?: {
-			timeframe?: string[];
-			comments?: string;
-		};
-		interestingDetails?: {
-			favoriteLanguages?: string[];
-			fun1?: {
-				question: string;
-				answer?: string;
-			};
-			fun2?: {
-				question: string;
-				answer?: string;
-			};
-		};
+		// lookingFor?: {
+		// 	timeframe?: string[];
+		// 	comments?: string;
+		// };
+		// interestingDetails?: {
+		// 	favoriteLanguages?: string[];
+		// 	fun1?: {
+		// 		question: string;
+		// 		answer?: string;
+		// 	};
+		// 	fun2?: {
+		// 		question: string;
+		// 		answer?: string;
+		// 	};
+		// };
 		resume?: {
 			path: string;
 			size: number;
@@ -381,7 +382,8 @@ namespace Employer {
 		}
 
 		public addOrUpdateRow(visitData: IParticipantWithPossibleVisit, insertAtTop = false) {
-			let rowTemplate = document.importNode(this.template.content, true);
+			if (visitData.participant.gdpr) {
+				let rowTemplate = document.importNode(this.template.content, true);
 
 			const timeCell = rowTemplate.getElementById("time") as HTMLTableCellElement;
 			const nameCell = rowTemplate.getElementById("name") as HTMLTableCellElement;
@@ -482,6 +484,8 @@ namespace Employer {
 				this.tbody.appendChild(row);
 			}
 			this.rows.set(visitData.participant.uuid, row);
+			}
+			
 		}
 
 		public removeRow(uuid: string) {

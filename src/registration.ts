@@ -138,7 +138,7 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 			participant.university = getQuestionAnswer(user.application, "university");
 			participant.website = getQuestionAnswer(user.application, "website");
 			participant.year = getQuestionAnswer(user.application, "year");
-			participant.timezone = getQuestionAnswer(user.application, "timezone")
+			participant.timezone = getQuestionAnswer(user.application, "timezone");
 
 			let resume = user.application.data.find(q => q.name === "resume");
 			if (!participant.resume && resume && resume.file) {
@@ -148,17 +148,7 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 				};
 			}
 			if (user.confirmation) {
-				participant.interestingDetails = {
-					favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),
-					fun1: {
-						question: getQuestionLabel(user.confirmation, "fun") || "Unknown",
-						answer: getQuestionAnswer(user.confirmation, "fun"),
-					},
-					fun2: {
-						question: getQuestionLabel(user.confirmation, "fun-2") || "Unknown",
-						answer: getQuestionAnswer(user.confirmation, "fun-2"),
-					}
-				};
+				participant.gdpr = getQuestionAnswer(user.confirmation, "gdpr");
 			}
 		}
 		else if (user.application && user.application.type === "Participant-General") {
@@ -175,26 +165,30 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 					size: resume.file.size
 				};
 			}
+
 			if (user.confirmation) {
-				participant.interestingDetails = {
-					favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),
-					fun1: {
-						question: getQuestionLabel(user.confirmation, "fun") || "Unknown",
-						answer: getQuestionAnswer(user.confirmation, "fun"),
-					},
-					fun2: {
-						question: getQuestionLabel(user.confirmation, "fun-2") || "Unknown",
-						answer: getQuestionAnswer(user.confirmation, "fun-2"),
-					}
-				};
+				participant.gdpr = getQuestionAnswer(user.confirmation, "gdpr");
 			}
+			// if (user.confirmation) {
+			// 	participant.interestingDetails = {
+			// 		favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),
+			// 		fun1: {
+			// 			question: getQuestionLabel(user.confirmation, "fun") || "Unknown",
+			// 			answer: getQuestionAnswer(user.confirmation, "fun"),
+			// 		},
+			// 		fun2: {
+			// 			question: getQuestionLabel(user.confirmation, "fun-2") || "Unknown",
+			// 			answer: getQuestionAnswer(user.confirmation, "fun-2"),
+			// 		}
+			// 	};
+			// }
 		}
 		else if (user.application && user.application.type === "Staff") {
-			participant.major = getQuestionAnswer(user.application, "major");
+			participant.major = "N/A";
 			participant.university = "Georgia Institute of Technology";
-			participant.website = getQuestionAnswer(user.application, "website");
-			participant.year = getQuestionAnswer(user.application, "year");
-			participant.timezone = getQuestionAnswer(user.application, "timezone")
+			participant.website = getQuestionAnswer(user.application, "github");
+
+			participant.gdpr = getQuestionAnswer(user.application, "gdpr");
 
 			let resume = user.application.data.find(q => q.name === "resume");
 			if (!participant.resume && resume && resume.file) {
@@ -203,26 +197,26 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 					size: resume.file.size
 				};
 			}
-			if (user.confirmation) {
-				participant.interestingDetails = {
-					favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),
-					fun1: {
-						question: getQuestionLabel(user.confirmation, "fun") || "Unknown",
-						answer: getQuestionAnswer(user.confirmation, "fun"),
-					},
-					fun2: {
-						question: getQuestionLabel(user.confirmation, "fun-2") || "Unknown",
-						answer: getQuestionAnswer(user.confirmation, "fun-2"),
-					}
-				};
-			}
+			// if (user.confirmation) {
+			// 	participant.interestingDetails = {
+			// 		favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),
+			// 		fun1: {
+			// 			question: getQuestionLabel(user.confirmation, "fun") || "Unknown",
+			// 			answer: getQuestionAnswer(user.confirmation, "fun"),
+			// 		},
+			// 		fun2: {
+			// 			question: getQuestionLabel(user.confirmation, "fun-2") || "Unknown",
+			// 			answer: getQuestionAnswer(user.confirmation, "fun-2"),
+			// 		}
+			// 	};
+			// }
 		}
 		else if (user.application && user.application.type === "Mentor") {
 			participant.major = getQuestionAnswer(user.application, "major");
 			participant.university = getQuestionAnswer(user.application, "school");
-			participant.interestingDetails = {
-				favoriteLanguages: getQuestionAnswers(user.application, "skills")
-			};
+			// participant.interestingDetails = {
+			// 	favoriteLanguages: getQuestionAnswers(user.application, "skills")
+			// };
 			if (user.confirmation) {
 				let resume = user.confirmation.data.find(q => q.name === "resume");
 				if (!participant.resume && resume && resume.file) {
@@ -231,7 +225,23 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 						size: resume.file.size
 					};
 				}
+				participant.gdpr = getQuestionAnswer(user.confirmation, "gdpr");
 			}
+		}
+
+		else if (user.application && user.application.type === "Partner") {
+			// participant.interestingDetails = {
+			// 	favoriteLanguages: getQuestionAnswers(user.application, "skills")
+			// };
+			let resume = user.application.data.find(q => q.name === "resume");
+				if (!participant.resume && resume && resume.file) {
+					participant.resume = {
+						path: resume.file.path,
+						size: resume.file.size
+					};
+				}
+				participant.gdpr = getQuestionAnswer(user.application, "gdpr");
+				console.log("partner");
 		}
 		// TODO: add Organizer branch
 

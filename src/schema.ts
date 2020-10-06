@@ -193,21 +193,22 @@ export interface IParticipant extends RootDocument {
 	major?: string;
 	website?: string;
 	timezone?: string;
-	lookingFor?: {
-		timeframe?: string[];
-		comments?: string;
-	};
-	interestingDetails?: {
-		favoriteLanguages?: string[];
-		fun1?: {
-			question: string;
-			answer?: string;
-		};
-		fun2?: {
-			question: string;
-			answer?: string;
-		};
-	};
+	gdpr?: string;
+	// lookingFor?: {
+	// 	timeframe?: string[];
+	// 	comments?: string;
+	// };
+	// interestingDetails?: {
+	// 	favoriteLanguages?: string[];
+	// 	fun1?: {
+	// 		question: string;
+	// 		answer?: string;
+	// 	};
+	// 	fun2?: {
+	// 		question: string;
+	// 		answer?: string;
+	// 	};
+	// };
 	resume?: IResume;
 	teammates: string[]; // UUIDs of teammates (can be empty)
 
@@ -226,21 +227,22 @@ export const Participant = mongoose.model<Model<IParticipant>>("Participant", ne
 	major: String,
 	website: String,
 	timezone: String,
-	lookingFor: {
-		timeframe: [String],
-		comments: String
-	},
-	interestingDetails: {
-		favoriteLanguages: [String],
-		fun1: {
-			question: String,
-			answer: String
-		},
-		fun2: {
-			question: String,
-			answer: String
-		},
-	},
+	gdpr: String,
+	// lookingFor: {
+	// 	timeframe: [String],
+	// 	comments: String
+	// },
+	// interestingDetails: {
+	// 	favoriteLanguages: [String],
+	// 	fun1: {
+	// 		question: String,
+	// 		answer: String
+	// 	},
+	// 	fun2: {
+	// 		question: String,
+	// 		answer: String
+	// 	},
+	// },
 	resume: {
 		path: String,
 		size: Number,
@@ -255,11 +257,11 @@ export const Participant = mongoose.model<Model<IParticipant>>("Participant", ne
 	"major": "text",
 	"year": "text",
 	"timezone": "text",
-	"lookingFor.timeframe": "text",
-	"lookingFor.comments": "text",
-	"interestingDetails.favoriteLanguages": "text",
-	"interestingDetails.fun1.answer": "text",
-	"interestingDetails.fun2.answer": "text",
+	// "lookingFor.timeframe": "text",
+	// "lookingFor.comments": "text",
+	// "interestingDetails.favoriteLanguages": "text",
+	// "interestingDetails.fun1.answer": "text",
+	// "interestingDetails.fun2.answer": "text",
 	"resume.extractedText": "text"
 }, {
 	"weights": {
@@ -269,11 +271,11 @@ export const Participant = mongoose.model<Model<IParticipant>>("Participant", ne
 		"major": 2,
 		"year": 2,
 		"timezone": 2,
-		"lookingFor.timeframe": 5,
-		"lookingFor.comments": 5,
-		"interestingDetails.favoriteLanguages": 5,
-		"interestingDetails.fun1.answer": 2,
-		"interestingDetails.fun2.answer": 2,
+		// "lookingFor.timeframe": 5,
+		// "lookingFor.comments": 5,
+		// "interestingDetails.favoriteLanguages": 5,
+		// "interestingDetails.fun1.answer": 2,
+		// "interestingDetails.fun2.answer": 2,
 		"resume.extractedText": 10
 	},
 	"name": "ParticipantSearchIndex"
