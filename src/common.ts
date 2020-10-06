@@ -19,11 +19,12 @@ class Config implements IConfig.Main {
 			url: "https://registration.hack.gt/graphql",
 			key: ""
 		},
-		s3: {
-			region: "us-east-1",
+		gcs: {
+			region: "us",
 			bucket: "",
-			accessKey: "",
-			secretKey: ""
+			privateKey: "",
+			clientEmail: "",
+			uploadDirectory: "uploads"
 		},
 		bugsnag: null
 	};
@@ -98,17 +99,20 @@ class Config implements IConfig.Main {
 		if (process.env.REGISTRATION_KEY) {
 			this.secrets.registration.key = process.env.REGISTRATION_KEY;
 		}
-		if (process.env.S3_REGION) {
-			this.secrets.s3.region = process.env.S3_REGION;
+		if (process.env.GCS_REGION) {
+			this.secrets.gcs.region = process.env.GCS_REGION;
 		}
-		if (process.env.S3_BUCKET) {
-			this.secrets.s3.bucket = process.env.S3_BUCKET;
+		if (process.env.GCS_BUCKET) {
+			this.secrets.gcs.bucket = process.env.GCS_BUCKET;
 		}
-		if (process.env.S3_ACCESS_KEY) {
-			this.secrets.s3.accessKey = process.env.S3_ACCESS_KEY;
+		if (process.env.GCS_CLIENT_EMAIL) {
+			this.secrets.gcs.clientEmail = process.env.GCS_CLIENT_EMAIL;
 		}
-		if (process.env.S3_SECRET_KEY) {
-			this.secrets.s3.secretKey = process.env.S3_SECRET_KEY;
+		if (process.env.GCS_PRIVATE_KEY) {
+			this.secrets.gcs.privateKey = process.env.GCS_PRIVATE_KEY;
+		}
+		if (process.env.GCS_UPLOAD_DIRECTORY) {
+			this.secrets.gcs.uploadDirectory = process.env.GCS_UPLOAD_DIRECTORY;
 		}
 		if (process.env.BUGSNAG) {
 			this.secrets.bugsnag = process.env.BUGSNAG;
@@ -199,7 +203,7 @@ export function formatName(user: IUser): string {
 //
 // Storage
 //
-export const S3_ENGINE = new S3StorageEngine(config.secrets.s3);
+export const S3_ENGINE = new S3StorageEngine(config.secrets.gcs);
 export function formatSize(size: number, binary: boolean = true): string {
 	const base = binary ? 1024 : 1000;
 	const labels = binary ? ["bytes", "KiB", "MiB", "GiB", "TiB"] : ["bytes", "KB", "MB", "GB", "TB"];

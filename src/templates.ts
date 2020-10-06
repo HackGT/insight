@@ -134,6 +134,7 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 		let participant = await Participant.findOne({ uuid: user.uuid });
 		let resumeParseJobs = await agenda.jobs({ "name": "parse-resume", "data.uuid": user.uuid });
 		let invalidResume = false;
+		console.log(resumeParseJobs[0]?.attrs);
 		if (resumeParseJobs[0]?.attrs.failReason) {
 			invalidResume = true;
 		}

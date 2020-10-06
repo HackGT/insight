@@ -130,13 +130,13 @@ namespace Employer {
 
 		private readonly name = document.getElementById("detail-name") as HTMLHeadingElement;
 		private readonly major = document.getElementById("detail-major") as HTMLHeadingElement;
-		private readonly timeframe = document.getElementById("detail-timeframe") as HTMLSpanElement;
-		private readonly timeframeComments = document.getElementById("detail-timeframe-comments") as HTMLSpanElement;
-		private readonly programmingLanguages = document.getElementById("detail-programming-languages") as HTMLSpanElement;
-		private readonly fun1Question = document.getElementById("detail-fun-1") as HTMLSpanElement;
-		private readonly fun1Answer = document.getElementById("detail-fun-1-answer") as HTMLSpanElement;
-		private readonly fun2Question = document.getElementById("detail-fun-2") as HTMLSpanElement;
-		private readonly fun2Answer = document.getElementById("detail-fun-2-answer") as HTMLSpanElement;
+		// private readonly timeframe = document.getElementById("detail-timeframe") as HTMLSpanElement;
+		// private readonly timeframeComments = document.getElementById("detail-timeframe-comments") as HTMLSpanElement;
+		// private readonly programmingLanguages = document.getElementById("detail-programming-languages") as HTMLSpanElement;
+		// private readonly fun1Question = document.getElementById("detail-fun-1") as HTMLSpanElement;
+		// private readonly fun1Answer = document.getElementById("detail-fun-1-answer") as HTMLSpanElement;
+		// private readonly fun2Question = document.getElementById("detail-fun-2") as HTMLSpanElement;
+		// private readonly fun2Answer = document.getElementById("detail-fun-2-answer") as HTMLSpanElement;
 		private readonly tags = document.getElementById("detail-tags") as HTMLDivElement;
 		// private readonly scanner = document.getElementById("detail-scanner") as HTMLSpanElement;
 		private readonly notes = document.getElementById("detail-notes") as HTMLUListElement;
@@ -223,52 +223,52 @@ namespace Employer {
 
 			this.name.textContent = participant.name;
 			this.major.textContent = participant.major ?? "Unknown Major";
-			if (participant.lookingFor?.timeframe?.length) {
-				this.timeframe.textContent = participant.lookingFor.timeframe.join(", ");
-			}
-			else {
-				this.timeframe.innerHTML = "<em>N/A</em>";
-			}
-			if (participant.lookingFor?.comments) {
-				this.timeframeComments.textContent = participant.lookingFor.comments;
-			}
-			else {
-				this.timeframeComments.innerHTML = "<em>N/A</em>";
-			}
+			// if (participant.lookingFor?.timeframe?.length) {
+			// 	this.timeframe.textContent = participant.lookingFor.timeframe.join(", ");
+			// }
+			// else {
+			// 	this.timeframe.innerHTML = "<em>N/A</em>";
+			// }
+			// if (participant.lookingFor?.comments) {
+			// 	this.timeframeComments.textContent = participant.lookingFor.comments;
+			// }
+			// else {
+			// 	this.timeframeComments.innerHTML = "<em>N/A</em>";
+			// }
 
-			const details = participant.interestingDetails;
-			if (details?.favoriteLanguages?.length) {
-				this.programmingLanguages.textContent = details.favoriteLanguages.join(", ");
-			}
-			else {
-				this.programmingLanguages.innerHTML = "<em>N/A</em>";
-			}
-			if (details?.fun1) {
-				this.fun1Question.textContent = details.fun1.question;
-				if (details.fun1.answer) {
-					this.fun1Answer.textContent = details.fun1.answer;
-				}
-				else {
-					this.fun1Answer.innerHTML = "<em>N/A</em>";
-				}
-			}
-			else {
-				this.fun1Question.textContent = "";
-				this.fun1Answer.textContent = "";
-			}
-			if (details?.fun2) {
-				this.fun2Question.textContent = details.fun2.question;
-				if (details.fun2.answer) {
-					this.fun2Answer.textContent = details.fun2.answer;
-				}
-				else {
-					this.fun2Answer.innerHTML = "<em>N/A</em>";
-				}
-			}
-			else {
-				this.fun2Question.textContent = "";
-				this.fun2Answer.textContent = "";
-			}
+			// const details = participant.interestingDetails;
+			// if (details?.favoriteLanguages?.length) {
+			// 	this.programmingLanguages.textContent = details.favoriteLanguages.join(", ");
+			// }
+			// else {
+			// 	this.programmingLanguages.innerHTML = "<em>N/A</em>";
+			// }
+			// if (details?.fun1) {
+			// 	this.fun1Question.textContent = details.fun1.question;
+			// 	if (details.fun1.answer) {
+			// 		this.fun1Answer.textContent = details.fun1.answer;
+			// 	}
+			// 	else {
+			// 		this.fun1Answer.innerHTML = "<em>N/A</em>";
+			// 	}
+			// }
+			// else {
+			// 	this.fun1Question.textContent = "";
+			// 	this.fun1Answer.textContent = "";
+			// }
+			// if (details?.fun2) {
+			// 	this.fun2Question.textContent = details.fun2.question;
+			// 	if (details.fun2.answer) {
+			// 		this.fun2Answer.textContent = details.fun2.answer;
+			// 	}
+			// 	else {
+			// 		this.fun2Answer.innerHTML = "<em>N/A</em>";
+			// 	}
+			// }
+			// else {
+			// 	this.fun2Question.textContent = "";
+			// 	this.fun2Answer.textContent = "";
+			// }
 
 			emptyContainer(this.tags);
 			emptyContainer(this.notes);
@@ -336,16 +336,16 @@ namespace Employer {
 								alert(response.error);
 								return;
 							}
-							let link = window.location.origin + "/uploads/" + response.link;
-							link = encodeURIComponent(link);
+							let link = "/uploads/" + response.link;
+							// link = encodeURIComponent(link);
 
 							if (participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
 								// Special viewer for Word documents
-								this.resume.src = `https://view.officeapps.live.com/op/view.aspx?src=${link}`;
+								this.resume.src = `${link}`;
 							}
 							else {
 								// Google Drive Viewer supports a bunch of formats including PDFs, Pages, images
-								this.resume.src = `https://drive.google.com/viewerng/viewer?embedded=true&url=${link}`;
+								this.resume.src = `${link}`;
 							}
 							this.resume.hidden = false;
 						});

@@ -189,6 +189,34 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 				};
 			}
 		}
+		else if (user.application && user.application.type === "Staff") {
+			participant.major = getQuestionAnswer(user.application, "major");
+			participant.university = "Georgia Institute of Technology";
+			participant.website = getQuestionAnswer(user.application, "website");
+			participant.year = getQuestionAnswer(user.application, "year");
+			participant.timezone = getQuestionAnswer(user.application, "timezone")
+
+			let resume = user.application.data.find(q => q.name === "resume");
+			if (!participant.resume && resume && resume.file) {
+				participant.resume = {
+					path: resume.file.path,
+					size: resume.file.size
+				};
+			}
+			if (user.confirmation) {
+				participant.interestingDetails = {
+					favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),
+					fun1: {
+						question: getQuestionLabel(user.confirmation, "fun") || "Unknown",
+						answer: getQuestionAnswer(user.confirmation, "fun"),
+					},
+					fun2: {
+						question: getQuestionLabel(user.confirmation, "fun-2") || "Unknown",
+						answer: getQuestionAnswer(user.confirmation, "fun-2"),
+					}
+				};
+			}
+		}
 		else if (user.application && user.application.type === "Mentor") {
 			participant.major = getQuestionAnswer(user.application, "major");
 			participant.university = getQuestionAnswer(user.application, "school");

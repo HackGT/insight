@@ -3,85 +3,55 @@ import * as path from "path";
 import * as os from "os";
 import * as crypto from "crypto";
 import { Readable } from "stream";
-import * as AWS from "aws-sdk";
 const PDFParser = require("pdf-parse");
 const mammoth = require("mammoth");
 import WordExtractor from "word-extractor";
 import * as express from "express";
 import { authenticateWithRedirect, uploadHandler } from "./middleware";
-import { IUser, User, IS3Options, Participant } from "./schema";
+import { IUser, User, IGCSOptions, Participant } from "./schema";
 import { S3_ENGINE, config } from "./common";
 import { agenda } from "./tasks";
+import { Storage } from "@google-cloud/storage";
 
 interface IStorageEngine {
 	saveFile(currentPath: string, name: string): Promise<void>;
 	readFile(name: string): Promise<Readable>;
+	deleteFile(name: string): Promise<void>;
 }
 
 export class S3StorageEngine implements IStorageEngine {
-	private readonly options: IS3Options;
-
-	constructor(options: IS3Options) {
+	public readonly uploadRoot: string;
+	private readonly options: IGCSOptions;
+	private readonly storage: Storage;
+	constructor(options: IGCSOptions) {
 		// Values copied via spread operator instead of being passed by reference
 		this.options = {
 			...options
 		};
+		this.uploadRoot = this.options.uploadDirectory;
+		this.storage = new Storage({
+			credentials: {
+				client_email: this.options.clientEmail,
+				private_key: this.options.privateKey
+			}
+		});
 	}
 
-	public saveFile(currentPath: string, name: string): Promise<void> {
-		AWS.config.update({
-			region: this.options.region,
-			credentials: new AWS.Credentials({
-				accessKeyId: this.options.accessKey,
-				secretAccessKey: this.options.secretKey
-			})
-		});
-		let s3 = new AWS.S3();
-		return new Promise<void>((resolve, reject) => {
-			let readStream = fs.createReadStream(currentPath);
-			readStream.on("error", reject);
-			s3.putObject({
-				Body: readStream,
-				Bucket: this.options.bucket,
-				Key: name
-			}).promise().then(output => {
-				resolve();
-			}).catch(reject);
+	public async saveFile(currentPath: string, name: string): Promise<void> {
+		await this.storage.bucket(this.options.bucket).upload(currentPath, {
+			destination: name
 		});
 	}
 	public async readFile(name: string): Promise<Readable> {
-		AWS.config.update({
-			region: this.options.region,
-			credentials: new AWS.Credentials({
-				accessKeyId: this.options.accessKey,
-				secretAccessKey: this.options.secretKey
-			})
-		});
-		let s3 = new AWS.S3();
-		const object = {
-			Bucket: this.options.bucket,
-			Key: name
-		};
-		// Will throw if the object does not exist
-		await s3.headObject(object).promise();
-		return s3.getObject(object).createReadStream();
+		name = name.replace('uploads/', '');
+		return this.storage.bucket(this.options.bucket).file(name).createReadStream();
 	}
+
 	public async deleteFile(name: string): Promise<void> {
-		AWS.config.update({
-			region: this.options.region,
-			credentials: new AWS.Credentials({
-				accessKeyId: this.options.accessKey,
-				secretAccessKey: this.options.secretKey
-			})
-		});
-		let s3 = new AWS.S3();
-		const object = {
-			Bucket: this.options.bucket,
-			Key: name
-		};
-		// Will throw if the object does not exist
-		await s3.deleteObject(object);
+		name = name.replace('uploads/', '');
+		await this.storage.bucket(this.options.bucket).file(name).delete();
 	}
+
 	public async getText(name: string): Promise<string | null> {
 		return new Promise(async (resolve, reject) => {
 			try {

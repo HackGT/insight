@@ -2,11 +2,12 @@
 // Exports TypeScript interfaces to be used for type checking and Mongoose models derived from these interfaces
 import { mongoose } from "./common";
 
-export interface IS3Options {
-	region: string;
+export interface IGCSOptions {
 	bucket: string;
-	accessKey: string;
-	secretKey: string;
+	clientEmail: string;
+	privateKey: string;
+	uploadDirectory: string;
+	region?: string;
 }
 
 // Secrets JSON file schema
@@ -23,7 +24,7 @@ export namespace IConfig {
 			url: string;
 			key: string;
 		};
-		s3: IS3Options;
+		gcs: IGCSOptions;
 		bugsnag: string | null;
 	}
 	export interface Server {

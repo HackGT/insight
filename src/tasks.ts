@@ -126,22 +126,12 @@ Email: ${participant.email}
 Major: ${participant.major || "Unknown"}
 School: ${participant.university || "Unknown"}
 Website: ${participant.website || "None"}
-
-Looking for: ${participant.lookingFor?.timeframe?.join(", ") || "Not specified"}
-Comments: ${participant.lookingFor?.comments || "Not specified"}
-
-Favorite programming languages: ${participant.interestingDetails?.favoriteLanguages?.join(", ") || "Not specified"}
-
-${participant.interestingDetails?.fun1?.question || "Unknown question"}: ${participant.interestingDetails?.fun1?.answer || "No answer"}
-
-${participant.interestingDetails?.fun2?.question || "Unknown question"}: ${participant.interestingDetails?.fun2?.answer || "No answer"}
 `;
 		archive.append(about, { name: path.join(folderName, participant.name.trim() + ".txt") });
 
 		if (participant.visitData) {
 			let visit =
 `Time: ${participant.visitData.time.toLocaleString()}
-Scanned by: ${participant.visitData.scannerID ?? "Direct add"} -> ${participant.visitData.employees.map(e => `${e.name} (${e.email})`).join(", ")}
 
 Tags: ${participant.visitData.tags.join(", ")}
 Notes: ${participant.visitData.notes.join(", ")}
@@ -177,10 +167,8 @@ agenda.define("export-csv", { concurrency: 1, priority: "normal" }, async job =>
 		Major?: string;
 		School?: string;
 		Website?: string;
-		"Looking for"?: string;
-		"Looking for (comments)"?: string;
 	}
-	const fields: (keyof IRow)[] = ["Name", "Email", "Major", "School", "Website", "Looking for", "Looking for (comments)"];
+	const fields: (keyof IRow)[] = ["Name", "Email", "Major", "School", "Website"];
 	let data: IRow[] = [];
 
 	for (let [i, participant] of participants.entries()) {
@@ -194,8 +182,6 @@ agenda.define("export-csv", { concurrency: 1, priority: "normal" }, async job =>
 			Major: participant.major || "Unknown",
 			School: participant.university,
 			Website: participant.website,
-			"Looking for": participant.lookingFor?.timeframe?.join(", ") || "N/A",
-			"Looking for (comments)": participant.lookingFor?.comments || "N/A"
 		});
 	}
 
