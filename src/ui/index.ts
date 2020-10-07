@@ -100,7 +100,7 @@ namespace Index {
 		let sponsorView = document.getElementById("sponsor-content");
 		fetchSponsors().then(response => {
 			response.forEach((sponsor) => {
-				var name = document.createElement("h3");
+				var name = document.createElement("p");
 				name.innerHTML = sponsor.name;
 				var box = document.createElement("div");
 				box.appendChild(name);
