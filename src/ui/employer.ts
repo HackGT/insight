@@ -26,8 +26,8 @@ namespace Employer {
 		year?: string;
 		timezone?: string;
 		gdpr?: string;
-		// githubUsername?: string;
-		website?: string;
+		githubUsername?: string;
+		// website?: string;
 		// lookingFor?: {
 		// 	timeframe?: string[];
 		// 	comments?: string;
@@ -392,24 +392,24 @@ namespace Employer {
 			const starAction = rowTemplate.querySelector(".star-action") as HTMLButtonElement;
 			const flagAction = rowTemplate.querySelector(".flag-action") as HTMLButtonElement;
 			const tagAction = rowTemplate.querySelector(".tag-action") as HTMLButtonElement;
-			// const githubLink = rowTemplate.querySelector(".github") as HTMLAnchorElement;
-			const websiteLink = rowTemplate.querySelector(".website") as HTMLAnchorElement;
+			const githubLink = rowTemplate.querySelector(".github") as HTMLAnchorElement;
+			// const websiteLink = rowTemplate.querySelector(".website") as HTMLAnchorElement;
 
 			nameCell.textContent = visitData.participant.name;
 			majorCell.textContent = visitData.participant.major || "Unknown";
-			// if (visitData.participant.githubUsername) {
-			// 	let username = visitData.participant.githubUsername.replace(/https:\/\/(www\.)?github.com\/?/ig, "");
-			// 	githubLink.href = `https://github.com/${username}`;
-			// }
-			// else {
-			// 	githubLink.parentElement!.remove();
-			// }
-			if (visitData.participant.website) {
-				websiteLink.href = visitData.participant.website;
+			if (visitData.participant.githubUsername) {
+				let username = visitData.participant.githubUsername.replace(/https:\/\/(www\.)?github.com\/?/ig, "");
+				githubLink.href = `https://github.com/${username}`;
 			}
 			else {
-				websiteLink.parentElement!.remove();
+				githubLink.parentElement!.remove();
 			}
+			// if (visitData.participant.website) {
+			// 	websiteLink.href = visitData.participant.website;
+			// }
+			// else {
+			// 	websiteLink.parentElement!.remove();
+			// }
 
 			if (visitData.visit) {
 				const visitDataWithVisit = visitData as IParticipantWithVisit;

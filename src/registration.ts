@@ -136,7 +136,6 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 		if (user.application && user.application.type === "Participant-Emerging") {
 			participant.major = getQuestionAnswer(user.application, "major");
 			participant.university = getQuestionAnswer(user.application, "university");
-			participant.website = getQuestionAnswer(user.application, "website");
 			participant.year = getQuestionAnswer(user.application, "year");
 			participant.timezone = getQuestionAnswer(user.application, "timezone");
 
@@ -149,12 +148,12 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 			}
 			if (user.confirmation) {
 				participant.gdpr = getQuestionAnswer(user.confirmation, "gdpr");
+				participant.github = getQuestionAnswer(user.confirmation, "github");
 			}
 		}
 		else if (user.application && user.application.type === "Participant-General") {
 			participant.major = getQuestionAnswer(user.application, "major");
 			participant.university = getQuestionAnswer(user.application, "university");
-			participant.website = getQuestionAnswer(user.application, "website");
 			participant.year = getQuestionAnswer(user.application, "year");
 			participant.timezone = getQuestionAnswer(user.application, "timezone")
 
@@ -168,6 +167,7 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 
 			if (user.confirmation) {
 				participant.gdpr = getQuestionAnswer(user.confirmation, "gdpr");
+				participant.github = getQuestionAnswer(user.confirmation, "github");
 			}
 			// if (user.confirmation) {
 			// 	participant.interestingDetails = {
@@ -186,7 +186,7 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 		else if (user.application && user.application.type === "Staff") {
 			participant.major = "N/A";
 			participant.university = "Georgia Institute of Technology";
-			participant.website = getQuestionAnswer(user.application, "github");
+			participant.github = getQuestionAnswer(user.application, "github");
 
 			participant.gdpr = getQuestionAnswer(user.application, "gdpr");
 
@@ -226,6 +226,7 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 					};
 				}
 				participant.gdpr = getQuestionAnswer(user.confirmation, "gdpr");
+				participant.github = getQuestionAnswer(user.confirmation, "github");
 			}
 		}
 
@@ -241,8 +242,39 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 					};
 				}
 				participant.gdpr = getQuestionAnswer(user.application, "gdpr");
+				participant.github = getQuestionAnswer(user.application, "github");
 				console.log("partner");
 		}
+		else if (user.application && user.application.type === "Participant Walk-in") {
+			participant.major = getQuestionAnswer(user.application, "major");
+			participant.university = getQuestionAnswer(user.application, "university");
+			participant.year = getQuestionAnswer(user.application, "year");
+			participant.timezone = getQuestionAnswer(user.application, "timezone");
+			participant.gdpr = getQuestionAnswer(user.application, "gdpr");
+			participant.github = getQuestionAnswer(user.application, "github");
+
+			let resume = user.application.data.find(q => q.name === "resume");
+			if (!participant.resume && resume && resume.file) {
+				participant.resume = {
+					path: resume.file.path,
+					size: resume.file.size
+				};
+			}
+			// if (user.confirmation) {
+			// 	participant.interestingDetails = {
+			// 		favoriteLanguages: getQuestionAnswers(user.confirmation, "languages"),
+			// 		fun1: {
+			// 			question: getQuestionLabel(user.confirmation, "fun") || "Unknown",
+			// 			answer: getQuestionAnswer(user.confirmation, "fun"),
+			// 		},
+			// 		fun2: {
+			// 			question: getQuestionLabel(user.confirmation, "fun-2") || "Unknown",
+			// 			answer: getQuestionAnswer(user.confirmation, "fun-2"),
+			// 		}
+			// 	};
+			// }
+		}
+		
 		// TODO: add Organizer branch
 
 		return participant;
@@ -273,7 +305,7 @@ export async function isParticipant(uuid: string): Promise<boolean> {
 		}
 	`, { uuid });
 
-	const participantBranches = ["Participant-Emerging", "Participant-General", "Mentor", "Volunteer", "Staff", "Partner"];
+	const participantBranches = ["Participant-Emerging", "Participant-General", "Mentor", "Volunteer", "Staff", "Partner", "Participant Walk-in"];
 	if (!data.user || !data.user.confirmed || !data.user.accepted || !data.user.application || !participantBranches.includes(data.user.application.type)) {
 		return false;
 	}

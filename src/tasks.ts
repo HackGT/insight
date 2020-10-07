@@ -125,7 +125,7 @@ agenda.define("export", { concurrency: 1, priority: "normal" }, async (job, done
 Email: ${participant.email}
 Major: ${participant.major || "Unknown"}
 School: ${participant.university || "Unknown"}
-Website: ${participant.website || "None"}
+Github: ${participant.github || "None"}
 `;
 		archive.append(about, { name: path.join(folderName, participant.name.trim() + ".txt") });
 
@@ -166,9 +166,9 @@ agenda.define("export-csv", { concurrency: 1, priority: "normal" }, async job =>
 		Email: string;
 		Major?: string;
 		School?: string;
-		Website?: string;
+		Github?: string;
 	}
-	const fields: (keyof IRow)[] = ["Name", "Email", "Major", "School", "Website"];
+	const fields: (keyof IRow)[] = ["Name", "Email", "Major", "School", "Github"];
 	let data: IRow[] = [];
 
 	for (let [i, participant] of participants.entries()) {
@@ -181,7 +181,7 @@ agenda.define("export-csv", { concurrency: 1, priority: "normal" }, async job =>
 			Email: participant.email,
 			Major: participant.major || "Unknown",
 			School: participant.university,
-			Website: participant.website,
+			Github: participant.github,
 		});
 	}
 

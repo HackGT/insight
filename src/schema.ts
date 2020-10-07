@@ -191,7 +191,7 @@ export interface IParticipant extends RootDocument {
 	university?: string;
 	year?: string;
 	major?: string;
-	website?: string;
+	github?: string;
 	timezone?: string;
 	gdpr?: string;
 	// lookingFor?: {
@@ -225,7 +225,7 @@ export const Participant = mongoose.model<Model<IParticipant>>("Participant", ne
 	university: String,
 	year: String,
 	major: String,
-	website: String,
+	github: String,
 	timezone: String,
 	gdpr: String,
 	// lookingFor: {

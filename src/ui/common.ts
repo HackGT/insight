@@ -23,7 +23,7 @@ interface sponsorResponse {
 	challengeInformation?: string,
 	recruiting?: string,
 	additionalInfo?: string,
-	blueJeansLink?: string,
+	bluejeansLink?: string,
 	moderatorLink?: string
   }
 

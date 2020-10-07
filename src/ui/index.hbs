@@ -11,10 +11,16 @@
 			}
 		</style>
 	{{/inline}}
+	<h1 class="title" style="text-align: center;">Hello, {{formatName user.name}}!</h1>
 	<section class="columns">
-		<div class="column is-three-fifths is-offset-one-fifth">
-			<h1 class="title">Hello, {{formatName user.name}}!</h1>
-			<h2 class="subtitle">{{user.email}}</h2>
+		
+		<div class="colum is-five-fifths is-offset-one-fifth" style="float: left;">
+			<h2 class="subtitle">Sponsors</h1>
+			<div id="sponsor-content"></div>
+		</div>
+		<div class="column is-two-fifths is-offset-one-fifth" style="float: right;">
+			
+			<h2 class="subtitle">Personal Information</h2>
 			<p class="content">
 				<ul>
 					<li><strong>Name:</strong> {{participant.name}}</li>
@@ -96,4 +102,33 @@
 			</div>
 		</div>
 	</section>
+	<article class="modal">
+		<div class="modal-background"></div>
+		<div class="modal-card">
+			<header class="modal-card-head">
+				<div class="modal-title">
+					<h1 class="title" id="sponsor-name"></h1>
+				</div>
+				<button class="delete" aria-label="close"></button>
+			</header>
+			<section class="modal-card-body">
+				<div>
+					<div class="side-by-side-flex"><b>About: </b><p id="company-about"></p></div>
+					<div class="side-by-side-flex"><b>Website: </b><a id="company-website" target="_blank"></a></div>
+					<div class="side-by-side-flex"><b>Event Information: </b><p id="company-eventInformation"></p></div>
+					<div class="side-by-side-flex"><b>Challenge Information: </b><p id="company-challengeInformation"></p></div>
+					<div class="side-by-side-flex"><b>Recruiting: </b><p id="company-recruiting"></p></div>
+					<div class="side-by-side-flex"><b>Additional Info: </b><p id="company-additionalInfo"></p></div>
+				</div>
+				<div class="bluejeans">
+					<button class="button"><a id="company-participantLink" target="_blank">Join Call as Participant</a></p></button>
+				</div>
+			</section>
+			<footer class="modal-card-foot">
+				<div class="buttons">
+					<button class="button" id="detail-close">Close</button>
+				</div>
+			</footer>
+		</div>
+	</article>
 {{/main}}
