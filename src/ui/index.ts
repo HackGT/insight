@@ -59,8 +59,8 @@ namespace Index {
 				if (response.additionalInfo) {
 					this.additionalInfo.innerHTML = response.additionalInfo
 				}
-				if (response.bluejeansLink) {
-					this.participantLink.href = response.bluejeansLink
+				if (response.blueJeansLink) {
+					this.participantLink.href = response.blueJeansLink
 				}
 			});
 			this.modal.classList.add("is-active");
