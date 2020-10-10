@@ -111,6 +111,9 @@ class Config implements IConfig.Main {
 		if (process.env.GCS_PRIVATE_KEY) {
 			this.secrets.gcs.privateKey = process.env.GCS_PRIVATE_KEY;
 		}
+		console.log("************");
+		console.log(this.secrets.gcs.privateKey);
+		console.log("************");
 		if (process.env.GCS_UPLOAD_DIRECTORY) {
 			this.secrets.gcs.uploadDirectory = process.env.GCS_UPLOAD_DIRECTORY;
 		}

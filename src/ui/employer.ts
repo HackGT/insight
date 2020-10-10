@@ -956,11 +956,11 @@ namespace Employer {
 		}
 	});
 
-	let downloadVisited = document.querySelectorAll(".download-scanned");
-	downloadHandler(downloadVisited, async filetype => {
-		getProgressBar().hidden = false;
-		await sendRequest("POST", "/api/export", { type: "visited", filetype }, false);
-	});
+	// let downloadVisited = document.querySelectorAll(".download-scanned");
+	// downloadHandler(downloadVisited, async filetype => {
+	// 	getProgressBar().hidden = false;
+	// 	await sendRequest("POST", "/api/export", { type: "visited", filetype }, false);
+	// });
 
 	let downloadAll = document.querySelectorAll(".download-all");
 	downloadHandler(downloadAll, async filetype => {
