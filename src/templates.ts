@@ -170,7 +170,7 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 				// fun2Answer: participant.interestingDetails?.fun2?.answer ?? "N/A",
 				resume: invalidResume ? undefined : participant.resume?.path,
 				resumeText: participant.resume?.extractedText?.trim().replace(/(\r?\n){2,}/g, "\n") ?? "Your resume is currently being parsed. Check back in a few minutes.",
-				resumeFailReason: resumeParseJobs[0]?.attrs.failReason
+				resumeFailReason: resumeParseJobs[resumeParseJobs.length - 1]?.attrs.failReason
 			};
 		}
 
