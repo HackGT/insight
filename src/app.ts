@@ -7,6 +7,9 @@ import * as chalk from "chalk";
 import morgan from "morgan";
 import flash from "connect-flash";
 
+import * as Sentry from "@sentry/browser";
+import { Integrations } from "@sentry/tracing";
+
 import {
 	// Constants
 	PORT, VERSION_NUMBER, VERSION_HASH, COOKIE_OPTIONS,
@@ -33,6 +36,17 @@ if (config.secrets.bugsnag) {
 else {
 	console.info("Bugsnag API key not set");
 }
+
+Sentry.init({
+	dsn: 'https://17e4bfb7ba4e4518b2d9653d92f2d2db@o429043.ingest.sentry.io/5459941',
+	integrations: [
+	  new Integrations.BrowserTracing(),
+	],
+  
+	// We recommend adjusting this value in production, or using tracesSampler
+	// for finer control
+	tracesSampleRate: 0.8,
+  });
 
 app.use(compression());
 let cookieParserInstance = cookieParser(undefined, COOKIE_OPTIONS as cookieParser.CookieParseOptions);

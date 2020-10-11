@@ -353,7 +353,7 @@ namespace Employer {
 						});
 					}
 					catch(err) {
-						throw err;
+						console.log(err);
 					}
 					
 				}
