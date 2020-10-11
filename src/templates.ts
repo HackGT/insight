@@ -132,9 +132,10 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 	//user is not type employer
 	else {
 		let participant = await Participant.findOne({ uuid: user.uuid });
-		let resumeParseJobs = await agenda.jobs({ "name": "parse-resume", "data.uuid": user.uuid });
+		let resumeParseJobsUnsorted = await agenda.jobs({ "name": "parse-resume", "data.uuid": user.uuid });
+		let resumeParseJobs = resumeParseJobsUnsorted.sort((a,b) => (a?.attrs.lastFinishedAt > b?.attrs.lastFinishedAt) ? -1 : 1)
 		let invalidResume = false;
-		if (resumeParseJobs[resumeParseJobs.length - 1]?.attrs.failReason) {
+		if (resumeParseJobs[0]?.attrs.failReason) {
 			invalidResume = true;
 		}
 
@@ -172,7 +173,7 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 				// fun2Answer: participant.interestingDetails?.fun2?.answer ?? "N/A",
 				resume: invalidResume ? undefined : participant.resume?.path,
 				resumeText: participant.resume?.extractedText?.trim().replace(/(\r?\n){2,}/g, "\n") ?? "Your resume is currently being parsed. Check back in a few minutes.",
-				resumeFailReason: resumeParseJobs[resumeParseJobs.length - 1]?.attrs.failReason
+				resumeFailReason: resumeParseJobs[0]?.attrs.failReason
 			};
 		}
 
