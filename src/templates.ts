@@ -139,8 +139,6 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 			invalidResume = true;
 		}
 
-		console.log(resumeParseJobs);
-
 		interface IFormattedParticipant {
 			name: string;
 			email: string;

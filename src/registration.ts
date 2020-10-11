@@ -243,7 +243,6 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 				}
 				participant.gdpr = getQuestionAnswer(user.application, "gdpr");
 				participant.github = getQuestionAnswer(user.application, "github");
-				console.log("partner");
 		}
 		else if (user.application && user.application.type === "Participant Walk-in") {
 			participant.major = getQuestionAnswer(user.application, "major");

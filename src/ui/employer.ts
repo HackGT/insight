@@ -329,7 +329,8 @@ namespace Employer {
 						method: "GET",
 						credentials: "include"
 					};
-					fetch(`/${this.openDetail.participant.resume?.path}?public=true`, options)
+					try {
+						fetch(`/${this.openDetail.participant.resume?.path}?public=true`, options)
 						.then(response => response.json() as Promise<APIResponse>)
 						.then(response => {
 							if (!participant.resume) return;
@@ -350,6 +351,11 @@ namespace Employer {
 							}
 							this.resume.hidden = false;
 						});
+					}
+					catch(err) {
+						throw err;
+					}
+					
 				}
 			}
 			this.modal.classList.add("is-active");
