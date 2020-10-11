@@ -173,6 +173,7 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 				resumeFailReason: resumeParseJobs[resumeParseJobs.length - 1]?.attrs.failReason
 			};
 		}
+		console.log(participant);
 
 		let templateData = {
 			user,
