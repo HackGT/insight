@@ -138,6 +138,8 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 			invalidResume = true;
 		}
 
+		console.log(resumeParseJobs);
+
 		interface IFormattedParticipant {
 			name: string;
 			email: string;
@@ -173,7 +175,6 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
 				resumeFailReason: resumeParseJobs[resumeParseJobs.length - 1]?.attrs.failReason
 			};
 		}
-		console.log(participant);
 
 		let templateData = {
 			user,
