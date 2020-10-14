@@ -78,7 +78,7 @@ agenda.define("export", { concurrency: 1, priority: "normal" }, async (job, done
 	let requesterUUID: string | undefined = job.attrs.data.requesterUUID;
 	let participantIDs: string[] = job.attrs.data.participantIDs;
 	let participants: (IParticipant & { visitData?: IVisit })[] = await Participant.aggregate([
-		{ $match: { uuid: { $in: participantIDs } } },
+		{ $match: {  $and: [ {uuid: { $in: participantIDs }}, {"gdpr": {$ne:null} } ] }},
 		{ $sort: { name: 1 } }, // Sort newest first
 		{ $lookup: {
 			from: "visits",
@@ -147,7 +147,7 @@ agenda.define("export-csv", { concurrency: 1, priority: "normal" }, async job =>
 	let requesterUUID: string | undefined = job.attrs.data.requesterUUID;
 	let participantIDs: string[] = job.attrs.data.participantIDs;
 	let participants: (IParticipant & { visitData?: IVisit })[] = await Participant.aggregate([
-		{ $match: { uuid: { $in: participantIDs } } },
+		{ $match: {  $and: [ {uuid: { $in: participantIDs }}, {  "gdpr": {$ne:null}   }] }},
 		{ $sort: { name: 1 } }, // Sort newest first
 		{ $lookup: {
 			from: "visits",

@@ -968,12 +968,12 @@ namespace Employer {
 	// 	await sendRequest("POST", "/api/export", { type: "visited", filetype }, false);
 	// });
 
-	// let downloadAll = document.querySelectorAll(".download-all");
-	// downloadHandler(downloadAll, async filetype => {
-	// 	if (!confirm("Are you sure that you want to export all profiles? This export will take a while to complete.")) return;
-	// 	getProgressBar().hidden = false;
-	// 	await sendRequest("POST", "/api/export", { type: "all", filetype }, false);
-	// });
+	let downloadAll = document.querySelectorAll(".download-all");
+	downloadHandler(downloadAll, async filetype => {
+		if (!confirm("Are you sure that you want to export all profiles? This export will take a while to complete.")) return;
+		getProgressBar().hidden = false;
+		await sendRequest("POST", "/api/export", { type: "all", filetype }, false);
+	});
 
 	const toast = document.querySelector(".message.toast") as HTMLDivElement;
 	toast.querySelector(".delete")?.addEventListener("click", () => toast.classList.remove("is-active"));
