@@ -46,7 +46,10 @@ export class S3StorageEngine implements IStorageEngine {
 	public async readFile(name: string): Promise<Readable> {
 		console.log('readFile', name);
 		name = name.replace('uploads/', '');
-		return this.storage.bucket(this.options.bucket).file(name).createReadStream();
+		if (await this.storage.bucket(this.options.bucket).file(name).exists()) {
+			return this.storage.bucket(this.options.bucket).file(name).createReadStream();
+		}
+		throw Error('File does not exist');
 	}
 
 	public async deleteFile(name: string): Promise<void> {
