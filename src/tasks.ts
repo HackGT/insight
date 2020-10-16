@@ -56,7 +56,13 @@ agenda.define("parse-resume", { concurrency: 1, priority: "normal" }, async job 
 		await job.save();
 		return;
 	}
-	let textResult = await S3_ENGINE.getText(path.basename(participant.resume.path));
+	let textResult;
+	try {
+		textResult = await S3_ENGINE.getText(path.basename(participant.resume.path));
+	} catch (err) {
+		console.log("Error: Cannot parse resume");
+	}
+	
 	if (textResult === null) {
 		job.fail(`Unsupported format: ${participant.resume.path}`);
 		await job.save();
