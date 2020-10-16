@@ -44,7 +44,7 @@ export class S3StorageEngine implements IStorageEngine {
 	}
 	public async readFile(name: string): Promise<Readable> {
 		name = name.replace('uploads/', '');
-		return this.storage.bucket(this.options.bucket).file(name).createReadStream();
+		return await this.storage.bucket(this.options.bucket).file(name).createReadStream();
 	}
 
 	public async deleteFile(name: string): Promise<void> {
