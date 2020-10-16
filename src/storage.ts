@@ -38,22 +38,29 @@ export class S3StorageEngine implements IStorageEngine {
 	}
 
 	public async saveFile(currentPath: string, name: string): Promise<void> {
+		console.log('saveFile', currentPath, name);
 		await this.storage.bucket(this.options.bucket).upload(currentPath, {
 			destination: name
 		});
 	}
 	public async readFile(name: string): Promise<Readable> {
+		console.log('readFile', name);
 		name = name.replace('uploads/', '');
-		return await this.storage.bucket(this.options.bucket).file(name).createReadStream();
+		if (await this.storage.bucket(this.options.bucket).file(name).exists()) {
+			return this.storage.bucket(this.options.bucket).file(name).createReadStream();
+		}
+		throw Error('File does not exist');
 	}
 
 	public async deleteFile(name: string): Promise<void> {
+		console.log('deleteFile', name);
 		name = name.replace('uploads/', '');
 		await this.storage.bucket(this.options.bucket).file(name).delete();
 	}
 
 	public async getText(name: string): Promise<string | null> {
 		return new Promise(async (resolve, reject) => {
+			console.log('getText', name);
 			try {
 				let extension = path.extname(name).toLowerCase();
 				const SUPPORTED_FILE_TYPES = [".pdf", ".docx", ".doc"];
@@ -62,35 +69,42 @@ export class S3StorageEngine implements IStorageEngine {
 					resolve(null);
 					return;
 				}
-
-				let stream = await this.readFile(name);
-				const tmpName = path.join(os.tmpdir(), crypto.randomBytes(16).toString("hex") + extension);
-				let fileStream = fs.createWriteStream(tmpName);
-				stream.once("finish", async () => {
-					try {
-						let text: string = "";
-						if (extension === ".pdf") {
-							let buffer = await fs.promises.readFile(tmpName);
-							let data = await PDFParser(buffer);
-							text = data.text;
+				try {
+					let stream = await this.readFile(name);
+					stream.on('error', function(err) {
+						console.warn(err);
+						reject();
+					})
+					const tmpName = path.join(os.tmpdir(), crypto.randomBytes(16).toString("hex") + extension);
+					let fileStream = fs.createWriteStream(tmpName);
+					stream.once("finish", async () => {
+						try {
+							let text: string = "";
+							if (extension === ".pdf") {
+								let buffer = await fs.promises.readFile(tmpName);
+								let data = await PDFParser(buffer);
+								text = data.text;
+							}
+							else if (extension === ".docx") {
+								let data = await mammoth.extractRawText({ path: tmpName });
+								text = data.value;
+							}
+							else if (extension === ".doc") {
+								let extractor = new WordExtractor();
+								let doc = await extractor.extract(tmpName);
+								text = doc.getBody();
+							}
+							await fs.promises.unlink(tmpName);
+							resolve(text);
 						}
-						else if (extension === ".docx") {
-							let data = await mammoth.extractRawText({ path: tmpName });
-							text = data.value;
+						catch (err) {
+							reject(err);
 						}
-						else if (extension === ".doc") {
-							let extractor = new WordExtractor();
-							let doc = await extractor.extract(tmpName);
-							text = doc.getBody();
-						}
-						await fs.promises.unlink(tmpName);
-						resolve(text);
-					}
-					catch (err) {
-						reject(err);
-					}
-				});
-				stream.pipe(fileStream);
+					});
+					stream.pipe(fileStream);
+				} catch (e) {
+					reject(e);
+				}
 			}
 			catch (err) {
 				reject(err);
@@ -185,12 +199,12 @@ storageRoutes.route("/")
 		}
 		try {
 			await S3_ENGINE.saveFile(resume.path, resume.filename);
-		} catch(err) {
+		} catch (err) {
 			console.error("Could not delete existing resume from S3:", err);
 			response.status(403).send();
 			return;
 		}
-		
+
 		await fs.promises.unlink(resume.path);
 		participant.resume = {
 			path: "uploads/" + resume.filename,
