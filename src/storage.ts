@@ -57,6 +57,7 @@ export class S3StorageEngine implements IStorageEngine {
 
 	public async getText(name: string): Promise<string | null> {
 		return new Promise(async (resolve, reject) => {
+			console.log('getText', name);
 			try {
 				let extension = path.extname(name).toLowerCase();
 				const SUPPORTED_FILE_TYPES = [".pdf", ".docx", ".doc"];
@@ -67,6 +68,10 @@ export class S3StorageEngine implements IStorageEngine {
 				}
 				try {
 					let stream = await this.readFile(name);
+					stream.on('error', function(err) {
+						console.warn(err);
+						reject();
+					})
 					const tmpName = path.join(os.tmpdir(), crypto.randomBytes(16).toString("hex") + extension);
 					let fileStream = fs.createWriteStream(tmpName);
 					stream.once("finish", async () => {
