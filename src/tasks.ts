@@ -116,8 +116,13 @@ agenda.define("export", { concurrency: 1, priority: "normal" }, async (job, done
 		let folderName = `${participant.name} - ${participant.uuid}`;
 
 		if (participant.resume?.path) {
-			let fileStream = await S3_ENGINE.readFile(path.basename(participant.resume.path));
-			archive.append(fileStream, { name: path.join(folderName, "resume" + path.extname(participant.resume.path)) });
+			try{
+				let fileStream = await S3_ENGINE.readFile(path.basename(participant.resume.path));
+				archive.append(fileStream, { name: path.join(folderName, "resume" + path.extname(participant.resume.path)) });
+			} catch{
+				console.log("Error: Participant Resume not found");
+			}
+			
 		}
 
 		let about =

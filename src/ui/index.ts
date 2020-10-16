@@ -76,7 +76,8 @@ namespace Index {
 			method: "GET",
 			credentials: "include"
 		};
-		fetch(`/${path}?public=true`, options)
+		try {
+			fetch(`/${path}?public=true`, options)
 			.then(response => response.json() as Promise<APIResponse>)
 			.then(response => {
 				if (!resume) return;
@@ -96,6 +97,9 @@ namespace Index {
 					resume.src = `${link}`;
 				}
 			});
+		} catch(err) {
+			console.log(err);
+		}
 
 		let sponsorView = document.getElementById("sponsor-content");
 		fetchSponsors().then(response => {
