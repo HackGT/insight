@@ -183,7 +183,14 @@ storageRoutes.route("/")
 				console.error("Could not delete existing resume from S3:", err);
 			}
 		}
-		await S3_ENGINE.saveFile(resume.path, resume.filename);
+		try {
+			await S3_ENGINE.saveFile(resume.path, resume.filename);
+		} catch(err) {
+			console.error("Could not delete existing resume from S3:", err);
+			response.status(403).send();
+			return;
+		}
+		
 		await fs.promises.unlink(resume.path);
 		participant.resume = {
 			path: "uploads/" + resume.filename,
