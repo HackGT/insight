@@ -61,7 +61,7 @@
     "pdf-parse": "^1.1.1",
     "pdf2json": "^1.1.8",
     "request": "^2.88.0",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.4.0",
     "typescript": "^3.7.0-dev.20191009",
     "word-extractor": "^0.3.0"
   }
