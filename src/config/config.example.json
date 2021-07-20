@@ -21,7 +21,8 @@
 	"admins": {
 		"domains": [
 			"gatech.edu",
-			"hack.gt"
+			"hack.gt",
+			"hexlabs.org",
 		],
 		"emails": [
 			"george.p@burdell.com",
