@@ -29,10 +29,10 @@
 		]
 	},
 	"server": {
-		"isProduction": true,
+		"isProduction": false,
 		"port": 3000,
 		"cookieMaxAge": 15552000000,
-		"cookieSecureOnly": true,
+		"cookieSecureOnly": false,
 		"mongoURL": "mongodb://localhost/insight"
 	}
 }
