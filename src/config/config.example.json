@@ -1,38 +1,32 @@
 {
-	"secrets": {
-		"session": "<a random string>",
-		"apiKey": "<a random string>",
-		"groundTruth": {
-			"url": "",
-			"id": "",
-			"secret": ""
-		},
-		"registration": {
-			"url": "https://registration.hack.gt/graphql",
-			"key": "API key for registration"
-		},
-		"s3": {
-			"region": "us-east-1",
-			"bucket": "",
-			"accessKey": "",
-			"secretKey": ""
-		}
-	},
-	"admins": {
-		"domains": [
-			"gatech.edu",
-			"hack.gt"
-		],
-		"emails": [
-			"george.p@burdell.com",
-			"buzz@gatech.edu"
-		]
-	},
-	"server": {
-		"isProduction": false,
-		"port": 3000,
-		"cookieMaxAge": 15552000000,
-		"cookieSecureOnly": false,
-		"mongoURL": "mongodb://localhost/insight"
-	}
+  "secrets": {
+    "session": "<a random string>",
+    "apiKey": "<a random string>",
+    "groundTruth": {
+      "url": "",
+      "id": "",
+      "secret": ""
+    },
+    "registration": {
+      "url": "https://registration.hack.gt/graphql",
+      "key": "API key for registration"
+    },
+    "s3": {
+      "region": "us-east-1",
+      "bucket": "",
+      "accessKey": "",
+      "secretKey": ""
+    }
+  },
+  "admins": {
+    "domains": ["gatech.edu", "hack.gt"],
+    "emails": ["george.p@burdell.com", "buzz@gatech.edu"]
+  },
+  "server": {
+    "isProduction": false,
+    "port": 3000,
+    "cookieMaxAge": 15552000000,
+    "cookieSecureOnly": false,
+    "mongoURL": "mongodb://localhost/insight"
+  }
 }

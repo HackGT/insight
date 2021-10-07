@@ -1,21 +1,13 @@
 {
-	"compilerOptions": {
-		"module": "none",
-		"composite": true,
-		"target": "es5",
-		"lib": [
-			"dom"
-		],
-		"strict": true,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
-		"moduleResolution": "node"
-	},
-	"files": [
-		"index.ts",
-		"admin.ts",
-		"common.ts",
-		"preemployer.ts",
-		"employer.ts"
-	]
+  "compilerOptions": {
+    "module": "none",
+    "composite": true,
+    "target": "es5",
+    "lib": ["dom"],
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node"
+  },
+  "files": ["index.ts", "admin.ts", "common.ts", "preemployer.ts", "employer.ts"]
 }

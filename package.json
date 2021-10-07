@@ -8,10 +8,15 @@
     "build": "./node_modules/typescript/bin/tsc -b",
     "start": "node src/app.js",
     "report-build": "node bugsnag.js",
-    "debug": "node --nolazy --inspect-brk=9229 src/app.js"
+    "debug": "node --nolazy --inspect-brk=9229 src/app.js",
+    "lint": "eslint src/ --fix; prettier src/ --write"
   },
   "author": "Ryan Petschek",
   "license": "MIT",
+  "eslintConfig": {
+    "extends": "@hex-labs/eslint-config"
+  },
+  "prettier": "@hex-labs/prettier-config",
   "dependencies": {
     "@bugsnag/js": "^6.4.1",
     "@bugsnag/plugin-express": "^6.4.1",
@@ -67,5 +72,12 @@
     "socket.io": "^2.3.0",
     "typescript": "^3.7.0-dev.20191009",
     "word-extractor": "^0.3.0"
+  },
+  "devDependencies": {
+    "@hex-labs/eslint-config": "^1.1.13",
+    "@hex-labs/prettier-config": "^1.1.13",
+    "@hex-labs/tsconfig": "^1.1.13",
+    "eslint": "^7.32.0",
+    "prettier": "^2.4.1"
   }
 }
