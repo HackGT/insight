@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import multer from "multer";
 import * as os from "os";
 import * as path from "path";
+import * as crypto from "crypto";
 
 import { config } from "./common";
 import { IUser } from "./schema";
@@ -127,4 +128,35 @@ export function isAnEmployer(request: express.Request, response: express.Respons
 		}
 		next();
 	});
+}
+
+export function arduinoAuth(request: express.Request, response: express.Response, next: express.NextFunction) {
+	let bodyText = request.body.toString("utf-8").split("\n");
+	let auth = bodyText.shift();
+	let message = bodyText.join("\n");
+	if (!auth || auth.indexOf(" ") === -1) {
+		console.log("Invalid authorization:", auth);
+		response.status(401).json({ "error": "Invalid authorization" });
+		return;
+	}
+	let hash = auth.split(" ")[0];
+	let time = parseInt(auth.split(" ")[1]);
+	let correctHash = crypto
+		.createHmac("sha256", config.secrets.apiKey + time.toString())
+		.update(message)
+		.digest()
+		.toString("hex");
+	if (hash !== correctHash) {
+		console.log("Invalid HMAC hash:", hash, correctHash);
+		response.status(401).json({ "error": "Invalid HMAC hash" });
+		return;
+	}
+	if (isNaN(time) || Math.abs(Date.now() - (time * 1000)) > 60000) {
+		console.log("Expired or invalid HMAC hash:", time * 1000, Date.now());
+		// TODO: temporarily disabled while we search for a RTC
+		// response.status(401).json({ "error": "Expired or invalid HMAC hash" });
+		// return;
+	}
+	request.body = message;
+	next();
 }

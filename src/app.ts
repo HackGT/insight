@@ -98,14 +98,15 @@ process.on("unhandledRejection", err => {
 });
 
 // Auth needs to be the first route configured or else requests handled before it will always be unauthenticated
-import { authRoutes } from "./auth/auth";
+import "./auth/auth";
+import { authRoutes } from "./routes/auth";
 app.use("/auth", authRoutes);
 
 import { apiRoutes } from "./api";
 app.use("/api", apiRoutes);
 
-import { storageRoutes } from "./storage";
-app.use("/uploads", storageRoutes);
+import { uploadsRoutes } from "./routes/uploads";
+app.use("/uploads", uploadsRoutes);
 
 import { taskDashboardRoutes, startTaskEngine } from "./tasks";
 app.use("/admin/tasks", taskDashboardRoutes);
