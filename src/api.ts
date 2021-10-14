@@ -12,6 +12,7 @@ import { adminRoutes } from "./routes/api/admin";
 import { scannerRoutes } from "./routes/api/scanner";
 import { companyRoutes } from "./routes/api/company";
 import { visitRoutes } from "./routes/api/visit";
+import { participantRoutes } from "./routes/api/participant";
 
 export const apiRoutes = express.Router();
 
@@ -19,6 +20,7 @@ apiRoutes.use("/admin", isAdmin, postParser, adminRoutes);
 apiRoutes.use("/scanner", scannerRoutes);
 apiRoutes.use("/company", companyRoutes);
 apiRoutes.use("/visit", visitRoutes);
+apiRoutes.use("/participant", participantRoutes);
 
 // Used to authorize WebSocket connections
 apiRoutes.route("/authorize").get(authenticateWithRedirect, async (request, response) => {

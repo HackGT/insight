@@ -7,6 +7,7 @@ import "./bulma-tooltip.min.css";
 import AdminHome from "./admin/AdminHome";
 
 import PreEmployerHome from "./preemployer/PreEmployerHome";
+import ParticipantHome from "./participant/ParticipantHome";
 
 function App() {
   const [{ data, loading, error }] = useAxios("/auth/check");
@@ -30,7 +31,7 @@ function App() {
         </div>
       </header>
       <div className="container is-dark">
-        <PreEmployerHome user={data} />
+        <ParticipantHome user={data} />
       </div>
       <footer className="footer">
         <div className="content has-text-centered">
