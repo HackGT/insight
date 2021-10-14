@@ -4,7 +4,7 @@ import * as os from "os";
 import * as path from "path";
 import * as express from "express";
 
-import { IUser, IVisit, Visit, Participant } from "./schema";
+import { IUser, IVisit, Visit, Participant, User } from "./schema";
 import { postParser, isAdmin, isAnEmployer, apiAuth, authenticateWithRedirect } from "./middleware";
 import { config } from "./common";
 import { agenda } from "./tasks";
@@ -180,5 +180,13 @@ apiRoutes.route("/tags").get(isAnEmployer, async (request, response) => {
   response.json({
     success: true,
     tags,
+  });
+});
+
+apiRoutes.route("/adminInfo").get(isAdmin, async (request, response) => {
+  response.json({
+    adminDomains: config.server.adminDomains,
+    adminEmails: config.server.admins,
+    currentAdmins: await User.find({ admin: true }).sort("name.last"),
   });
 });

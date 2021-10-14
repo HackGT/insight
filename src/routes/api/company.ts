@@ -1,48 +1,86 @@
 import express from "express";
 
 import { isAdminOrEmployee, postParser, isAdmin } from "../../middleware";
-import { Company, createNew, IUser, User } from "../../schema";
-
-async function addRemoveEmployee(
-  action: (user: IUser) => void,
-  request: express.Request,
-  response: express.Response
-) {
-  const user = await User.findOne({ email: request.params.employee });
-  if (!user) {
-    response.status(400).json({
-      error: "No existing user found with that email",
-    });
-    return;
-  }
-  if (!user.company || user.company.name !== request.params.company) {
-    response.status(400).json({
-      error: "User has invalid company set",
-    });
-    return;
-  }
-
-  action(user);
-  await user.save();
-  response.json({
-    success: true,
-  });
-}
+import { Company, createNew, ICompany, IUser, User } from "../../schema";
 
 export const companyRoutes = express.Router();
+
+companyRoutes.route("/").get(async (request, response) => {
+  const rawCompanies: (ICompany & { users: IUser[] })[] = await Company.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "name",
+        foreignField: "company.name",
+        as: "users",
+      },
+    },
+    {
+      $sort: {
+        name: 1,
+      },
+    },
+  ]);
+
+  const companies = rawCompanies.map(company => ({
+    ...company,
+    users: company.users.filter(user => user.company && user.company.verified),
+    pendingUsers: company.users.filter(user => !user.company || !user.company.verified),
+  }));
+
+  response.json({
+    companies,
+  });
+});
 
 companyRoutes
   .route("/:company/employee/:employee")
   // Approve pending employees
-  .patch(
-    isAdminOrEmployee,
-    addRemoveEmployee.bind(null, user => (user.company!.verified = true))
-  )
+  .patch(isAdminOrEmployee, async (request, response) => {
+    const user = await User.findOne({ email: request.params.employee });
+    if (!user) {
+      response.status(400).json({
+        error: "No existing user found with that email",
+      });
+      return;
+    }
+    if (!user.company || user.company.name !== request.params.company) {
+      response.status(400).json({
+        error: "User has invalid company set",
+      });
+      return;
+    }
+
+    user.company.verified = true;
+
+    await user.save();
+    response.json({
+      success: true,
+    });
+  })
   // Remove employees from company
-  .delete(
-    isAdminOrEmployee,
-    addRemoveEmployee.bind(null, user => (user.company = null))
-  )
+  .delete(isAdminOrEmployee, async (request, response) => {
+    const user = await User.findOne({ email: request.params.employee });
+    if (!user) {
+      response.status(400).json({
+        error: "No existing user found with that email",
+      });
+      return;
+    }
+    if (!user.company || user.company.name !== request.params.company) {
+      response.status(400).json({
+        error: "User has invalid company set",
+      });
+      return;
+    }
+
+    user.company = null;
+
+    await user.save();
+    response.json({
+      success: true,
+    });
+  })
   // Directly add employee to company
   .post(isAdminOrEmployee, async (request, response) => {
     const user = await User.findOne({ email: request.params.employee });
@@ -59,11 +97,13 @@ companyRoutes
       });
       return;
     }
+
     user.company = {
       name: request.params.company,
       verified: true,
       scannerIDs: [],
     };
+
     await user.save();
     response.json({
       success: true,
@@ -124,13 +164,16 @@ companyRoutes
       });
       return;
     }
-    const name: string = (request.body.name || "").trim();
+
+    const name = (request.body.name || "").trim();
+    console.log(request.body);
     if (!name) {
       response.status(400).json({
         error: "Invalid name",
       });
       return;
     }
+
     const existingCompany = await Company.findOne({ name });
     if (existingCompany) {
       response.status(409).json({
@@ -205,11 +248,13 @@ companyRoutes
       });
       return;
     }
+
     user.company = {
       name: company.name,
       verified: false,
       scannerIDs: [],
     };
+
     await user.save();
     response.json({
       success: true,
