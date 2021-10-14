@@ -19,6 +19,7 @@ interface IVisitWithParticipant {
   visit: Model<IVisit>;
   participant: Model<IParticipant>;
 }
+
 async function getVisit(
   request: express.Request,
   response: express.Response
@@ -200,8 +201,8 @@ visitRoutes
     }
 
     const PAGE_SIZE = 20;
-    let page = parseInt(request.query.page, 10);
-    if (isNaN(page) || page < 0) {
+    let page = parseInt(request.query.page);
+    if (Number.isNaN(page) || page < 0) {
       page = 0;
     }
     const total = await Visit.countDocuments({ company: user.company.name });
@@ -273,6 +274,7 @@ visitRoutes
       });
       return;
     }
+
     let visit = await Visit.findOne({ company: company.name, participant: participant.uuid });
     if (visit) {
       visit.time = new Date();
@@ -292,6 +294,7 @@ visitRoutes
       });
       company.visits.push(visit._id);
     }
+
     await visit.save();
     await company.save();
 

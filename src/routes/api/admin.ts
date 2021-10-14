@@ -8,7 +8,7 @@ adminRoutes.use(isAdmin);
 adminRoutes.use(postParser);
 
 async function changeAdminStatus(
-  isAdmin: boolean,
+  newAdminStatus: boolean,
   request: express.Request,
   response: express.Response
 ) {
@@ -20,7 +20,8 @@ async function changeAdminStatus(
     return;
   }
 
-  user.admin = isAdmin;
+  user.admin = newAdminStatus;
+
   await user.save();
   response.json({
     success: true,

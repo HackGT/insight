@@ -95,6 +95,7 @@ morgan.format("hackgt", (tokens, request, response) => {
 });
 app.use(morgan("hackgt"));
 app.use(flash());
+app.use(express.json());
 
 // Throw and show a stack trace on an unhandled Promise rejection instead of logging an unhelpful warning
 process.on("unhandledRejection", err => {
