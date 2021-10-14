@@ -1,11 +1,24 @@
 import React from "react";
+import useAxios from "axios-hooks";
+
 import logo from "./logo.svg";
 import "./App.css";
 import "./bulma-tooltip.min.css";
 import AdminHome from "./admin/AdminHome";
-import axios from "axios";
+
+import PreEmployerHome from "./preemployer/PreEmployerHome";
 
 function App() {
+  const [{ data, loading, error }] = useAxios("/auth/check");
+
+  if (loading) {
+    return <div>Loading</div>;
+  }
+
+  if (error) {
+    return <div>Error</div>;
+  }
+
   return (
     <>
       <header className="hero is-info is-bold">
@@ -17,7 +30,7 @@ function App() {
         </div>
       </header>
       <div className="container is-dark">
-        <AdminHome />
+        <PreEmployerHome user={data} />
       </div>
       <footer className="footer">
         <div className="content has-text-centered">

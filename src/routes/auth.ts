@@ -36,6 +36,13 @@ authRoutes.get("/validatehost/:nonce", (request, response) => {
   );
 });
 
+authRoutes.route("/check").get((req, res) => {
+  if (req.user) {
+    return res.status(200).json(req.user);
+  }
+  return res.status(400).json({ success: false });
+});
+
 authRoutes.all("/logout", async (request, response) => {
   const user = request.user as IUser | undefined;
   if (user) {
