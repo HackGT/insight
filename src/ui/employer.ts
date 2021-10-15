@@ -1,3 +1,4 @@
+/* eslint-disable */
 declare const io: typeof import("socket.io");
 
 namespace Employer {

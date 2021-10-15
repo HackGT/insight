@@ -221,3 +221,10 @@ export function formatSize(size: number, binary = true): string {
   }
   return formattedSize;
 }
+
+declare module "express-session" {
+  interface Session {
+    loginAction?: string;
+    returnTo?: string;
+  }
+}

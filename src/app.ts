@@ -86,7 +86,7 @@ morgan.format("hackgt", (tokens, request, response) => {
     tokens.sessionid(request, response),
     tokens.method(request, response),
     tokens.url(request, response),
-    statusColorizer(tokens.status(request, response)),
+    statusColorizer(tokens.status(request, response) || ""),
     tokens["response-time"](request, response),
     "ms",
     "-",

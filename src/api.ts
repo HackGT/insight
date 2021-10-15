@@ -114,15 +114,15 @@ apiRoutes
 
 apiRoutes.route("/search").get(isAnEmployer, async (request, response) => {
   const user = request.user as IUser;
-  const query: string = request.query.q || "";
+  const query: string = String(request.query.q) || "";
   const PAGE_SIZE = 20;
-  let page = parseInt(request.query.page, 10);
-  if (isNaN(page) || page < 0) {
+  let page = parseInt(String(request.query.page || ""));
+  if (Number.isNaN(page) || page < 0) {
     page = 0;
   }
   let filterTags: string[] = [];
   try {
-    const json = JSON.parse(request.query.filter);
+    const json = JSON.parse(String(request.query.filter || ""));
     if (Array.isArray(json)) filterTags = json;
   } catch {}
 
