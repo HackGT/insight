@@ -5,7 +5,6 @@ import logo from "./logo.svg";
 import "./App.css";
 import "./bulma-tooltip.min.css";
 import AdminHome from "./admin/AdminHome";
-
 import PreEmployerHome from "./preemployer/PreEmployerHome";
 import ParticipantHome from "./participant/ParticipantHome";
 import EmployerHome from "./employer/EmployerHome";

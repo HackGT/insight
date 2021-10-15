@@ -156,17 +156,6 @@ const ParticipantTable: React.FC = () => {
     []
   );
 
-  const tableInstance = useTable(
-    {
-      columns,
-      data: loading || error ? [] : data.participants,
-      manualPagination: true,
-      initialState: { pageIndex: 0 },
-      pageCount: dataPageCount,
-    },
-    usePagination
-  );
-
   const {
     getTableProps,
     getTableBodyProps,
@@ -181,7 +170,16 @@ const ParticipantTable: React.FC = () => {
     previousPage,
     state: { pageIndex },
     prepareRow,
-  } = tableInstance;
+  } = useTable(
+    {
+      columns,
+      data: loading || error ? [] : data.participants,
+      manualPagination: true,
+      initialState: { pageIndex: 0 },
+      pageCount: dataPageCount,
+    },
+    usePagination
+  );
 
   const fetchData = () => {
     refetch({
@@ -193,6 +191,7 @@ const ParticipantTable: React.FC = () => {
     });
   };
 
+  // Will fetch new data whenever the page index, search query, or tags filter changes
   useEffect(() => {
     fetchData();
   }, [pageIndex, searchQuery, tagsFilter]);
