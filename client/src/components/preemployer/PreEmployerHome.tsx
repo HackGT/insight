@@ -2,7 +2,7 @@ import axios from "axios";
 import useAxios from "axios-hooks";
 import React, { useState } from "react";
 
-import { formatName } from "../util";
+import { formatName } from "../../util";
 
 interface Props {
   user: any;

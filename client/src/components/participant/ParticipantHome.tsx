@@ -1,7 +1,7 @@
 import React from "react";
 import useAxios from "axios-hooks";
 
-import { formatName } from "../util";
+import { formatName } from "../../util";
 import SponsorInformation from "./SponsorInformation";
 
 interface Props {

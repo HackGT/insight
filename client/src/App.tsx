@@ -1,13 +1,12 @@
 import React from "react";
 import useAxios from "axios-hooks";
 
-import logo from "./logo.svg";
 import "./App.css";
 import "./bulma-tooltip.min.css";
-import AdminHome from "./admin/AdminHome";
-import PreEmployerHome from "./preemployer/PreEmployerHome";
-import ParticipantHome from "./participant/ParticipantHome";
-import EmployerHome from "./employer/EmployerHome";
+import AdminHome from "./components/admin/AdminHome";
+import PreEmployerHome from "./components/preemployer/PreEmployerHome";
+import ParticipantHome from "./components/participant/ParticipantHome";
+import EmployerHome from "./components/employer/EmployerHome";
 
 function App() {
   const [{ data, loading, error }] = useAxios("/auth/check");

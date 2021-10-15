@@ -2,7 +2,7 @@ import React from "react";
 import useAxios from "axios-hooks";
 import axios from "axios";
 
-import { formatName } from "../util";
+import { formatName } from "../../util";
 import AdminManager from "./AdminManager";
 
 const AdminHome: React.FC = () => {

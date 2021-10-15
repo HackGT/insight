@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import parse from "html-react-parser";
 
-import { fetchSponsors } from "../cms";
+import { fetchSponsors } from "../../util/cms";
 import SponsorSquare from "./SponsorSquare";
 
 const SponsorInformation: React.FC = () => {

@@ -2,7 +2,7 @@ import axios from "axios";
 import useAxios from "axios-hooks";
 import React from "react";
 
-import { formatName } from "../util";
+import { formatName } from "../../util";
 
 const AdminManager: React.FC = () => {
   const [{ data, loading, error }, refetch] = useAxios("/api/adminInfo");
