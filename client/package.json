@@ -50,7 +50,7 @@
     ]
   },
   "devDependencies": {
-    "@hex-labs/eslint-config-react": "^1.1.14",
+    "@hex-labs/eslint-config-react": "^1.1.15",
     "@hex-labs/prettier-config": "^1.1.13",
     "@hex-labs/stylelint-config": "^1.1.13",
     "@types/luxon": "^2.0.5",
