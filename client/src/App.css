@@ -1,8 +1,8 @@
 html,
 body {
+  height: 100%;
   margin: 0;
   font-family: "Barlow";
-  height: 100%;
 }
 
 code {
@@ -26,32 +26,32 @@ li {
 }
 
 code {
-  border-radius: 3px;
   padding: 0.15em 0.35em 0.15em;
+  border-radius: 3px;
 }
 
 a.button {
+  display: block;
   width: 100%;
   height: 100%;
-  display: block;
   margin: 0 auto;
 }
 
 .sponsor {
-  margin: 5px;
   width: 40%;
+  margin: 5px;
   padding-top: 10vh;
   padding-bottom: 10vh;
+  white-space: pre-line;
   text-align: center;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  white-space: pre-line;
   transition: all 0.2s ease-out, filter 0.2s ease-in;
 }
 
 .sponsor:hover {
-  background-color: #209cee;
   color: white;
+  background-color: #209cee;
 }
 
 a.sponsor {
@@ -63,22 +63,22 @@ a > i {
   transform: scale(1.25);
 }
 .hidden {
-  opacity: 0;
   display: none;
+  opacity: 0;
 }
 .shown {
-  opacity: 1;
   display: block;
+  opacity: 1;
 }
 
 .bluejeans {
-  margin: auto;
   width: 50%;
+  margin: auto;
 }
 
 .single-line-button {
-  line-height: 2.25em; /* Same height as button */
   margin: 10px 0;
+  line-height: 2.25em; /* Same height as button */
 }
 .single-line-button > button {
   margin-left: 15px;
@@ -112,8 +112,8 @@ a > i {
 }
 
 .modal-card {
-  height: calc(100vh - 40px);
   width: calc(90vw - 40px);
+  height: calc(100vh - 40px);
 }
 .modal-title {
   flex-grow: 1;
@@ -140,14 +140,14 @@ iframe {
   margin-right: 5px;
 }
 .tags-column {
-  word-wrap: break-word;
   max-width: 160px;
+  word-wrap: break-word;
 }
 .modal-card-body {
   display: flex;
   flex-direction: column;
   padding-top: 10px;
-  padding-bottom: 0px;
+  padding-bottom: 0;
 }
 #detail-notes > li:not(.no-prefix)::before {
   content: "– ";
@@ -156,8 +156,8 @@ iframe {
   margin: 1px;
 }
 .dropdown-menu.far-right {
-  left: auto;
   right: 0;
+  left: auto;
 }
 #search-control,
 .progress:not(:last-child) {
@@ -165,11 +165,11 @@ iframe {
 }
 .message.toast {
   position: fixed;
-  left: 0;
   right: 0;
   bottom: -100px;
-  margin: 0;
+  left: 0;
   z-index: 1000;
+  margin: 0;
   text-align: center;
   border-radius: 0;
   transition: bottom 0.25s ease-in-out;
@@ -178,11 +178,11 @@ iframe {
   bottom: 0;
 }
 .message.toast > .message-body {
-  border-radius: 0;
-  border-width: 4px 0 0 0;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  border-width: 4px 0 0 0;
+  border-radius: 0;
 }
 .message.toast > .message-body > .button {
   margin-left: 0.75rem;
@@ -216,14 +216,14 @@ a.dropdown-item {
 }
 @media only screen and (max-width: 768px) {
   .modal-card {
-    max-height: 100vh;
-    height: calc(100vh - 20px);
     width: calc(100vw - 20px);
+    height: calc(100vh - 20px);
+    max-height: 100vh;
   }
   .modal-card-body {
     padding: 10px;
-    border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
   }
   #detail-close {
     display: none;
@@ -244,6 +244,7 @@ a.dropdown-item {
   iframe {
     flex-shrink: 0;
   }
+
   /* Hide Major, Links, Tags columns on mobile */
   tr td:nth-child(4),
   th:nth-child(4),

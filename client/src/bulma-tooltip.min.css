@@ -19,49 +19,49 @@
   }
 }
 .tooltip {
-  overflow: visible;
   position: relative;
+  overflow: visible;
 }
 .tooltip.is-tooltip-active:not(.is-loading)::after,
 .tooltip:hover:not(.is-loading)::after {
-  z-index: 99999;
   position: absolute;
+  z-index: 99999;
   display: inline-block;
   pointer-events: none;
 }
 .tooltip.is-tooltip-active::before,
 .tooltip:hover::before {
-  z-index: 99999;
   position: absolute;
+  z-index: 99999;
   display: inline-block;
   pointer-events: none;
 }
 .tooltip.is-tooltip-active:not(.is-loading)::after,
 .tooltip:hover:not(.is-loading)::after {
-  content: "";
   border-style: solid;
   border-width: 0.5rem;
+  content: "";
 }
 .tooltip.is-tooltip-active::before,
 .tooltip:hover::before {
-  opacity: 0;
-  content: attr(data-tooltip);
+  max-width: 24rem;
+  padding: 0.4rem 0.8rem;
   overflow: hidden;
+  color: #fff;
+  font-size: 0.75rem;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: 0.75rem;
-  padding: 0.4rem 0.8rem;
   background: rgba(74, 74, 74, 0.9);
   border-radius: 4px;
-  color: #fff;
-  max-width: 24rem;
+  opacity: 0;
+  content: attr(data-tooltip);
 }
 .tooltip.is-tooltip-active:not(.is-loading)::after,
 .tooltip:focus:not(.is-loading)::after,
 .tooltip:hover:not(.is-loading)::after {
-  opacity: 1;
-  margin-left: -0.5rem;
   margin-top: -0.5rem;
+  margin-left: -0.5rem;
+  opacity: 1;
 }
 .tooltip.is-tooltip-active::before,
 .tooltip:focus::before,
@@ -70,17 +70,17 @@
 }
 .tooltip::before {
   top: auto;
+  right: auto;
   bottom: 100%;
   left: 50%;
-  right: auto;
 }
 .tooltip.is-tooltip-active:not(.is-loading)::after,
 .tooltip:focus:not(.is-loading)::after,
 .tooltip:hover:not(.is-loading)::after {
   top: 0;
+  right: auto;
   bottom: auto;
   left: 50%;
-  right: auto;
   border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent;
 }
 .tooltip.is-tooltip-active::before,
@@ -91,9 +91,9 @@
 }
 .tooltip.is-tooltip-right::before {
   top: auto;
+  right: auto;
   bottom: 50%;
   left: 100%;
-  right: auto;
   -webkit-transform: translate(-1rem, 50%);
   transform: translate(-1rem, 50%);
 }
@@ -101,8 +101,8 @@
 .tooltip.is-tooltip-right:focus:not(.is-loading)::after,
 .tooltip.is-tooltip-right:hover:not(.is-loading)::after {
   top: 50%;
-  left: 100%;
   right: auto;
+  left: 100%;
   border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent;
 }
 .tooltip.is-tooltip-right.is-tooltip-active::before,
@@ -113,9 +113,9 @@
 }
 .tooltip.is-tooltip-bottom::before {
   top: 100%;
+  right: auto;
   bottom: auto;
   left: 50%;
-  right: auto;
   -webkit-transform: translate(-50%, -1rem);
   transform: translate(-50%, -1rem);
 }
@@ -123,9 +123,9 @@
 .tooltip.is-tooltip-bottom:focus:not(.is-loading)::after,
 .tooltip.is-tooltip-bottom:hover:not(.is-loading)::after {
   top: 100%;
+  right: auto;
   bottom: auto;
   left: 50%;
-  right: auto;
   border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent;
 }
 .tooltip.is-tooltip-bottom.is-tooltip-active::before,
@@ -136,9 +136,9 @@
 }
 .tooltip.is-tooltip-left::before {
   top: auto;
+  right: 100%;
   bottom: 50%;
   left: auto;
-  right: 100%;
   -webkit-transform: translate(1rem, 50%);
   transform: translate(1rem, 50%);
 }
@@ -146,9 +146,9 @@
 .tooltip.is-tooltip-left:focus:not(.is-loading)::after,
 .tooltip.is-tooltip-left:hover:not(.is-loading)::after {
   top: 50%;
+  right: calc(100% - 0.5rem);
   bottom: auto;
   left: auto;
-  right: calc(100% - 0.5rem);
   border-color: transparent transparent transparent rgba(74, 74, 74, 0.9);
 }
 .tooltip.is-tooltip-left.is-tooltip-active::before,
@@ -159,8 +159,8 @@
 }
 .tooltip.is-tooltip-multiline::before {
   min-width: 24rem;
-  text-overflow: clip;
   white-space: normal;
+  text-overflow: clip;
   word-break: keep-all;
 }
 .tooltip.is-tooltip-white:not(.is-loading)::after {
@@ -176,8 +176,8 @@
   border-color: transparent transparent transparent rgba(255, 255, 255, 0.9);
 }
 .tooltip.is-tooltip-white::before {
-  background: rgba(255, 255, 255, 0.9);
   color: #0a0a0a;
+  background: rgba(255, 255, 255, 0.9);
 }
 .tooltip.is-tooltip-black:not(.is-loading)::after {
   border-color: rgba(10, 10, 10, 0.9) transparent transparent transparent;
@@ -192,8 +192,8 @@
   border-color: transparent transparent transparent rgba(10, 10, 10, 0.9);
 }
 .tooltip.is-tooltip-black::before {
-  background: rgba(10, 10, 10, 0.9);
   color: #fff;
+  background: rgba(10, 10, 10, 0.9);
 }
 .tooltip.is-tooltip-light:not(.is-loading)::after {
   border-color: rgba(245, 245, 245, 0.9) transparent transparent transparent;
@@ -208,8 +208,8 @@
   border-color: transparent transparent transparent rgba(245, 245, 245, 0.9);
 }
 .tooltip.is-tooltip-light::before {
-  background: rgba(245, 245, 245, 0.9);
   color: #363636;
+  background: rgba(245, 245, 245, 0.9);
 }
 .tooltip.is-tooltip-dark:not(.is-loading)::after {
   border-color: rgba(54, 54, 54, 0.9) transparent transparent transparent;
@@ -224,8 +224,8 @@
   border-color: transparent transparent transparent rgba(54, 54, 54, 0.9);
 }
 .tooltip.is-tooltip-dark::before {
-  background: rgba(54, 54, 54, 0.9);
   color: #f5f5f5;
+  background: rgba(54, 54, 54, 0.9);
 }
 .tooltip.is-tooltip-primary:not(.is-loading)::after {
   border-color: rgba(0, 209, 178, 0.9) transparent transparent transparent;
@@ -240,8 +240,8 @@
   border-color: transparent transparent transparent rgba(0, 209, 178, 0.9);
 }
 .tooltip.is-tooltip-primary::before {
-  background: rgba(0, 209, 178, 0.9);
   color: #fff;
+  background: rgba(0, 209, 178, 0.9);
 }
 .tooltip.is-tooltip-link:not(.is-loading)::after {
   border-color: rgba(50, 115, 220, 0.9) transparent transparent transparent;
@@ -256,8 +256,8 @@
   border-color: transparent transparent transparent rgba(50, 115, 220, 0.9);
 }
 .tooltip.is-tooltip-link::before {
-  background: rgba(50, 115, 220, 0.9);
   color: #fff;
+  background: rgba(50, 115, 220, 0.9);
 }
 .tooltip.is-tooltip-info:not(.is-loading)::after {
   border-color: rgba(32, 156, 238, 0.9) transparent transparent transparent;
@@ -272,8 +272,8 @@
   border-color: transparent transparent transparent rgba(32, 156, 238, 0.9);
 }
 .tooltip.is-tooltip-info::before {
-  background: rgba(32, 156, 238, 0.9);
   color: #fff;
+  background: rgba(32, 156, 238, 0.9);
 }
 .tooltip.is-tooltip-success:not(.is-loading)::after {
   border-color: rgba(35, 209, 96, 0.9) transparent transparent transparent;
@@ -288,8 +288,8 @@
   border-color: transparent transparent transparent rgba(35, 209, 96, 0.9);
 }
 .tooltip.is-tooltip-success::before {
-  background: rgba(35, 209, 96, 0.9);
   color: #fff;
+  background: rgba(35, 209, 96, 0.9);
 }
 .tooltip.is-tooltip-warning:not(.is-loading)::after {
   border-color: rgba(255, 221, 87, 0.9) transparent transparent transparent;
@@ -304,8 +304,8 @@
   border-color: transparent transparent transparent rgba(255, 221, 87, 0.9);
 }
 .tooltip.is-tooltip-warning::before {
-  background: rgba(255, 221, 87, 0.9);
   color: rgba(0, 0, 0, 0.7);
+  background: rgba(255, 221, 87, 0.9);
 }
 .tooltip.is-tooltip-danger:not(.is-loading)::after {
   border-color: rgba(255, 56, 96, 0.9) transparent transparent transparent;
@@ -320,23 +320,23 @@
   border-color: transparent transparent transparent rgba(255, 56, 96, 0.9);
 }
 .tooltip.is-tooltip-danger::before {
-  background: rgba(255, 56, 96, 0.9);
   color: #fff;
+  background: rgba(255, 56, 96, 0.9);
 }
 @media screen and (max-width: 768px) {
   .is-tooltip-top-mobile::before {
     top: auto !important;
+    right: auto !important;
     bottom: 100% !important;
     left: 50% !important;
-    right: auto !important;
   }
   .is-tooltip-top-mobile.is-tooltip-active:not(.is-loading)::after,
   .is-tooltip-top-mobile:focus:not(.is-loading)::after,
   .is-tooltip-top-mobile:hover:not(.is-loading)::after {
     top: 0 !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent !important;
   }
   .is-tooltip-top-mobile.is-tooltip-active::before,
@@ -349,17 +349,17 @@
 @media screen and (min-width: 769px), print {
   .is-tooltip-top-tablet::before {
     top: auto !important;
+    right: auto !important;
     bottom: 100% !important;
     left: 50% !important;
-    right: auto !important;
   }
   .is-tooltip-top-tablet.is-tooltip-active:not(.is-loading)::after,
   .is-tooltip-top-tablet:focus:not(.is-loading)::after,
   .is-tooltip-top-tablet:hover:not(.is-loading)::after {
     top: 0 !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent !important;
   }
   .is-tooltip-top-tablet.is-tooltip-active::before,
@@ -372,17 +372,17 @@
 @media screen and (min-width: 769px) and (max-width: 1087px) {
   .is-tooltip-top-tablet-only::before {
     top: auto !important;
+    right: auto !important;
     bottom: 100% !important;
     left: 50% !important;
-    right: auto !important;
   }
   .is-tooltip-top-tablet-only.is-tooltip-active:not(.is-loading)::after,
   .is-tooltip-top-tablet-only:focus:not(.is-loading)::after,
   .is-tooltip-top-tablet-only:hover:not(.is-loading)::after {
     top: 0 !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent !important;
   }
   .is-tooltip-top-tablet-only.is-tooltip-active::before,
@@ -395,17 +395,17 @@
 @media screen and (max-width: 1087px) {
   .is-tooltip-top-touch::before {
     top: auto !important;
+    right: auto !important;
     bottom: 100% !important;
     left: 50% !important;
-    right: auto !important;
   }
   .is-tooltip-top-touch.is-tooltip-active:not(.is-loading)::after,
   .is-tooltip-top-touch:focus:not(.is-loading)::after,
   .is-tooltip-top-touch:hover:not(.is-loading)::after {
     top: 0 !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent !important;
   }
   .is-tooltip-top-touch.is-tooltip-active::before,
@@ -418,17 +418,17 @@
 @media screen and (min-width: 1088px) {
   .is-tooltip-top-desktop::before {
     top: auto !important;
+    right: auto !important;
     bottom: 100% !important;
     left: 50% !important;
-    right: auto !important;
   }
   .is-tooltip-top-desktop.is-tooltip-active:not(.is-loading)::after,
   .is-tooltip-top-desktop:focus:not(.is-loading)::after,
   .is-tooltip-top-desktop:hover:not(.is-loading)::after {
     top: 0 !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent !important;
   }
   .is-tooltip-top-desktop.is-tooltip-active::before,
@@ -441,17 +441,17 @@
 @media screen and (min-width: 1088px) and (max-width: 1279px) {
   .is-tooltip-top-desktop-only::before {
     top: auto !important;
+    right: auto !important;
     bottom: 100% !important;
     left: 50% !important;
-    right: auto !important;
   }
   .is-tooltip-top-desktop-only.is-tooltip-active:not(.is-loading)::after,
   .is-tooltip-top-desktop-only:focus:not(.is-loading)::after,
   .is-tooltip-top-desktop-only:hover:not(.is-loading)::after {
     top: 0 !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent !important;
   }
   .is-tooltip-top-desktop-only.is-tooltip-active::before,
@@ -464,17 +464,17 @@
 @media screen and (max-width: 1279px) {
   .is-tooltip-top-until-widescreen::before {
     top: auto !important;
+    right: auto !important;
     bottom: 100% !important;
     left: 50% !important;
-    right: auto !important;
   }
   .is-tooltip-top-until-widescreen.is-tooltip-active:not(.is-loading)::after,
   .is-tooltip-top-until-widescreen:focus:not(.is-loading)::after,
   .is-tooltip-top-until-widescreen:hover:not(.is-loading)::after {
     top: 0 !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent !important;
   }
   .is-tooltip-top-until-widescreen.is-tooltip-active::before,
@@ -487,17 +487,17 @@
 @media screen and (min-width: 1280px) {
   .is-tooltip-top-widescreen::before {
     top: auto !important;
+    right: auto !important;
     bottom: 100% !important;
     left: 50% !important;
-    right: auto !important;
   }
   .is-tooltip-top-widescreen.is-tooltip-active:not(.is-loading)::after,
   .is-tooltip-top-widescreen:focus:not(.is-loading)::after,
   .is-tooltip-top-widescreen:hover:not(.is-loading)::after {
     top: 0 !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent !important;
   }
   .is-tooltip-top-widescreen.is-tooltip-active::before,
@@ -510,17 +510,17 @@
 @media screen and (min-width: 1280px) and (max-width: 1471px) {
   .is-tooltip-top-widescreen-only::before {
     top: auto !important;
+    right: auto !important;
     bottom: 100% !important;
     left: 50% !important;
-    right: auto !important;
   }
   .is-tooltip-top-widescreen-only.is-tooltip-active:not(.is-loading)::after,
   .is-tooltip-top-widescreen-only:focus:not(.is-loading)::after,
   .is-tooltip-top-widescreen-only:hover:not(.is-loading)::after {
     top: 0 !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent !important;
   }
   .is-tooltip-top-widescreen-only.is-tooltip-active::before,
@@ -533,17 +533,17 @@
 @media screen and (max-width: 1471px) {
   .is-tooltip-top-until-fullhd::before {
     top: auto !important;
+    right: auto !important;
     bottom: 100% !important;
     left: 50% !important;
-    right: auto !important;
   }
   .is-tooltip-top-until-fullhd.is-tooltip-active:not(.is-loading)::after,
   .is-tooltip-top-until-fullhd:focus:not(.is-loading)::after,
   .is-tooltip-top-until-fullhd:hover:not(.is-loading)::after {
     top: 0 !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent !important;
   }
   .is-tooltip-top-until-fullhd.is-tooltip-active::before,
@@ -556,17 +556,17 @@
 @media screen and (min-width: 1472px) {
   .is-tooltip-top-fullhd::before {
     top: auto !important;
+    right: auto !important;
     bottom: 100% !important;
     left: 50% !important;
-    right: auto !important;
   }
   .is-tooltip-top-fullhd.is-tooltip-active:not(.is-loading)::after,
   .is-tooltip-top-fullhd:focus:not(.is-loading)::after,
   .is-tooltip-top-fullhd:hover:not(.is-loading)::after {
     top: 0 !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent !important;
   }
   .is-tooltip-top-fullhd.is-tooltip-active::before,
@@ -579,9 +579,9 @@
 @media screen and (max-width: 768px) {
   .is-tooltip-right-mobile::before {
     top: auto !important;
+    right: auto !important;
     bottom: 50% !important;
     left: 100% !important;
-    right: auto !important;
     -webkit-transform: translate(-1rem, 50%) !important;
     transform: translate(-1rem, 50%) !important;
   }
@@ -589,8 +589,8 @@
   .is-tooltip-right-mobile:focus:not(.is-loading)::after,
   .is-tooltip-right-mobile:hover:not(.is-loading)::after {
     top: 50% !important;
-    left: 100% !important;
     right: auto !important;
+    left: 100% !important;
     border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent !important;
   }
   .is-tooltip-right-mobile.is-tooltip-active::before,
@@ -603,9 +603,9 @@
 @media screen and (min-width: 769px), print {
   .is-tooltip-right-tablet::before {
     top: auto !important;
+    right: auto !important;
     bottom: 50% !important;
     left: 100% !important;
-    right: auto !important;
     -webkit-transform: translate(-1rem, 50%) !important;
     transform: translate(-1rem, 50%) !important;
   }
@@ -613,8 +613,8 @@
   .is-tooltip-right-tablet:focus:not(.is-loading)::after,
   .is-tooltip-right-tablet:hover:not(.is-loading)::after {
     top: 50% !important;
-    left: 100% !important;
     right: auto !important;
+    left: 100% !important;
     border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent !important;
   }
   .is-tooltip-right-tablet.is-tooltip-active::before,
@@ -627,9 +627,9 @@
 @media screen and (min-width: 769px) and (max-width: 1087px) {
   .is-tooltip-right-tablet-only::before {
     top: auto !important;
+    right: auto !important;
     bottom: 50% !important;
     left: 100% !important;
-    right: auto !important;
     -webkit-transform: translate(-1rem, 50%) !important;
     transform: translate(-1rem, 50%) !important;
   }
@@ -637,8 +637,8 @@
   .is-tooltip-right-tablet-only:focus:not(.is-loading)::after,
   .is-tooltip-right-tablet-only:hover:not(.is-loading)::after {
     top: 50% !important;
-    left: 100% !important;
     right: auto !important;
+    left: 100% !important;
     border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent !important;
   }
   .is-tooltip-right-tablet-only.is-tooltip-active::before,
@@ -651,9 +651,9 @@
 @media screen and (max-width: 1087px) {
   .is-tooltip-right-touch::before {
     top: auto !important;
+    right: auto !important;
     bottom: 50% !important;
     left: 100% !important;
-    right: auto !important;
     -webkit-transform: translate(-1rem, 50%) !important;
     transform: translate(-1rem, 50%) !important;
   }
@@ -661,8 +661,8 @@
   .is-tooltip-right-touch:focus:not(.is-loading)::after,
   .is-tooltip-right-touch:hover:not(.is-loading)::after {
     top: 50% !important;
-    left: 100% !important;
     right: auto !important;
+    left: 100% !important;
     border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent !important;
   }
   .is-tooltip-right-touch.is-tooltip-active::before,
@@ -675,9 +675,9 @@
 @media screen and (min-width: 1088px) {
   .is-tooltip-right-desktop::before {
     top: auto !important;
+    right: auto !important;
     bottom: 50% !important;
     left: 100% !important;
-    right: auto !important;
     -webkit-transform: translate(-1rem, 50%) !important;
     transform: translate(-1rem, 50%) !important;
   }
@@ -685,8 +685,8 @@
   .is-tooltip-right-desktop:focus:not(.is-loading)::after,
   .is-tooltip-right-desktop:hover:not(.is-loading)::after {
     top: 50% !important;
-    left: 100% !important;
     right: auto !important;
+    left: 100% !important;
     border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent !important;
   }
   .is-tooltip-right-desktop.is-tooltip-active::before,
@@ -699,9 +699,9 @@
 @media screen and (min-width: 1088px) and (max-width: 1279px) {
   .is-tooltip-right-desktop-only::before {
     top: auto !important;
+    right: auto !important;
     bottom: 50% !important;
     left: 100% !important;
-    right: auto !important;
     -webkit-transform: translate(-1rem, 50%) !important;
     transform: translate(-1rem, 50%) !important;
   }
@@ -709,8 +709,8 @@
   .is-tooltip-right-desktop-only:focus:not(.is-loading)::after,
   .is-tooltip-right-desktop-only:hover:not(.is-loading)::after {
     top: 50% !important;
-    left: 100% !important;
     right: auto !important;
+    left: 100% !important;
     border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent !important;
   }
   .is-tooltip-right-desktop-only.is-tooltip-active::before,
@@ -723,9 +723,9 @@
 @media screen and (max-width: 1279px) {
   .is-tooltip-right-until-widescreen::before {
     top: auto !important;
+    right: auto !important;
     bottom: 50% !important;
     left: 100% !important;
-    right: auto !important;
     -webkit-transform: translate(-1rem, 50%) !important;
     transform: translate(-1rem, 50%) !important;
   }
@@ -733,8 +733,8 @@
   .is-tooltip-right-until-widescreen:focus:not(.is-loading)::after,
   .is-tooltip-right-until-widescreen:hover:not(.is-loading)::after {
     top: 50% !important;
-    left: 100% !important;
     right: auto !important;
+    left: 100% !important;
     border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent !important;
   }
   .is-tooltip-right-until-widescreen.is-tooltip-active::before,
@@ -747,9 +747,9 @@
 @media screen and (min-width: 1280px) {
   .is-tooltip-right-widescreen::before {
     top: auto !important;
+    right: auto !important;
     bottom: 50% !important;
     left: 100% !important;
-    right: auto !important;
     -webkit-transform: translate(-1rem, 50%) !important;
     transform: translate(-1rem, 50%) !important;
   }
@@ -757,8 +757,8 @@
   .is-tooltip-right-widescreen:focus:not(.is-loading)::after,
   .is-tooltip-right-widescreen:hover:not(.is-loading)::after {
     top: 50% !important;
-    left: 100% !important;
     right: auto !important;
+    left: 100% !important;
     border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent !important;
   }
   .is-tooltip-right-widescreen.is-tooltip-active::before,
@@ -771,9 +771,9 @@
 @media screen and (min-width: 1280px) and (max-width: 1471px) {
   .is-tooltip-right-widescreen-only::before {
     top: auto !important;
+    right: auto !important;
     bottom: 50% !important;
     left: 100% !important;
-    right: auto !important;
     -webkit-transform: translate(-1rem, 50%) !important;
     transform: translate(-1rem, 50%) !important;
   }
@@ -781,8 +781,8 @@
   .is-tooltip-right-widescreen-only:focus:not(.is-loading)::after,
   .is-tooltip-right-widescreen-only:hover:not(.is-loading)::after {
     top: 50% !important;
-    left: 100% !important;
     right: auto !important;
+    left: 100% !important;
     border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent !important;
   }
   .is-tooltip-right-widescreen-only.is-tooltip-active::before,
@@ -795,9 +795,9 @@
 @media screen and (max-width: 1471px) {
   .is-tooltip-right-until-fullhd::before {
     top: auto !important;
+    right: auto !important;
     bottom: 50% !important;
     left: 100% !important;
-    right: auto !important;
     -webkit-transform: translate(-1rem, 50%) !important;
     transform: translate(-1rem, 50%) !important;
   }
@@ -805,8 +805,8 @@
   .is-tooltip-right-until-fullhd:focus:not(.is-loading)::after,
   .is-tooltip-right-until-fullhd:hover:not(.is-loading)::after {
     top: 50% !important;
-    left: 100% !important;
     right: auto !important;
+    left: 100% !important;
     border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent !important;
   }
   .is-tooltip-right-until-fullhd.is-tooltip-active::before,
@@ -819,9 +819,9 @@
 @media screen and (min-width: 1472px) {
   .is-tooltip-right-fullhd::before {
     top: auto !important;
+    right: auto !important;
     bottom: 50% !important;
     left: 100% !important;
-    right: auto !important;
     -webkit-transform: translate(-1rem, 50%) !important;
     transform: translate(-1rem, 50%) !important;
   }
@@ -829,8 +829,8 @@
   .is-tooltip-right-fullhd:focus:not(.is-loading)::after,
   .is-tooltip-right-fullhd:hover:not(.is-loading)::after {
     top: 50% !important;
-    left: 100% !important;
     right: auto !important;
+    left: 100% !important;
     border-color: transparent rgba(74, 74, 74, 0.9) transparent transparent !important;
   }
   .is-tooltip-right-fullhd.is-tooltip-active::before,
@@ -843,9 +843,9 @@
 @media screen and (max-width: 768px) {
   .is-tooltip-bottom-mobile::before {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     -webkit-transform: translate(-50%, -1rem) !important;
     transform: translate(-50%, -1rem) !important;
   }
@@ -853,9 +853,9 @@
   .is-tooltip-bottom-mobile:focus:not(.is-loading)::after,
   .is-tooltip-bottom-mobile:hover:not(.is-loading)::after {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent !important;
   }
   .is-tooltip-bottom-mobile.is-tooltip-active::before,
@@ -868,9 +868,9 @@
 @media screen and (min-width: 769px), print {
   .is-tooltip-bottom-tablet::before {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     -webkit-transform: translate(-50%, -1rem) !important;
     transform: translate(-50%, -1rem) !important;
   }
@@ -878,9 +878,9 @@
   .is-tooltip-bottom-tablet:focus:not(.is-loading)::after,
   .is-tooltip-bottom-tablet:hover:not(.is-loading)::after {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent !important;
   }
   .is-tooltip-bottom-tablet.is-tooltip-active::before,
@@ -893,9 +893,9 @@
 @media screen and (min-width: 769px) and (max-width: 1087px) {
   .is-tooltip-bottom-tablet-only::before {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     -webkit-transform: translate(-50%, -1rem) !important;
     transform: translate(-50%, -1rem) !important;
   }
@@ -903,9 +903,9 @@
   .is-tooltip-bottom-tablet-only:focus:not(.is-loading)::after,
   .is-tooltip-bottom-tablet-only:hover:not(.is-loading)::after {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent !important;
   }
   .is-tooltip-bottom-tablet-only.is-tooltip-active::before,
@@ -918,9 +918,9 @@
 @media screen and (max-width: 1087px) {
   .is-tooltip-bottom-touch::before {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     -webkit-transform: translate(-50%, -1rem) !important;
     transform: translate(-50%, -1rem) !important;
   }
@@ -928,9 +928,9 @@
   .is-tooltip-bottom-touch:focus:not(.is-loading)::after,
   .is-tooltip-bottom-touch:hover:not(.is-loading)::after {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent !important;
   }
   .is-tooltip-bottom-touch.is-tooltip-active::before,
@@ -943,9 +943,9 @@
 @media screen and (min-width: 1088px) {
   .is-tooltip-bottom-desktop::before {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     -webkit-transform: translate(-50%, -1rem) !important;
     transform: translate(-50%, -1rem) !important;
   }
@@ -953,9 +953,9 @@
   .is-tooltip-bottom-desktop:focus:not(.is-loading)::after,
   .is-tooltip-bottom-desktop:hover:not(.is-loading)::after {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent !important;
   }
   .is-tooltip-bottom-desktop.is-tooltip-active::before,
@@ -968,9 +968,9 @@
 @media screen and (min-width: 1088px) and (max-width: 1279px) {
   .is-tooltip-bottom-desktop-only::before {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     -webkit-transform: translate(-50%, -1rem) !important;
     transform: translate(-50%, -1rem) !important;
   }
@@ -978,9 +978,9 @@
   .is-tooltip-bottom-desktop-only:focus:not(.is-loading)::after,
   .is-tooltip-bottom-desktop-only:hover:not(.is-loading)::after {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent !important;
   }
   .is-tooltip-bottom-desktop-only.is-tooltip-active::before,
@@ -993,9 +993,9 @@
 @media screen and (max-width: 1279px) {
   .is-tooltip-bottom-until-widescreen::before {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     -webkit-transform: translate(-50%, -1rem) !important;
     transform: translate(-50%, -1rem) !important;
   }
@@ -1003,9 +1003,9 @@
   .is-tooltip-bottom-until-widescreen:focus:not(.is-loading)::after,
   .is-tooltip-bottom-until-widescreen:hover:not(.is-loading)::after {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent !important;
   }
   .is-tooltip-bottom-until-widescreen.is-tooltip-active::before,
@@ -1018,9 +1018,9 @@
 @media screen and (min-width: 1280px) {
   .is-tooltip-bottom-widescreen::before {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     -webkit-transform: translate(-50%, -1rem) !important;
     transform: translate(-50%, -1rem) !important;
   }
@@ -1028,9 +1028,9 @@
   .is-tooltip-bottom-widescreen:focus:not(.is-loading)::after,
   .is-tooltip-bottom-widescreen:hover:not(.is-loading)::after {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent !important;
   }
   .is-tooltip-bottom-widescreen.is-tooltip-active::before,
@@ -1043,9 +1043,9 @@
 @media screen and (min-width: 1280px) and (max-width: 1471px) {
   .is-tooltip-bottom-widescreen-only::before {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     -webkit-transform: translate(-50%, -1rem) !important;
     transform: translate(-50%, -1rem) !important;
   }
@@ -1053,9 +1053,9 @@
   .is-tooltip-bottom-widescreen-only:focus:not(.is-loading)::after,
   .is-tooltip-bottom-widescreen-only:hover:not(.is-loading)::after {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent !important;
   }
   .is-tooltip-bottom-widescreen-only.is-tooltip-active::before,
@@ -1068,9 +1068,9 @@
 @media screen and (max-width: 1471px) {
   .is-tooltip-bottom-until-fullhd::before {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     -webkit-transform: translate(-50%, -1rem) !important;
     transform: translate(-50%, -1rem) !important;
   }
@@ -1078,9 +1078,9 @@
   .is-tooltip-bottom-until-fullhd:focus:not(.is-loading)::after,
   .is-tooltip-bottom-until-fullhd:hover:not(.is-loading)::after {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent !important;
   }
   .is-tooltip-bottom-until-fullhd.is-tooltip-active::before,
@@ -1093,9 +1093,9 @@
 @media screen and (min-width: 1472px) {
   .is-tooltip-bottom-fullhd::before {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     -webkit-transform: translate(-50%, -1rem) !important;
     transform: translate(-50%, -1rem) !important;
   }
@@ -1103,9 +1103,9 @@
   .is-tooltip-bottom-fullhd:focus:not(.is-loading)::after,
   .is-tooltip-bottom-fullhd:hover:not(.is-loading)::after {
     top: 100% !important;
+    right: auto !important;
     bottom: auto !important;
     left: 50% !important;
-    right: auto !important;
     border-color: transparent transparent rgba(74, 74, 74, 0.9) transparent !important;
   }
   .is-tooltip-bottom-fullhd.is-tooltip-active::before,
@@ -1118,9 +1118,9 @@
 @media screen and (max-width: 768px) {
   .is-tooltip-left-mobile::before {
     top: auto !important;
+    right: 100% !important;
     bottom: 50% !important;
     left: auto !important;
-    right: 100% !important;
     -webkit-transform: translate(1rem, 50%) !important;
     transform: translate(1rem, 50%) !important;
   }
@@ -1128,9 +1128,9 @@
   .is-tooltip-left-mobile:focus:not(.is-loading)::after,
   .is-tooltip-left-mobile:hover:not(.is-loading)::after {
     top: 50% !important;
+    right: calc(100% - 0.5rem) !important;
     bottom: auto !important;
     left: auto !important;
-    right: calc(100% - 0.5rem) !important;
     border-color: transparent transparent transparent rgba(74, 74, 74, 0.9) !important;
   }
   .is-tooltip-left-mobile.is-tooltip-active::before,
@@ -1143,9 +1143,9 @@
 @media screen and (min-width: 769px), print {
   .is-tooltip-left-tablet::before {
     top: auto !important;
+    right: 100% !important;
     bottom: 50% !important;
     left: auto !important;
-    right: 100% !important;
     -webkit-transform: translate(1rem, 50%) !important;
     transform: translate(1rem, 50%) !important;
   }
@@ -1153,9 +1153,9 @@
   .is-tooltip-left-tablet:focus:not(.is-loading)::after,
   .is-tooltip-left-tablet:hover:not(.is-loading)::after {
     top: 50% !important;
+    right: calc(100% - 0.5rem) !important;
     bottom: auto !important;
     left: auto !important;
-    right: calc(100% - 0.5rem) !important;
     border-color: transparent transparent transparent rgba(74, 74, 74, 0.9) !important;
   }
   .is-tooltip-left-tablet.is-tooltip-active::before,
@@ -1168,9 +1168,9 @@
 @media screen and (min-width: 769px) and (max-width: 1087px) {
   .is-tooltip-left-tablet-only::before {
     top: auto !important;
+    right: 100% !important;
     bottom: 50% !important;
     left: auto !important;
-    right: 100% !important;
     -webkit-transform: translate(1rem, 50%) !important;
     transform: translate(1rem, 50%) !important;
   }
@@ -1178,9 +1178,9 @@
   .is-tooltip-left-tablet-only:focus:not(.is-loading)::after,
   .is-tooltip-left-tablet-only:hover:not(.is-loading)::after {
     top: 50% !important;
+    right: calc(100% - 0.5rem) !important;
     bottom: auto !important;
     left: auto !important;
-    right: calc(100% - 0.5rem) !important;
     border-color: transparent transparent transparent rgba(74, 74, 74, 0.9) !important;
   }
   .is-tooltip-left-tablet-only.is-tooltip-active::before,
@@ -1193,9 +1193,9 @@
 @media screen and (max-width: 1087px) {
   .is-tooltip-left-touch::before {
     top: auto !important;
+    right: 100% !important;
     bottom: 50% !important;
     left: auto !important;
-    right: 100% !important;
     -webkit-transform: translate(1rem, 50%) !important;
     transform: translate(1rem, 50%) !important;
   }
@@ -1203,9 +1203,9 @@
   .is-tooltip-left-touch:focus:not(.is-loading)::after,
   .is-tooltip-left-touch:hover:not(.is-loading)::after {
     top: 50% !important;
+    right: calc(100% - 0.5rem) !important;
     bottom: auto !important;
     left: auto !important;
-    right: calc(100% - 0.5rem) !important;
     border-color: transparent transparent transparent rgba(74, 74, 74, 0.9) !important;
   }
   .is-tooltip-left-touch.is-tooltip-active::before,
@@ -1218,9 +1218,9 @@
 @media screen and (min-width: 1088px) {
   .is-tooltip-left-desktop::before {
     top: auto !important;
+    right: 100% !important;
     bottom: 50% !important;
     left: auto !important;
-    right: 100% !important;
     -webkit-transform: translate(1rem, 50%) !important;
     transform: translate(1rem, 50%) !important;
   }
@@ -1228,9 +1228,9 @@
   .is-tooltip-left-desktop:focus:not(.is-loading)::after,
   .is-tooltip-left-desktop:hover:not(.is-loading)::after {
     top: 50% !important;
+    right: calc(100% - 0.5rem) !important;
     bottom: auto !important;
     left: auto !important;
-    right: calc(100% - 0.5rem) !important;
     border-color: transparent transparent transparent rgba(74, 74, 74, 0.9) !important;
   }
   .is-tooltip-left-desktop.is-tooltip-active::before,
@@ -1243,9 +1243,9 @@
 @media screen and (min-width: 1088px) and (max-width: 1279px) {
   .is-tooltip-left-desktop-only::before {
     top: auto !important;
+    right: 100% !important;
     bottom: 50% !important;
     left: auto !important;
-    right: 100% !important;
     -webkit-transform: translate(1rem, 50%) !important;
     transform: translate(1rem, 50%) !important;
   }
@@ -1253,9 +1253,9 @@
   .is-tooltip-left-desktop-only:focus:not(.is-loading)::after,
   .is-tooltip-left-desktop-only:hover:not(.is-loading)::after {
     top: 50% !important;
+    right: calc(100% - 0.5rem) !important;
     bottom: auto !important;
     left: auto !important;
-    right: calc(100% - 0.5rem) !important;
     border-color: transparent transparent transparent rgba(74, 74, 74, 0.9) !important;
   }
   .is-tooltip-left-desktop-only.is-tooltip-active::before,
@@ -1268,9 +1268,9 @@
 @media screen and (max-width: 1279px) {
   .is-tooltip-left-until-widescreen::before {
     top: auto !important;
+    right: 100% !important;
     bottom: 50% !important;
     left: auto !important;
-    right: 100% !important;
     -webkit-transform: translate(1rem, 50%) !important;
     transform: translate(1rem, 50%) !important;
   }
@@ -1278,9 +1278,9 @@
   .is-tooltip-left-until-widescreen:focus:not(.is-loading)::after,
   .is-tooltip-left-until-widescreen:hover:not(.is-loading)::after {
     top: 50% !important;
+    right: calc(100% - 0.5rem) !important;
     bottom: auto !important;
     left: auto !important;
-    right: calc(100% - 0.5rem) !important;
     border-color: transparent transparent transparent rgba(74, 74, 74, 0.9) !important;
   }
   .is-tooltip-left-until-widescreen.is-tooltip-active::before,
@@ -1293,9 +1293,9 @@
 @media screen and (min-width: 1280px) {
   .is-tooltip-left-widescreen::before {
     top: auto !important;
+    right: 100% !important;
     bottom: 50% !important;
     left: auto !important;
-    right: 100% !important;
     -webkit-transform: translate(1rem, 50%) !important;
     transform: translate(1rem, 50%) !important;
   }
@@ -1303,9 +1303,9 @@
   .is-tooltip-left-widescreen:focus:not(.is-loading)::after,
   .is-tooltip-left-widescreen:hover:not(.is-loading)::after {
     top: 50% !important;
+    right: calc(100% - 0.5rem) !important;
     bottom: auto !important;
     left: auto !important;
-    right: calc(100% - 0.5rem) !important;
     border-color: transparent transparent transparent rgba(74, 74, 74, 0.9) !important;
   }
   .is-tooltip-left-widescreen.is-tooltip-active::before,
@@ -1318,9 +1318,9 @@
 @media screen and (min-width: 1280px) and (max-width: 1471px) {
   .is-tooltip-left-widescreen-only::before {
     top: auto !important;
+    right: 100% !important;
     bottom: 50% !important;
     left: auto !important;
-    right: 100% !important;
     -webkit-transform: translate(1rem, 50%) !important;
     transform: translate(1rem, 50%) !important;
   }
@@ -1328,9 +1328,9 @@
   .is-tooltip-left-widescreen-only:focus:not(.is-loading)::after,
   .is-tooltip-left-widescreen-only:hover:not(.is-loading)::after {
     top: 50% !important;
+    right: calc(100% - 0.5rem) !important;
     bottom: auto !important;
     left: auto !important;
-    right: calc(100% - 0.5rem) !important;
     border-color: transparent transparent transparent rgba(74, 74, 74, 0.9) !important;
   }
   .is-tooltip-left-widescreen-only.is-tooltip-active::before,
@@ -1343,9 +1343,9 @@
 @media screen and (max-width: 1471px) {
   .is-tooltip-left-until-fullhd::before {
     top: auto !important;
+    right: 100% !important;
     bottom: 50% !important;
     left: auto !important;
-    right: 100% !important;
     -webkit-transform: translate(1rem, 50%) !important;
     transform: translate(1rem, 50%) !important;
   }
@@ -1353,9 +1353,9 @@
   .is-tooltip-left-until-fullhd:focus:not(.is-loading)::after,
   .is-tooltip-left-until-fullhd:hover:not(.is-loading)::after {
     top: 50% !important;
+    right: calc(100% - 0.5rem) !important;
     bottom: auto !important;
     left: auto !important;
-    right: calc(100% - 0.5rem) !important;
     border-color: transparent transparent transparent rgba(74, 74, 74, 0.9) !important;
   }
   .is-tooltip-left-until-fullhd.is-tooltip-active::before,
@@ -1368,9 +1368,9 @@
 @media screen and (min-width: 1472px) {
   .is-tooltip-left-fullhd::before {
     top: auto !important;
+    right: 100% !important;
     bottom: 50% !important;
     left: auto !important;
-    right: 100% !important;
     -webkit-transform: translate(1rem, 50%) !important;
     transform: translate(1rem, 50%) !important;
   }
@@ -1378,9 +1378,9 @@
   .is-tooltip-left-fullhd:focus:not(.is-loading)::after,
   .is-tooltip-left-fullhd:hover:not(.is-loading)::after {
     top: 50% !important;
+    right: calc(100% - 0.5rem) !important;
     bottom: auto !important;
     left: auto !important;
-    right: calc(100% - 0.5rem) !important;
     border-color: transparent transparent transparent rgba(74, 74, 74, 0.9) !important;
   }
   .is-tooltip-left-fullhd.is-tooltip-active::before,

@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 import axios from "axios";
 import React from "react";
-import ResumerViewer from "./ResumerViewer";
 
+import ResumerViewer from "./ResumerViewer";
 import { handleAddVisit, generateTag, tagButtonHandler, handleDeleteVisit } from "./util";
 
 interface Props {

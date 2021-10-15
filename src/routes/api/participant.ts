@@ -1,6 +1,6 @@
 import express from "express";
-import { formatName } from "../../common";
 
+import { formatName } from "../../common";
 import { authenticateWithRedirect } from "../../middleware";
 import { IUser, Participant } from "../../schema";
 import { agenda } from "../../tasks";
