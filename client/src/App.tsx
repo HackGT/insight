@@ -8,6 +8,7 @@ import AdminHome from "./admin/AdminHome";
 
 import PreEmployerHome from "./preemployer/PreEmployerHome";
 import ParticipantHome from "./participant/ParticipantHome";
+import EmployerHome from "./employer/EmployerHome";
 
 function App() {
   const [{ data, loading, error }] = useAxios("/auth/check");
@@ -31,7 +32,7 @@ function App() {
         </div>
       </header>
       <div className="container is-dark">
-        <ParticipantHome user={data} />
+        <EmployerHome />
       </div>
       <footer className="footer">
         <div className="content has-text-centered">
