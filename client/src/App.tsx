@@ -5,12 +5,10 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import "./App.css";
 import "./bulma-tooltip.min.css";
 import AdminHome from "./components/admin/AdminHome";
-import PreEmployerHome from "./components/preemployer/PreEmployerHome";
 import ParticipantHome from "./components/participant/ParticipantHome";
-import EmployerHome from "./components/employer/EmployerHome";
-import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import Navigation from "./components/layout/Navigation";
+import EmployerManager from "./components/employer/EmployerManager";
 
 function App() {
   const [{ data, loading, error }] = useAxios("/auth/check");
@@ -28,8 +26,8 @@ function App() {
       <div className="container is-dark">
         <Switch>
           <Route exact path="/participant" render={() => <ParticipantHome user={data} />} />
-          <Route exact path="/employer" component={EmployerHome} />
-          <Route exact path="/admin" component={AdminHome} />
+          <Route exact path="/employer" render={() => <EmployerManager user={data} />} />
+          <Route exact path="/admin" render={() => <AdminHome user={data} />} />
         </Switch>
       </div>
       <Footer />

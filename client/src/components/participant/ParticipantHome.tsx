@@ -1,5 +1,6 @@
 import React from "react";
 import useAxios from "axios-hooks";
+import { Redirect } from "react-router-dom";
 
 import { formatName } from "../../util";
 import SponsorInformation from "./SponsorInformation";
@@ -10,6 +11,10 @@ interface Props {
 
 const ParticipantHome: React.FC<Props> = props => {
   const [{ data, loading, error }] = useAxios("/api/participant");
+
+  if (props.user.type !== "participant" && !props.user.admin) {
+    return <Redirect to="/" />;
+  }
 
   if (loading) {
     return <div>Loading</div>;
