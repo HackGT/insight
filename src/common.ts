@@ -215,7 +215,7 @@ export function formatSize(size: number, binary = true): string {
   const labels = binary ? ["bytes", "KiB", "MiB", "GiB", "TiB"] : ["bytes", "KB", "MB", "GB", "TB"];
 
   const i = Math.floor(Math.log(size) / Math.log(base));
-  let formattedSize = `${(size / Math.pow(base, i)).toFixed(2)} ${labels[i]}`;
+  let formattedSize = `${(size / base ** i).toFixed(2)} ${labels[i]}`;
   if (size <= 0) {
     formattedSize = "0 bytes";
   }

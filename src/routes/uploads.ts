@@ -6,7 +6,7 @@ import express from "express";
 import { config, S3_ENGINE } from "../common";
 import { authenticateWithRedirect, uploadHandler } from "../middleware";
 import { IUser, Participant, User } from "../schema";
-import { agenda } from "../tasks";
+import { agenda } from "../jobs";
 
 function publicLink(file: string): string {
   file = path.basename(file);

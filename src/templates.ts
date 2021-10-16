@@ -6,7 +6,7 @@ import * as Handlebars from "handlebars";
 import { config, formatName } from "./common";
 import { authenticateWithRedirect, isAdmin } from "./middleware";
 import { TemplateContent, User, IUser, Company, ICompany, Participant } from "./schema";
-import { agenda } from "./tasks";
+import { agenda } from "./jobs";
 
 Handlebars.registerHelper("ifCond", function (this: any, v1: any, v2: any, options: any) {
   if (v1 === v2) {

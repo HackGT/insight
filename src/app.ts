@@ -116,7 +116,7 @@ import { uploadsRoutes } from "./routes/uploads";
 
 app.use("/uploads", uploadsRoutes);
 
-import { taskDashboardRoutes, startTaskEngine } from "./tasks";
+import { taskDashboardRoutes, startTaskEngine } from "./jobs";
 
 app.use("/admin/tasks", taskDashboardRoutes);
 

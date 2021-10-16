@@ -7,7 +7,7 @@ import * as express from "express";
 import { IUser, IVisit, Visit, Participant, User } from "./schema";
 import { postParser, isAdmin, isAnEmployer, apiAuth, authenticateWithRedirect } from "./middleware";
 import { config } from "./common";
-import { agenda } from "./tasks";
+import { agenda } from "./jobs";
 import { adminRoutes } from "./routes/api/admin";
 import { scannerRoutes } from "./routes/api/scanner";
 import { companyRoutes } from "./routes/api/company";
