@@ -21,6 +21,15 @@ const ParticipantHome: React.FC<Props> = props => {
 
   console.log(data);
 
+  if (!data) {
+    return (
+      <h2 className="subtitle" style={{ textAlign: "center" }}>
+        Hello, your participant data has not been processed yet. Please check back in approximately
+        30 min.
+      </h2>
+    );
+  }
+
   return (
     <>
       <h1 className="title" style={{ textAlign: "center" }}>
@@ -80,22 +89,6 @@ const ParticipantHome: React.FC<Props> = props => {
                 </article>
               </>
             )}
-          </div>
-
-          <br />
-          <div className="field is-grouped is-grouped-centered">
-            {props.user.admin && (
-              <p className="control">
-                <a className="button is-medium" href="/admin">
-                  Admin Settings
-                </a>
-              </p>
-            )}
-            <p className="control">
-              <a className="button is-medium" href="/logout">
-                Log out
-              </a>
-            </p>
           </div>
         </div>
       </section>

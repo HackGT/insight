@@ -1,5 +1,6 @@
 import React from "react";
 import useAxios from "axios-hooks";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import "./App.css";
 import "./bulma-tooltip.min.css";
@@ -7,6 +8,9 @@ import AdminHome from "./components/admin/AdminHome";
 import PreEmployerHome from "./components/preemployer/PreEmployerHome";
 import ParticipantHome from "./components/participant/ParticipantHome";
 import EmployerHome from "./components/employer/EmployerHome";
+import Header from "./components/layout/Header";
+import Footer from "./components/layout/Footer";
+import Navigation from "./components/layout/Navigation";
 
 function App() {
   const [{ data, loading, error }] = useAxios("/auth/check");
@@ -18,32 +22,18 @@ function App() {
   if (error) {
     return <div>Error</div>;
   }
-
   return (
-    <>
-      <header className="hero is-info is-bold">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">Insight</h1>
-            <h2 className="subtitle">Sponsorship System</h2>
-          </div>
-        </div>
-      </header>
+    <Router>
+      <Navigation user={data} />
       <div className="container is-dark">
-        <EmployerHome />
+        <Switch>
+          <Route exact path="/participant" render={() => <ParticipantHome user={data} />} />
+          <Route exact path="/employer" component={EmployerHome} />
+          <Route exact path="/admin" component={AdminHome} />
+        </Switch>
       </div>
-      <footer className="footer">
-        <div className="content has-text-centered">
-          <p>
-            Made with{" "}
-            <span className="icon">
-              <i className="fas fa-heart" />
-            </span>{" "}
-            by HackGT.
-          </p>
-        </div>
-      </footer>
-    </>
+      <Footer />
+    </Router>
   );
 }
 
