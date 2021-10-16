@@ -113,7 +113,7 @@ scannerRoutes.post("/battery", bodyParser.text({ type: "text/plain" }), arduinoA
 	response.json({ "success": true });
 });
 // TODO: deduplicate this handler
-scannerRoutes.post("/visit", bodyParser.text({ type: "text/plain" }), arduinoAuth, async (request, response) => {
+scannerRoutes.post("/visit", bodyParser.text({ type: "text/plain" }), apiAuth, async (request, response) => {
 	let body = request.body.split("|");
 	let scannerID = body[0].trim().toLowerCase();
 	let uuid = body[1]?.trim().toLowerCase();
