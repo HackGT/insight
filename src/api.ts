@@ -127,10 +127,11 @@ apiRoutes.route("/search").get(isAnEmployer, async (request, response) => {
   } catch {}
 
   const pipeline: any[] = [];
-  if (query || filterTags.length === 0) {
+  if (query) {
     pipeline.push({ $match: { $text: { $search: query } } });
     pipeline.push({ $sort: { score: { $meta: "textScore" } } });
   }
+  
   pipeline.push({
     $lookup: {
       from: "visits",
