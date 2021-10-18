@@ -86,7 +86,7 @@ const ParticipantModal: React.FC<Props> = props => {
               </div>
             </div>
           )}
-          {/* <ResumerViewer participant={props.participant} /> */}
+          <ResumerViewer participant={props.participant} />
         </section>
         <footer className="modal-card-foot">
           <div className="buttons">

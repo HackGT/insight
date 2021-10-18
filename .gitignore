@@ -63,6 +63,6 @@ dist/
 
 *.tsbuildinfo
 
-server/src/config/config\.json
-
+server/src/config/config.json
+src/config/config.json
 .DS_Store

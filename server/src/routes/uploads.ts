@@ -59,8 +59,10 @@ uploadsRoutes.route("/:file").get(async (request, response) => {
     });
     return;
   }
+  console.log(`${request.params.file} requested`);
   try {
     const stream = await S3_ENGINE.readFile(request.params.file);
+    console.log(stream);
     if (request.query.download === "true") {
       response.attachment(request.params.file);
     }

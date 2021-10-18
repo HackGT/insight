@@ -128,7 +128,6 @@ const AdminHome: React.FC<Props> = props => {
                 ) : (
                   company.users.map((user: any) => (
                     <li className="single-line-button">
-                      {console.log(user)}
                       <span className="icon">
                         <i className="fas fa-user-tie" />
                       </span>
