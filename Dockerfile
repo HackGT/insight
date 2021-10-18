@@ -4,7 +4,7 @@ FROM node:12-alpine
 WORKDIR /usr/src/insight/
 COPY . /usr/src/insight/
 
-WORKDIR /usr/src/insight/server/
+WORKDIR /usr/src/insight/client/
 RUN yarn install
 RUN yarn build
 
