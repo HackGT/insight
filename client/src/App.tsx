@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import "./App.css";
 import "./bulma-tooltip.min.css";
-import "./types/react-table-config.d";
 import AdminHome from "./components/admin/AdminHome";
 import ParticipantHome from "./components/participant/ParticipantHome";
 import Footer from "./components/layout/Footer";
