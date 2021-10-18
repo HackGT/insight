@@ -67,6 +67,8 @@
     "@hex-labs/prettier-config": "^1.1.13",
     "@hex-labs/tsconfig": "^1.1.13",
     "eslint": "^7.32.0",
-    "prettier": "^2.4.1"
+    "nodemon": "^2.0.13",
+    "prettier": "^2.4.1",
+    "ts-node": "^10.3.0"
   }
 }
