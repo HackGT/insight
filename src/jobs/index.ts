@@ -34,6 +34,7 @@ agenda.define("export-csv", { concurrency: 1, priority: "normal" }, exportCsvJob
 
 export async function startTaskEngine() {
   await agenda.start();
+  await agenda.now("update-participant-data");
   await agenda.every("30 minutes", "update-participant-data");
 }
 

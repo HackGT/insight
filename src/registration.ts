@@ -138,7 +138,11 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
 
       // This section must be updated to match current registration questions
       // TODO: make configurable in admin panel somehow?
-      if (user.application && user.application.type === "Participant-Emerging") {
+      if (
+        user.application &&
+        (user.application.type === "Participant-Emerging In-Person" ||
+          user.application.type === "Participant-Emerging Virtual")
+      ) {
         participant.major = getQuestionAnswer(user.application, "major");
         participant.university = getQuestionAnswer(user.application, "university");
         participant.year = getQuestionAnswer(user.application, "year");
@@ -155,7 +159,9 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
           participant.gdpr = getQuestionAnswer(user.confirmation, "gdpr");
           participant.github = getQuestionAnswer(user.confirmation, "github");
         }
-      } else if (user.application && user.application.type === "Participant-General") {
+      } else if (user.application && (
+        user.application.type === "Participant-Emerging In-Person" ||
+        user.application.type === "Participant-Emerging Virtual")) {
         participant.major = getQuestionAnswer(user.application, "major");
         participant.university = getQuestionAnswer(user.application, "university");
         participant.year = getQuestionAnswer(user.application, "year");

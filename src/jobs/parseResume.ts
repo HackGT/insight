@@ -21,7 +21,7 @@ export const parseResumeJobHandler: JobHandler = async job => {
   try {
     textResult = await S3_ENGINE.getText(path.basename(participant.resume.path));
   } catch (err) {
-    console.log("Error: Cannot parse resume");
+    console.log("Error: Cannot parse resume", err);
   }
 
   if (textResult === null) {
