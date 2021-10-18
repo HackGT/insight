@@ -1,5 +1,5 @@
 # Build container
-FROM node:12-alpine
+FROM node:14-alpine
 
 WORKDIR /usr/src/insight/
 COPY . /usr/src/insight/
