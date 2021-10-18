@@ -3,23 +3,14 @@ import * as http from "http";
 import express from "express";
 import compression from "compression";
 import cookieParser from "cookie-parser";
-import * as cookieSignature from "cookie-signature";
 import * as chalk from "chalk";
+import path from "path";
 import morgan from "morgan";
 import flash from "connect-flash";
-
 import * as Sentry from "@sentry/browser";
 import { Integrations } from "@sentry/tracing";
 
-import {
-  // Constants
-  PORT,
-  VERSION_NUMBER,
-  VERSION_HASH,
-  COOKIE_OPTIONS,
-  // Configuration
-  config,
-} from "./common";
+import { PORT, VERSION_NUMBER, VERSION_HASH, COOKIE_OPTIONS } from "./common";
 
 // Set up Express and its middleware
 export const app = express();
@@ -81,6 +72,14 @@ import { authRoutes } from "./routes/auth";
 
 app.use("/auth", authRoutes);
 
+app.route("/version").get((request, response) => {
+  response.json({
+    version: VERSION_NUMBER,
+    hash: VERSION_HASH,
+    node: process.version,
+  });
+});
+
 import { apiRoutes } from "./api";
 
 app.use("/api", apiRoutes);
@@ -93,20 +92,15 @@ import { taskDashboardRoutes, startTaskEngine } from "./jobs";
 
 app.use("/admin/tasks", taskDashboardRoutes);
 
-import { uiRoutes } from "./templates";
-
-app.use("/", uiRoutes);
-
 startTaskEngine().catch(err => {
   throw err;
 });
 
-app.route("/version").get((request, response) => {
-  response.json({
-    version: VERSION_NUMBER,
-    hash: VERSION_HASH,
-    node: process.version,
-  });
+import { authenticateWithRedirect } from "./middleware";
+
+app.use(authenticateWithRedirect, express.static(path.join(__dirname, "../../client/build")));
+app.get("*", authenticateWithRedirect, (req, res) => {
+  res.sendFile(path.join(__dirname, "../../client/build", "index.html"));
 });
 
 const server = http.createServer(app);
