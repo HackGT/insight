@@ -41,7 +41,7 @@ export async function authenticateWithRedirect(
     if (request.session) {
       request.session.returnTo = request.originalUrl;
     }
-    response.redirect("/login");
+    response.redirect("/auth/login");
   } else {
     next();
   }
