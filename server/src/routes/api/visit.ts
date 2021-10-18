@@ -201,7 +201,7 @@ visitRoutes
     }
 
     const PAGE_SIZE = 20;
-    let page = parseInt(request.query.page);
+    let page = parseInt(request.query.page as string);
     if (Number.isNaN(page) || page < 0) {
       page = 0;
     }

@@ -6,24 +6,38 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTable, usePagination, Column } from "react-table";
-import useAxios from "axios-hooks";
 import { DateTime } from "luxon";
+import axios from "axios";
 
 import TableFilter from "./TableFilter";
 import { handleAddVisit, generateTag, tagButtonHandler } from "./util";
 import ParticipantModal from "./ParticipantModal";
 
 const ParticipantTable: React.FC = () => {
-  const [{ data, loading, error }, refetch] = useAxios({
-    url: "/api/search",
-    params: {
-      q: "",
-      page: 0,
-      filter: "",
-    },
-  });
+  // Table filtering states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [tagsFilter, setTagsFilter] = useState<string[]>([]);
+  const [pageIndex, setPageIndex] = useState(0);
+
+  const [data, setData] = useState<any>([]);
+
+  useEffect(() => {
+    async function getInitialData() {
+      const response = await axios.get("/api/search", {
+        params: {
+          q: "",
+          page: 0,
+          filter: "",
+        },
+      });
+
+      setData(response.data);
+    }
+
+    getInitialData();
+  }, []);
 
   const [detailModalInfo, setDetailModalInfo] = useState<any>(null);
 
@@ -41,10 +55,19 @@ const ParticipantTable: React.FC = () => {
     }
   }, [data]);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [tagsFilter, setTagsFilter] = useState<string[]>([]);
+  const fetchData = async () => {
+    const response = await axios.get("/api/search", {
+      params: {
+        q: searchQuery,
+        page: pageIndex,
+        filter: JSON.stringify(tagsFilter),
+      },
+    });
 
-  const columns = React.useMemo<Column<any>[]>(
+    setData(response.data);
+  };
+
+  const columns = useMemo<Column<any>[]>(
     () => [
       {
         Header: "Time",
@@ -96,7 +119,7 @@ const ParticipantTable: React.FC = () => {
               <button
                 className="button tooltip"
                 data-tooltip="Star"
-                onClick={() => tagButtonHandler(row.visitData, "starred")}
+                onClick={() => tagButtonHandler(row.visitData, "starred", fetchData)}
               >
                 <span className="icon">
                   <i className="fas fa-star" />
@@ -107,7 +130,7 @@ const ParticipantTable: React.FC = () => {
               <button
                 className="button tooltip"
                 data-tooltip="Flag"
-                onClick={() => tagButtonHandler(row.visitData, "flagged")}
+                onClick={() => tagButtonHandler(row.visitData, "flagged", fetchData)}
               >
                 <span className="icon">
                   <i className="fas fa-flag" />
@@ -118,7 +141,7 @@ const ParticipantTable: React.FC = () => {
               <button
                 className="button tooltip"
                 data-tooltip="Add a tag"
-                onClick={() => tagButtonHandler(row.visitData)}
+                onClick={() => tagButtonHandler(row.visitData, "", fetchData)}
               >
                 <span className="icon">
                   <i className="fas fa-tag" />
@@ -153,7 +176,7 @@ const ParticipantTable: React.FC = () => {
         id: "actions",
       },
     ],
-    []
+    [searchQuery, pageIndex, tagsFilter]
   );
 
   const {
@@ -168,12 +191,12 @@ const ParticipantTable: React.FC = () => {
     gotoPage,
     nextPage,
     previousPage,
-    state: { pageIndex },
+    state: { pageIndex: reactTablePageIndex },
     prepareRow,
   } = useTable(
     {
       columns,
-      data: loading || error ? [] : data.participants,
+      data: data?.participants || [],
       manualPagination: true,
       initialState: { pageIndex: 0 },
       pageCount: dataPageCount,
@@ -181,22 +204,11 @@ const ParticipantTable: React.FC = () => {
     usePagination
   );
 
-  const fetchData = () => {
-    refetch({
-      params: {
-        q: searchQuery,
-        page: pageIndex,
-        filter: JSON.stringify(tagsFilter),
-      },
-    });
-  };
-
   // Will fetch new data whenever the page index, search query, or tags filter changes
   useEffect(() => {
+    setPageIndex(reactTablePageIndex);
     fetchData();
-  }, [pageIndex, searchQuery, tagsFilter]);
-
-  console.log(data);
+  }, [reactTablePageIndex, searchQuery, tagsFilter]);
 
   return (
     <>

@@ -1,14 +1,13 @@
 import session from "express-session";
-import connectMongo from "connect-mongo";
+import MongoStore from "connect-mongo";
 
 import { config, mongoose, COOKIE_OPTIONS } from "../common";
-import { IUser, User } from "../schema";
+import { User } from "../schema";
 import { GroundTruthStrategy } from "./strategies";
 
 // Passport authentication
 import { app } from "../app";
 
-const MongoStore = connectMongo(session);
 const passport = require("passport") as typeof import("passport");
 
 if (!config.server.isProduction) {
@@ -27,22 +26,26 @@ app.use(
     secret: config.secrets.session,
     cookie: COOKIE_OPTIONS,
     resave: false,
-    store: new MongoStore({
-      mongooseConnection: mongoose.connection,
+    store: MongoStore.create({
+      mongoUrl: config.server.mongoURL,
       touchAfter: 24 * 60 * 60, // Check for TTL every 24 hours at minimum
     }),
     saveUninitialized: false,
   })
 );
 
-passport.serializeUser<IUser, string>((user, done) => {
+passport.serializeUser<string>((user, done) => {
   done(null, user.uuid);
 });
 
-passport.deserializeUser<IUser, string>((id, done) => {
-  User.findOne({ uuid: id }, (err, user) => {
-    done(err, user!);
-  });
+passport.deserializeUser<string>(async (id, done) => {
+  const user = await User.findOne({ uuid: id });
+
+  if (user) {
+    done(null, user);
+  } else {
+    done("No user found", undefined);
+  }
 });
 
 app.use(passport.initialize());

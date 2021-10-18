@@ -31,7 +31,7 @@ participantRoutes.route("/").get(authenticateWithRedirect, async (request, respo
     "name": "parse-resume",
     "data.uuid": user.uuid,
   });
-  const resumeParseJobs = resumeParseJobsUnsorted.sort((a, b) =>
+  const resumeParseJobs = resumeParseJobsUnsorted.sort((a: any, b: any) =>
     a?.attrs.lastFinishedAt > b?.attrs.lastFinishedAt ? -1 : 1
   );
   let invalidResume = false;

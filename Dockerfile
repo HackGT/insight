@@ -1,25 +1,23 @@
-FROM node:12-alpine
-MAINTAINER Ryan Petschek <petschekr@gmail.com>
+# Build container
+FROM node:14-alpine AS build
 
-# Deis wants bash
-RUN apk update
-RUN apk add bash
-RUN apk add git
+WORKDIR /usr/src/insight/
+COPY . /usr/src/insight/
 
-# Set Timezone to EST
-RUN apk add tzdata
-ENV TZ="/usr/share/zoneinfo/America/New_York"
-ENV NODE_ENV="production"
+WORKDIR /usr/src/insight/client/
+RUN yarn install
+RUN yarn build
 
-# Bundle app source
-WORKDIR /usr/src/groundtruth
-COPY . /usr/src/groundtruth
+WORKDIR /usr/src/insight/server/
+RUN yarn install
+RUN yarn build
 
-RUN npm install
-RUN npm run build
+FROM node:14-alpine
 
-FROM node:12-alpine
-WORKDIR /usr/src/groundtruth
-COPY --from=0 /usr/src/groundtruth .
+COPY --from=build /usr/src/insight/server/ /usr/src/insight/server/
+COPY --from=build /usr/src/insight/client/ /usr/src/insight/client/
+
+WORKDIR /usr/src/insight/server/
+
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["yarn", "start"]

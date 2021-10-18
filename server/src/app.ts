@@ -1,45 +1,20 @@
 /* eslint-disable import/first, import/order */
+import "source-map-support/register";
 import * as http from "http";
 import express from "express";
 import compression from "compression";
 import cookieParser from "cookie-parser";
-import * as cookieSignature from "cookie-signature";
 import * as chalk from "chalk";
+import path from "path";
 import morgan from "morgan";
 import flash from "connect-flash";
-
 import * as Sentry from "@sentry/browser";
 import { Integrations } from "@sentry/tracing";
 
-import {
-  // Constants
-  PORT,
-  VERSION_NUMBER,
-  VERSION_HASH,
-  COOKIE_OPTIONS,
-  // Configuration
-  config,
-} from "./common";
+import { PORT, VERSION_NUMBER, VERSION_HASH, COOKIE_OPTIONS } from "./common";
 
 // Set up Express and its middleware
 export const app = express();
-
-import bugsnag from "@bugsnag/js";
-import bugsnagExpress from "@bugsnag/plugin-express";
-
-let bugsnagMiddleware: any | null = null;
-if (config.secrets.bugsnag) {
-  const bugsnagClient = bugsnag({
-    apiKey: config.secrets.bugsnag,
-    appVersion: VERSION_NUMBER,
-  });
-  bugsnagClient.use(bugsnagExpress);
-  bugsnagMiddleware = bugsnagClient.getPlugin("express");
-  // Must come first to capture errors downstream
-  app.use(bugsnagMiddleware.requestHandler);
-} else {
-  console.info("Bugsnag API key not set");
-}
 
 Sentry.init({
   dsn: "https://17e4bfb7ba4e4518b2d9653d92f2d2db@o429043.ingest.sentry.io/5459941",
@@ -51,23 +26,13 @@ Sentry.init({
 });
 
 app.use(compression());
+
 const cookieParserInstance = cookieParser(
   undefined,
   COOKIE_OPTIONS as cookieParser.CookieParseOptions
 );
 app.use(cookieParserInstance);
-morgan.token("sessionid", (request, response) => {
-  const FAILURE_MESSAGE = "Unknown session";
-  if (!request.cookies.insightid) {
-    return FAILURE_MESSAGE;
-  }
-  const rawID: string = request.cookies.insightid.slice(2);
-  const id = cookieSignature.unsign(rawID, config.secrets.session);
-  if (typeof id === "string") {
-    return id;
-  }
-  return FAILURE_MESSAGE;
-});
+
 morgan.format("hackgt", (tokens, request, response) => {
   let statusColorizer: (input: string) => string = input => input; // Default passthrough function
   if (response.statusCode >= 500) {
@@ -83,7 +48,6 @@ morgan.format("hackgt", (tokens, request, response) => {
   return [
     tokens.date(request, response, "iso"),
     tokens["remote-addr"](request, response),
-    tokens.sessionid(request, response),
     tokens.method(request, response),
     tokens.url(request, response),
     statusColorizer(tokens.status(request, response) || ""),
@@ -94,6 +58,7 @@ morgan.format("hackgt", (tokens, request, response) => {
   ].join(" ");
 });
 app.use(morgan("hackgt"));
+
 app.use(flash());
 app.use(express.json());
 
@@ -108,6 +73,14 @@ import { authRoutes } from "./routes/auth";
 
 app.use("/auth", authRoutes);
 
+app.route("/version").get((request, response) => {
+  response.json({
+    version: VERSION_NUMBER,
+    hash: VERSION_HASH,
+    node: process.version,
+  });
+});
+
 import { apiRoutes } from "./api";
 
 app.use("/api", apiRoutes);
@@ -120,25 +93,16 @@ import { taskDashboardRoutes, startTaskEngine } from "./jobs";
 
 app.use("/admin/tasks", taskDashboardRoutes);
 
-import { uiRoutes } from "./templates";
-
-app.use("/", uiRoutes);
-
 startTaskEngine().catch(err => {
   throw err;
 });
 
-app.route("/version").get((request, response) => {
-  response.json({
-    version: VERSION_NUMBER,
-    hash: VERSION_HASH,
-    node: process.version,
-  });
-});
+import { authenticateWithRedirect } from "./middleware";
 
-if (bugsnagMiddleware) {
-  app.use(bugsnagMiddleware.errorHandler);
-}
+app.use(authenticateWithRedirect, express.static(path.join(__dirname, "../../client/build")));
+app.get("*", authenticateWithRedirect, (req, res) => {
+  res.sendFile(path.join(__dirname, "../../client/build", "index.html"));
+});
 
 const server = http.createServer(app);
 import { WebSocketServer } from "./websocket";

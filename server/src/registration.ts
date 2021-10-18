@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 
 import { config, mongoose, wait } from "./common";
-import { IVisit, User, IParticipant } from "./schema";
+import { IParticipant } from "./schema";
 
 if (!config.secrets.registration.key) {
   throw new Error("Registration admin key not configured");
@@ -111,7 +111,7 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
   return Promise.all(
     users.map(async user => {
       const participant: IParticipant = {
-        _id: mongoose.Types.ObjectId(),
+        _id: new mongoose.Types.ObjectId(),
         uuid: user.id,
         name: user.name,
         email: user.email,

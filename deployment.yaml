@@ -1,8 +1,8 @@
 ogit:
-    branch: master
+  branch: master
 
 wants:
-    mongo: true
+  mongo: true
 
 health:
   path: /version
@@ -19,12 +19,10 @@ secrets:
   - GCS_UPLOAD_DIRECTORY
   - REGISTRATION_URL
   - REGISTRATION_KEY
-  - BUGSNAG
   - API_KEY
-
 
 env:
   COOKIE_SECURE_ONLY: true
   EMAIL_FROM: "HackGT Team <hello@hackgt.com>"
   PRODUCTION: true
-  ADMIN_DOMAINS: 'hack.gt'
+  ADMIN_DOMAINS: "hack.gt"

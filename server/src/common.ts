@@ -1,19 +1,18 @@
 import * as fs from "fs";
 import * as crypto from "crypto";
 import * as path from "path";
+import mongoose from "mongoose";
+
+import { IConfig, IUser } from "./schema";
+import { S3StorageEngine } from "./storage";
 
 //
 // Config
 //
-import mongoose from "mongoose";
-
-import { IConfig, IUser } from "./schema";
 
 //
 // Database connection
 //
-import { S3StorageEngine } from "./storage";
-
 class Config implements IConfig.Main {
   public secrets: IConfig.Secrets = {
     session: crypto.randomBytes(32).toString("hex"),
@@ -34,7 +33,6 @@ class Config implements IConfig.Main {
       clientEmail: "",
       uploadDirectory: "uploads",
     },
-    bugsnag: null,
   };
 
   public server: IConfig.Server = {
@@ -62,7 +60,7 @@ class Config implements IConfig.Main {
     let config: IConfig.Main | null = null;
     try {
       config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "./config", fileName), "utf8"));
-    } catch (err) {
+    } catch (err: any) {
       if (err.code !== "ENOENT") {
         throw err;
       }
@@ -124,16 +122,13 @@ class Config implements IConfig.Main {
     if (process.env.GCS_UPLOAD_DIRECTORY) {
       this.secrets.gcs.uploadDirectory = process.env.GCS_UPLOAD_DIRECTORY;
     }
-    if (process.env.BUGSNAG) {
-      this.secrets.bugsnag = process.env.BUGSNAG;
-    }
     // Server
     if (process.env.PRODUCTION && process.env.PRODUCTION.toLowerCase() === "true") {
       this.server.isProduction = true;
     }
     if (process.env.PORT) {
-      const port = parseInt(process.env.PORT, 10);
-      if (!isNaN(port) && port > 0) {
+      const port = parseInt(process.env.PORT);
+      if (!Number.isNaN(port) && port > 0) {
         this.server.port = port;
       }
     }
@@ -147,8 +142,8 @@ class Config implements IConfig.Main {
       this.server.versionHash = process.env.SOURCE_VERSION;
     }
     if (process.env.COOKIE_MAX_AGE) {
-      const maxAge = parseInt(process.env.COOKIE_MAX_AGE, 10);
-      if (!isNaN(maxAge) && maxAge > 0) {
+      const maxAge = parseInt(process.env.COOKIE_MAX_AGE);
+      if (!Number.isNaN(maxAge) && maxAge > 0) {
         this.server.cookieMaxAge = maxAge;
       }
     }
@@ -194,10 +189,8 @@ export function wait(ms: number): Promise<void> {
     setTimeout(() => resolve(), ms);
   });
 }
-mongoose.set("useNewUrlParser", true);
-mongoose.set("useCreateIndex", true);
-mongoose.set("useUnifiedTopology", true);
-mongoose.connect(config.server.mongoURL, { useNewUrlParser: true }).catch(err => {
+
+mongoose.connect(config.server.mongoURL).catch(err => {
   throw err;
 });
 export { mongoose };
@@ -220,6 +213,12 @@ export function formatSize(size: number, binary = true): string {
     formattedSize = "0 bytes";
   }
   return formattedSize;
+}
+
+declare global {
+  namespace Express {
+    interface User extends IUser {}
+  }
 }
 
 declare module "express-session" {

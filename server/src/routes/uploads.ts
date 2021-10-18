@@ -77,6 +77,11 @@ uploadsRoutes
     const participant = await Participant.findOne({ uuid: user ? user.uuid : "" });
     const resume = request.file;
 
+    if (!resume) {
+      response.status(400).send({ error: true, message: "No resume sent" });
+      return;
+    }
+
     // Access:
     // - Only participants can update their resumes
     // - Participants can only update their own resume
@@ -87,6 +92,7 @@ uploadsRoutes
       response.status(403).send();
       return;
     }
+
     if (participant.resume?.path) {
       try {
         await S3_ENGINE.deleteFile(participant.resume.path);
@@ -94,6 +100,7 @@ uploadsRoutes
         console.error("Could not delete existing resume from S3:", err);
       }
     }
+
     try {
       await S3_ENGINE.saveFile(resume.path, resume.filename);
     } catch (err) {

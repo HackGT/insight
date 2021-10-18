@@ -1,4 +1,5 @@
-import Agenda from "agenda";
+// @ts-ignore
+import Agenda from "agenda/es";
 import express from "express";
 
 import { config } from "../common";
