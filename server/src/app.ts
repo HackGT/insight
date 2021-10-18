@@ -1,4 +1,5 @@
 /* eslint-disable import/first, import/order */
+import "source-map-support/register";
 import * as http from "http";
 import express from "express";
 import compression from "compression";

@@ -8,6 +8,10 @@ WORKDIR /usr/src/insight/client/
 RUN yarn install
 RUN yarn build
 
+WORKDIR /usr/src/insight/server/
+RUN yarn install
+RUN yarn build
+
 FROM node:14-alpine
 
 COPY --from=build /usr/src/insight/server/ /usr/src/insight/server/

@@ -59,10 +59,8 @@ typings/
 
 # next.js build output
 .next
+dist/
 
-*.js
-!bugsnag.js
-*.map
 *.tsbuildinfo
 
 src/config/config\.json
