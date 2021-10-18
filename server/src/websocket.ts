@@ -1,19 +1,19 @@
 import * as http from "http";
 import * as crypto from "crypto";
-import socketio from "socket.io";
+import { Server, Socket } from "socket.io";
 
 import { config } from "./common";
 import { User, IParticipant, IVisit } from "./schema";
 
 export class WebSocketServer {
-  private readonly sockets: Map<string, socketio.Socket[]> = new Map();
+  private readonly sockets: Map<string, Socket[]> = new Map();
 
-  constructor(server: http.Server) {
-    const io = socketio(server);
+  constructor(httpServer: http.Server) {
+    const io = new Server(httpServer);
 
     io.on("connection", async socket => {
       const uuid = (socket.handshake.query.uuid as string) || "";
-      const time = parseInt(socket.handshake.query.time);
+      const time = parseInt(socket.handshake.query.time as string);
       const token = (socket.handshake.query.token as string) || "";
       const correctToken = crypto
         .createHmac("sha256", config.secrets.apiKey + time)

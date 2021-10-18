@@ -25,7 +25,6 @@ export namespace IConfig {
       key: string;
     };
     gcs: IGCSOptions;
-    bugsnag: string | null;
   }
   export interface Server {
     isProduction: boolean;
@@ -52,8 +51,8 @@ interface RootDocument {
   _id: mongoose.Types.ObjectId;
 }
 export function createNew<T extends RootDocument>(
-  model: mongoose.Model<T & mongoose.Document, {}>,
-  doc: Omit<T, "_id">
+  model: mongoose.Model<T & mongoose.Document>,
+  doc: mongoose.AnyKeys<T & mongoose.Document<any, any, any>> & mongoose.AnyObject
 ) {
   return new model(doc);
 }

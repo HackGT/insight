@@ -24,23 +24,6 @@ import {
 // Set up Express and its middleware
 export const app = express();
 
-import bugsnag from "@bugsnag/js";
-import bugsnagExpress from "@bugsnag/plugin-express";
-
-let bugsnagMiddleware: any | null = null;
-if (config.secrets.bugsnag) {
-  const bugsnagClient = bugsnag({
-    apiKey: config.secrets.bugsnag,
-    appVersion: VERSION_NUMBER,
-  });
-  bugsnagClient.use(bugsnagExpress);
-  bugsnagMiddleware = bugsnagClient.getPlugin("express");
-  // Must come first to capture errors downstream
-  app.use(bugsnagMiddleware.requestHandler);
-} else {
-  console.info("Bugsnag API key not set");
-}
-
 Sentry.init({
   dsn: "https://17e4bfb7ba4e4518b2d9653d92f2d2db@o429043.ingest.sentry.io/5459941",
   integrations: [new Integrations.BrowserTracing()],
@@ -51,23 +34,13 @@ Sentry.init({
 });
 
 app.use(compression());
+
 const cookieParserInstance = cookieParser(
   undefined,
   COOKIE_OPTIONS as cookieParser.CookieParseOptions
 );
 app.use(cookieParserInstance);
-morgan.token("sessionid", (request, response) => {
-  const FAILURE_MESSAGE = "Unknown session";
-  if (!request.cookies.insightid) {
-    return FAILURE_MESSAGE;
-  }
-  const rawID: string = request.cookies.insightid.slice(2);
-  const id = cookieSignature.unsign(rawID, config.secrets.session);
-  if (typeof id === "string") {
-    return id;
-  }
-  return FAILURE_MESSAGE;
-});
+
 morgan.format("hackgt", (tokens, request, response) => {
   let statusColorizer: (input: string) => string = input => input; // Default passthrough function
   if (response.statusCode >= 500) {
@@ -83,7 +56,6 @@ morgan.format("hackgt", (tokens, request, response) => {
   return [
     tokens.date(request, response, "iso"),
     tokens["remote-addr"](request, response),
-    tokens.sessionid(request, response),
     tokens.method(request, response),
     tokens.url(request, response),
     statusColorizer(tokens.status(request, response) || ""),
@@ -94,6 +66,7 @@ morgan.format("hackgt", (tokens, request, response) => {
   ].join(" ");
 });
 app.use(morgan("hackgt"));
+
 app.use(flash());
 app.use(express.json());
 
@@ -135,10 +108,6 @@ app.route("/version").get((request, response) => {
     node: process.version,
   });
 });
-
-if (bugsnagMiddleware) {
-  app.use(bugsnagMiddleware.errorHandler);
-}
 
 const server = http.createServer(app);
 import { WebSocketServer } from "./websocket";
