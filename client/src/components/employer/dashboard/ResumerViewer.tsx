@@ -35,9 +35,9 @@ const ResumerViewer: React.FC<Props> = props => {
         }
 
         // setLink(`localhost:3000/uploads/${json.link}&download=true`);
-        props.setResumeDownloadLink(`http://localhost:3000/uploads/${json.link}&download=true`);
+        props.setResumeDownloadLink(`${process.env.HOST_URL}/uploads/${json.link}&download=true`);
         setLink({
-          url: `http://localhost:3000/uploads/${json.link}&download=true`,
+          url: `${new URL(window.location.href).origin}/uploads/${json.link}&download=true`,
           withCredentials: true,
         });
 

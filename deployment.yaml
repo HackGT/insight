@@ -27,5 +27,4 @@ env:
   EMAIL_FROM: "HackGT Team <hello@hackgt.com>"
   PRODUCTION: true
   ADMIN_DOMAINS: "hack.gt,hexlabs.org"
-  HOST_URL: "https://insight.2021.hack.gt"
   MONGO_URL: "mongodb://altered-pug-mongodb/insight-2021"

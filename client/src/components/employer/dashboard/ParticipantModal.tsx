@@ -43,7 +43,7 @@ const ParticipantModal: React.FC<Props> = props => {
         // setResumeDownloadLink(`http://localhost:3000/uploads/${json.link}&download=true`);
 
         setLink({
-          url: `${process.env.HOST_URL}/uploads/${json.link}&download=true`,
+          url: `${new URL(window.location.href).origin}/uploads/${json.link}&download=true`,
           withCredentials: true,
         });
 
