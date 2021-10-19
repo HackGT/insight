@@ -155,6 +155,27 @@ companyRoutes
 
 companyRoutes
   .route("/:company")
+  // Get company user information
+  .get(isAdminOrEmployee, async (request, response) => {
+    const company = await Company.findOne({ name: request.params.company });
+    if (!company) {
+      response.status(400).json({
+        error: "Unknown company",
+      });
+      return;
+    }
+
+    const users = await User.find({ "company.name": company.name, "company.verified": true });
+    const pendingUsers = await User.find({
+      "company.name": company.name,
+      "company.verified": false,
+    });
+
+    response.json({
+      users,
+      pendingUsers,
+    });
+  })
   // Rename company
   .patch(isAdminOrEmployee, postParser, async (request, response) => {
     const company = await Company.findOne({ name: request.params.company });

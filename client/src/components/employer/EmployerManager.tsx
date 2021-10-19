@@ -14,7 +14,7 @@ const EmployerManager: React.FC<Props> = props => {
   }
 
   if (props.user.company && props.user.company?.verified) {
-    return <EmployerHome />;
+    return <EmployerHome user={props.user} />;
   }
 
   return <PreEmployerHome user={props.user} />;

@@ -1,12 +1,67 @@
-import React from "react";
-import useAxios from "axios-hooks";
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React, { useState } from "react";
 
-import ParticipantTable from "./ParticipantTable";
+import ParticipantTable from "./search/ParticipantTable";
+import ManageEmployees from "./settings/ManageEmployees";
 
-const EmployerHome: React.FC = () => {
-  const hi = "";
+enum EmployerTabs {
+  SearchParticipants,
+  Settings,
+}
 
-  return <ParticipantTable />;
+interface Props {
+  user: any;
+}
+
+const EmployerHome: React.FC<Props> = props => {
+  const [currentTab, setCurrentTab] = useState(EmployerTabs.SearchParticipants);
+
+  let EmployerContent: any;
+
+  switch (currentTab) {
+    case EmployerTabs.SearchParticipants:
+      EmployerContent = <ParticipantTable />;
+      break;
+    case EmployerTabs.Settings:
+      EmployerContent = <ManageEmployees user={props.user} />;
+      break;
+  }
+
+  return (
+    <>
+      <nav className="tabs is-fullwidth">
+        <ul>
+          {/* <li className="is-active" id="scanning-tab">
+          <a>
+            <span className="icon is-small">
+              <i className="fas fa-info-circle" aria-hidden="true"></i>
+            </span>
+            <span>Information</span>
+          </a>
+        </li> */}
+          <li className={`${currentTab === EmployerTabs.SearchParticipants && "is-active"}`}>
+            <a onClick={() => setCurrentTab(EmployerTabs.SearchParticipants)}>
+              <span className="icon is-small">
+                <i className="fas fa-search" aria-hidden="true" />
+              </span>
+              <span>Search Participants</span>
+            </a>
+          </li>
+          <li className={`${currentTab === EmployerTabs.Settings && "is-active"}`}>
+            <a onClick={() => setCurrentTab(EmployerTabs.Settings)}>
+              <span className="icon is-small">
+                <i className="fas fa-sliders-h" aria-hidden="true" />
+              </span>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <section>{EmployerContent}</section>
+    </>
+  );
 };
 
 export default EmployerHome;
