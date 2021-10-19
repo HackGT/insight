@@ -1,5 +1,8 @@
 # Build container
+ENV NODE_OPTIONS="–max_old_space_size=2048"
 FROM node:14-alpine AS build
+
+
 
 WORKDIR /usr/src/insight/
 COPY . /usr/src/insight/
