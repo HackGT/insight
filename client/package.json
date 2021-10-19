@@ -13,6 +13,7 @@
     "@types/react-pdf": "^5.0.8",
     "axios": "^0.22.0",
     "axios-hooks": "^2.7.0",
+    "dotenv": "^10.0.0",
     "html-react-parser": "^1.4.0",
     "luxon": "^2.0.2",
     "react": "^17.0.2",
