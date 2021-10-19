@@ -16,7 +16,7 @@ gulp.task("build", () =>
     .pipe(sourcemaps.init())
     .pipe(tsProject())
     .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: "../src" }))
-    .pipe(gulp.dest("dist"))
+    .pipe(gulp.dest("src/"))
 );
 
 // Default task
