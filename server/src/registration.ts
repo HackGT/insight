@@ -25,7 +25,6 @@ async function query<T>(query: string, variables?: { [name: string]: string }): 
   if (response.ok) {
     return json.data;
   }
-  console.log(response);
   throw new Error(JSON.stringify(json.errors));
 }
 
@@ -159,9 +158,11 @@ export async function getAllParticipants(): Promise<IParticipant[]> {
           participant.gdpr = getQuestionAnswer(user.confirmation, "gdpr");
           participant.github = getQuestionAnswer(user.confirmation, "github");
         }
-      } else if (user.application && (
-        user.application.type === "Participant-Emerging In-Person" ||
-        user.application.type === "Participant-Emerging Virtual")) {
+      } else if (
+        user.application &&
+        (user.application.type === "Participant-General In-Person" ||
+          user.application.type === "Participant-General Virtual")
+      ) {
         participant.major = getQuestionAnswer(user.application, "major");
         participant.university = getQuestionAnswer(user.application, "university");
         participant.year = getQuestionAnswer(user.application, "year");

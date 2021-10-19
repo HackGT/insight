@@ -66,4 +66,5 @@ export const handleDeleteVisit = async (visitData: any, fetchData?: any) => {
 
   await axios.delete(`/api/visit/${visitData._id}`);
   fetchData && fetchData();
+  window.location.reload();
 };

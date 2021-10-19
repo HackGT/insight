@@ -155,6 +155,7 @@ const ParticipantTable: React.FC = () => {
                 data-tooltip="Add to visited list"
                 onClick={() => handleAddVisit(row, fetchData)}
               >
+                <span> Mark as Visited </span>
                 <span className="icon">
                   <i className="fas fa-plus" />
                 </span>

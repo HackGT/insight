@@ -21,6 +21,7 @@ const PreEmployerHome: React.FC<Props> = props => {
   }
 
   const handleSelectCompany = async () => {
+    console.log("selectedCompany");
     if (!selectedCompany) return;
 
     await axios.post(`/api/company/${encodeURIComponent(selectedCompany)}/join`);

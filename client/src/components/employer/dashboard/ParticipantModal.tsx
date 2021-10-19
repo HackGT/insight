@@ -1,8 +1,10 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-restricted-globals */
 /* eslint-disable no-underscore-dangle */
 import axios from "axios";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-import ResumerViewer from "./ResumerViewer";
+import PDFContainer from "./PDFContainer";
 import { handleAddVisit, generateTag, tagButtonHandler, handleDeleteVisit } from "./util";
 
 interface Props {
@@ -12,6 +14,54 @@ interface Props {
 }
 
 const ParticipantModal: React.FC<Props> = props => {
+  console.log("part", props.participant);
+  const [link, setLink] = useState({
+    url: "",
+    withCredentials: false,
+  });
+  const downloadDisabled = link.url === "";
+
+  useEffect(() => {
+    // Get a time-limited public link to the resume for use with Google / Microsoft viewer
+    const options: RequestInit = {
+      method: "GET",
+      credentials: "include",
+    };
+
+    async function getResumeLink() {
+      if (!props.participant?.resume) return;
+
+      try {
+        const response = await fetch(`/${props.participant.resume?.path}?public=true`, options);
+        const json = await response.json();
+
+        if (!json.success) {
+          alert(json.error);
+        }
+
+        // setLink(`localhost:3000/uploads/${json.link}&download=true`);
+        // setResumeDownloadLink(`http://localhost:3000/uploads/${json.link}&download=true`);
+
+        setLink({
+          url: `http://localhost:3000/uploads/${json.link}&download=true`,
+          withCredentials: true,
+        });
+
+        // if (props.participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
+        //   // Special viewer for Word documents
+        //   this.resume.src = `${link}`;
+        // } else {
+        //   // Google Drive Viewer supports a bunch of formats including PDFs, Pages, images
+        //   this.resume.src = `${link}`;
+        // }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    getResumeLink();
+  }, [props, props.participant]);
+
   const visitData = props.participant?.visitData;
 
   const handleAddNote = async () => {
@@ -53,22 +103,23 @@ const ParticipantModal: React.FC<Props> = props => {
           />
         </header>
         <section className="modal-card-body">
-          {visitData && (
-            <div className="columns">
-              <div className="column">
-                <h4 className="title is-4">Your notes</h4>
-                <div className="side-by-side-flex">
-                  <strong>Tags:</strong>
-                  <div className="field is-grouped is-grouped-multiline" id="detail-tags">
-                    {visitData.tags.map((tag: string) =>
+          <div className="columns">
+            <div className="column">
+              <h4 className="title is-4">Your notes</h4>
+              <div className="side-by-side-flex">
+                <strong>Tags:</strong>
+                <div className="field is-grouped is-grouped-multiline" id="detail-tags">
+                  {visitData &&
+                    visitData.tags.map((tag: string) =>
                       generateTag(visitData, tag, props.fetchData)
                     )}
-                  </div>
                 </div>
-                <p>
-                  <strong>Notes:</strong>
-                  <ul id="detail-notes">
-                    {visitData.notes.map((note: string) => (
+              </div>
+              <p>
+                <strong>Notes:</strong>
+                <ul id="detail-notes">
+                  {visitData &&
+                    visitData.notes.map((note: string) => (
                       <li>
                         <span>{note}</span>
                         <button
@@ -81,15 +132,38 @@ const ParticipantModal: React.FC<Props> = props => {
                         </button>
                       </li>
                     ))}
-                  </ul>
-                </p>
-              </div>
+                </ul>
+              </p>
             </div>
-          )}
-          <ResumerViewer participant={props.participant} />
+            <div className="column">
+              <h4 className="title is-4">Resume</h4>
+
+              {props.participant.resume &&
+              props.participant.resume.path.toLowerCase().indexOf(".pdf") >= 0 ? (
+                <PDFContainer link={link} />
+              ) : props.participant.resume ? (
+                'Unable to render resume. Click "Download Resume" below to view the file.'
+              ) : (
+                "This participant does not have a resume on file or it is still being processed. Try again in 30 minutes."
+              )}
+            </div>
+          </div>
         </section>
         <footer className="modal-card-foot">
           <div className="buttons">
+            <button
+              onClick={() => {
+                location.href = link.url;
+              }}
+              type="button"
+              className="button is-info"
+              disabled={downloadDisabled}
+            >
+              <span className="icon is-small">
+                <i className="fas fa-download" />
+              </span>
+              <span>Download Resume</span>
+            </button>
             {visitData ? (
               <button
                 className="button is-danger"
@@ -149,6 +223,7 @@ const ParticipantModal: React.FC<Props> = props => {
                 </button>
               </>
             )}
+
             <span className="spacer" />
             <button
               className="button"

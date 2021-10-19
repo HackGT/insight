@@ -1,11 +1,20 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import React, { useEffect, useState } from "react";
+// import { Document, Page, pdfjs } from "react-pdf";
+import PDFContainer from "./PDFContainer";
+
+// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface Props {
   participant?: any;
+  setResumeDownloadLink: (url: string) => void;
 }
 
 const ResumerViewer: React.FC<Props> = props => {
-  const [link, setLink] = useState("");
+  const [link, setLink] = useState({
+    url: "",
+    withCredentials: false,
+  });
 
   useEffect(() => {
     // Get a time-limited public link to the resume for use with Google / Microsoft viewer
@@ -25,7 +34,13 @@ const ResumerViewer: React.FC<Props> = props => {
           alert(json.error);
         }
 
-        setLink(`/uploads/${json.link}`);
+        // setLink(`localhost:3000/uploads/${json.link}&download=true`);
+        props.setResumeDownloadLink(`http://localhost:3000/uploads/${json.link}&download=true`);
+        setLink({
+          url: `http://localhost:3000/uploads/${json.link}&download=true`,
+          withCredentials: true,
+        });
+
         // if (props.participant.resume.path.toLowerCase().indexOf(".doc") !== -1) {
         //   // Special viewer for Word documents
         //   this.resume.src = `${link}`;
@@ -39,9 +54,22 @@ const ResumerViewer: React.FC<Props> = props => {
     }
 
     getResumeLink();
-  }, [props, props.participant]);
-
-  return <iframe id="detail-resume" src={link} title="Resume" />;
+  }, [props, link, props.participant]);
+  return (
+    <div
+      style={{
+        marginTop: "1rem",
+      }}
+    >
+      <PDFContainer link={link} />
+      <a className="button is-info" href={link.url} download>
+        <span className="icon is-small">
+          <i className="fas fa-plus" />
+        </span>
+        <span>Download Resume</span>
+      </a>
+    </div>
+  );
 };
 
 export default ResumerViewer;
