@@ -2,7 +2,8 @@ ogit:
   branch: master
 
 wants:
-  mongo: true
+  mongo: false
+
 
 health:
   path: /version
@@ -20,9 +21,12 @@ secrets:
   - REGISTRATION_URL
   - REGISTRATION_KEY
   - API_KEY
+  - HOST_URL
 
 env:
   COOKIE_SECURE_ONLY: true
   EMAIL_FROM: "HackGT Team <hello@hackgt.com>"
   PRODUCTION: true
-  ADMIN_DOMAINS: "hack.gt"
+  ADMIN_DOMAINS: "hack.gt,hexlabs.org"
+  HOST_URL: "https://insight.2021.hack.gt"
+  MONGO_URL: "mongodb://altered-pug-mongodb/insight-2021"
