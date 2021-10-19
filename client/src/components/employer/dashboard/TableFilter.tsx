@@ -51,6 +51,7 @@ const TableFilter: React.FC<Props> = props => {
           <div className="dropdown-menu">
             <div className="dropdown-content" id="filter-menu">
               {tagsData &&
+                tagsData.tags &&
                 tagsData.tags.map((tag: string) => (
                   <a className="dropdown-item tag-filter" key={tag}>
                     <label className="checkbox">
