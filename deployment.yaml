@@ -1,4 +1,4 @@
-ogit:
+git:
   branch: master
 
 wants:
@@ -21,7 +21,6 @@ secrets:
   - REGISTRATION_URL
   - REGISTRATION_KEY
   - API_KEY
-  - HOST_URL
 
 env:
   COOKIE_SECURE_ONLY: true
