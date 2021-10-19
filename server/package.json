@@ -4,7 +4,7 @@
   "description": "Making the HackGT sponsor fair paperless",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js",
+    "start": "node dist/app.js",
     "dev": "nodemon --watch 'src/**/*' --exec 'ts-node' src/app.ts",
     "lint": "eslint src/ --fix; prettier src/ --write",
     "build": "gulp"
