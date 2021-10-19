@@ -14,7 +14,6 @@ interface Props {
 }
 
 const ParticipantModal: React.FC<Props> = props => {
-  console.log("part", props.participant);
   const [link, setLink] = useState({
     url: "",
     withCredentials: false,

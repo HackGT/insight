@@ -7,13 +7,14 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 import React, { useEffect, useMemo, useState } from "react";
-import { useTable, usePagination, Column } from "react-table";
+import { Column } from "react-table";
 import { DateTime } from "luxon";
 import axios from "axios";
 
 import TableFilter from "./TableFilter";
 import { handleAddVisit, generateTag, tagButtonHandler } from "./util";
 import ParticipantModal from "./ParticipantModal";
+import Table from "./Table";
 
 const ParticipantTable: React.FC = () => {
   // Table filtering states
@@ -39,22 +40,6 @@ const ParticipantTable: React.FC = () => {
     getInitialData();
   }, []);
 
-  const [detailModalInfo, setDetailModalInfo] = useState<any>(null);
-
-  const [dataPageCount, setDataPageCount] = useState(0);
-  useEffect(() => {
-    setDataPageCount(data ? Math.ceil(data.total / data.pageSize) : 0);
-
-    if (detailModalInfo) {
-      const updatedParticipant = data.participants.find(
-        (participant: any) => participant._id === detailModalInfo._id
-      );
-      if (updatedParticipant) {
-        setDetailModalInfo(updatedParticipant);
-      }
-    }
-  }, [data]);
-
   const fetchData = async () => {
     const response = await axios.get("/api/search", {
       params: {
@@ -66,6 +51,23 @@ const ParticipantTable: React.FC = () => {
 
     setData(response.data);
   };
+
+  // Will fetch new data whenever the page index, search query, or tags filter changes
+  useEffect(() => {
+    fetchData();
+  }, [pageIndex, searchQuery, tagsFilter]);
+
+  const [detailModalInfo, setDetailModalInfo] = useState<any>(null);
+  useEffect(() => {
+    if (detailModalInfo) {
+      const updatedParticipant = data.participants.find(
+        (participant: any) => participant._id === detailModalInfo._id
+      );
+      if (updatedParticipant) {
+        setDetailModalInfo(updatedParticipant);
+      }
+    }
+  }, [data]);
 
   const columns = useMemo<Column<any>[]>(
     () => [
@@ -180,37 +182,6 @@ const ParticipantTable: React.FC = () => {
     [searchQuery, pageIndex, tagsFilter]
   );
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    state: { pageIndex: reactTablePageIndex },
-    prepareRow,
-  } = useTable(
-    {
-      columns,
-      data: data?.participants || [],
-      manualPagination: true,
-      initialState: { pageIndex: 0 },
-      pageCount: dataPageCount,
-    },
-    usePagination
-  );
-
-  // Will fetch new data whenever the page index, search query, or tags filter changes
-  useEffect(() => {
-    setPageIndex(reactTablePageIndex);
-    fetchData();
-  }, [reactTablePageIndex, searchQuery, tagsFilter]);
-
   return (
     <>
       <h1 className="title">Search</h1>
@@ -220,78 +191,7 @@ const ParticipantTable: React.FC = () => {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
-      <table className="table is-hoverable is-fullwidth" id="search-table" {...getTableProps()}>
-        <thead>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps()}>{column.render("Header")}</th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {page.map((row, i) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map(cell => (
-                  <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <nav className="pagination is-centered" role="navigation" aria-label="pagination">
-        <button
-          className="button pagination-previous"
-          onClick={() => gotoPage(0)}
-          disabled={!canPreviousPage}
-        >
-          {"<<"}
-        </button>
-        <button
-          className="button pagination-previous"
-          onClick={() => previousPage()}
-          disabled={!canPreviousPage}
-        >
-          {"<"}
-        </button>
-        <div className="pagination-list">
-          <span style={{ marginRight: "6px" }}>
-            Page{" "}
-            <strong>
-              {pageIndex + 1} of {Math.max(1, pageOptions.length)}
-            </strong>
-          </span>
-          <span> | Go to page: </span>
-          <input
-            className="input is-small"
-            type="number"
-            defaultValue={pageIndex + 1}
-            onChange={e => {
-              const newPage = e.target.value ? Number(e.target.value) - 1 : 0;
-              gotoPage(newPage);
-            }}
-            style={{ width: "100px" }}
-          />
-        </div>
-        <button
-          className="button pagination-next"
-          onClick={() => nextPage()}
-          disabled={!canNextPage}
-        >
-          {">"}
-        </button>
-        <button
-          className="button pagination-next"
-          onClick={() => gotoPage(pageCount - 1)}
-          disabled={!canNextPage}
-        >
-          {">>"}
-        </button>
-      </nav>
+      <Table columns={columns} data={data} setPageIndex={setPageIndex} />
       <ParticipantModal
         participant={detailModalInfo}
         setDetailModalInfo={setDetailModalInfo}
