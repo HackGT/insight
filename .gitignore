@@ -66,3 +66,7 @@ dist/
 server/src/config/config.json
 src/config/config.json
 .DS_Store
+
+.js
+.js.map
+
