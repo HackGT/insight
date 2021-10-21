@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from "react";
-import { useTable, usePagination, useRowSelect } from "react-table";
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo } from "react";
+import { useTable, usePagination, useRowSelect, Column, Hooks } from "react-table";
 
 const IndeterminateCheckbox = React.forwardRef<any, any>(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -18,12 +18,12 @@ const IndeterminateCheckbox = React.forwardRef<any, any>(({ indeterminate, ...re
 });
 
 interface Props {
-  columns: any;
+  columns: Column<any>[];
   data: any;
-  setPageIndex: (pageIndex: any) => void;
+  setPageIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const Table: React.FC<Props> = props => {
+const Table = forwardRef<any, Props>((props, ref) => {
   const memoizedData = useMemo(() => props.data, [props.data]);
   const memoizedColumns = useMemo(() => props.columns, [props.columns]);
 
@@ -31,6 +31,30 @@ const Table: React.FC<Props> = props => {
     () => (props.data ? Math.ceil(props.data.total / props.data.pageSize) : 0),
     [props.data]
   );
+
+  const useAddSelectionColumn = useCallback((hooks: Hooks) => {
+    hooks.visibleColumns.push(prevColumns => [
+      // Let's make a column for selection
+      {
+        id: "selection",
+        // The header can use the table's getToggleAllRowsSelectedProps method
+        // to render a checkbox
+        Header: ({ getToggleAllPageRowsSelectedProps }) => (
+          <div>
+            <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
+          </div>
+        ),
+        // The cell can use the individual row's getToggleRowSelectedProps method
+        // to the render a checkbox
+        Cell: ({ row }) => (
+          <div>
+            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+          </div>
+        ),
+      },
+      ...prevColumns,
+    ]);
+  }, []);
 
   const {
     getTableProps,
@@ -46,6 +70,7 @@ const Table: React.FC<Props> = props => {
     previousPage,
     state: { pageIndex },
     prepareRow,
+    selectedFlatRows,
   } = useTable(
     {
       columns: memoizedColumns,
@@ -56,29 +81,15 @@ const Table: React.FC<Props> = props => {
     },
     usePagination,
     useRowSelect,
-    hooks => {
-      hooks.visibleColumns.push(prevColumns => [
-        // Let's make a column for selection
-        {
-          id: "selection",
-          // The header can use the table's getToggleAllRowsSelectedProps method
-          // to render a checkbox
-          Header: ({ getToggleAllPageRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-            </div>
-          ),
-          // The cell can use the individual row's getToggleRowSelectedProps method
-          // to the render a checkbox
-          Cell: ({ row }) => (
-            <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
-          ),
-        },
-        ...prevColumns,
-      ]);
-    }
+    useAddSelectionColumn
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      getSelectedRows: () => selectedFlatRows,
+    }),
+    [selectedFlatRows]
   );
 
   useEffect(() => {
@@ -161,6 +172,6 @@ const Table: React.FC<Props> = props => {
       </nav>
     </>
   );
-};
+});
 
 export default Table;

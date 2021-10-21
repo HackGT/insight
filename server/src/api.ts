@@ -115,7 +115,6 @@ apiRoutes
 apiRoutes.route("/search").get(isAnEmployer, async (request, response) => {
   const user = request.user as IUser;
   const query: string = String(request.query.q) || "";
-  console.log(query, "/search here");
   const PAGE_SIZE = 20;
   let page = parseInt(String(request.query.page || ""));
   if (Number.isNaN(page) || page < 0) {

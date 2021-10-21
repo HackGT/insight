@@ -7,6 +7,8 @@ import cookieParser from "cookie-parser";
 import * as chalk from "chalk";
 import path from "path";
 import morgan from "morgan";
+import cors from "cors";
+
 import flash from "connect-flash";
 import * as Sentry from "@sentry/browser";
 import { Integrations } from "@sentry/tracing";
@@ -26,6 +28,7 @@ Sentry.init({
 });
 
 app.use(compression());
+app.use(cors());
 
 const cookieParserInstance = cookieParser(
   undefined,

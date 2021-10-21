@@ -20,19 +20,19 @@ if (!config.sessionSecretSet) {
   console.warn("No session secret set; sessions won't carry over server restarts");
 }
 
-app.use(
-  session({
-    name: "insightid",
-    secret: config.secrets.session,
-    cookie: COOKIE_OPTIONS,
-    resave: false,
-    store: MongoStore.create({
-      mongoUrl: config.server.mongoURL,
-      touchAfter: 24 * 60 * 60, // Check for TTL every 24 hours at minimum
-    }),
-    saveUninitialized: false,
-  })
-);
+export const sessionMiddleware = session({
+  name: "insightid",
+  secret: config.secrets.session,
+  cookie: COOKIE_OPTIONS,
+  resave: false,
+  store: MongoStore.create({
+    mongoUrl: config.server.mongoURL,
+    touchAfter: 24 * 60 * 60, // Check for TTL every 24 hours at minimum
+  }),
+  saveUninitialized: false,
+});
+
+app.use(sessionMiddleware);
 
 passport.serializeUser<string>((user, done) => {
   done(null, user.uuid);

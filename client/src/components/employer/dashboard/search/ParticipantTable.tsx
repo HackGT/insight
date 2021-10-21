@@ -6,7 +6,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Column } from "react-table";
 import { DateTime } from "luxon";
 import axios from "axios";
@@ -15,6 +15,7 @@ import TableFilter from "./TableFilter";
 import { handleAddVisit, generateTag, tagButtonHandler } from "./util";
 import ParticipantModal from "./ParticipantModal";
 import Table from "./Table";
+import TableExport from "./TableExport";
 
 const ParticipantTable: React.FC = () => {
   // Table filtering states
@@ -40,7 +41,7 @@ const ParticipantTable: React.FC = () => {
     getInitialData();
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const response = await axios.get("/api/search", {
       params: {
         q: searchQuery,
@@ -50,7 +51,7 @@ const ParticipantTable: React.FC = () => {
     });
 
     setData(response.data);
-  };
+  }, [searchQuery, pageIndex, tagsFilter]);
 
   // Will fetch new data whenever the page index, search query, or tags filter changes
   useEffect(() => {
@@ -182,6 +183,8 @@ const ParticipantTable: React.FC = () => {
     [searchQuery, pageIndex, tagsFilter]
   );
 
+  const tableRef = useRef<any>();
+
   return (
     <>
       <h1 className="title">Search</h1>
@@ -191,7 +194,8 @@ const ParticipantTable: React.FC = () => {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
-      <Table columns={columns} data={data} setPageIndex={setPageIndex} />
+      <TableExport tableRef={tableRef} />
+      <Table columns={columns} data={data} setPageIndex={setPageIndex} ref={tableRef} />
       <ParticipantModal
         participant={detailModalInfo}
         setDetailModalInfo={setDetailModalInfo}
