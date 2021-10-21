@@ -101,6 +101,7 @@ import { authenticateWithRedirect } from "./middleware";
 
 app.use(authenticateWithRedirect, express.static(path.join(__dirname, "../../client/build")));
 app.get("*", authenticateWithRedirect, (req, res) => {
+  console.log("Serving client");
   res.sendFile(path.join(__dirname, "../../client/build", "index.html"));
 });
 

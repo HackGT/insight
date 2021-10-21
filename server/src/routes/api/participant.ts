@@ -26,7 +26,8 @@ interface IFormattedParticipant {
 
 participantRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
   const user = request.user as IUser;
-  const participant = await Participant.findOne({ uuid: user.uuid });
+  console.log(user);
+  const participant = await Participant.findOne({ email: user.email });
   const resumeParseJobsUnsorted = await agenda.jobs({
     "name": "parse-resume",
     "data.uuid": user.uuid,

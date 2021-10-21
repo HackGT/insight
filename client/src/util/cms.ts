@@ -1,5 +1,5 @@
 const CMS_ENDPOINT = "https://cms.hack.gt/admin/api";
-const HACKATHON = "HackGT 7";
+const HACKATHON = "HackGT 8";
 
 type GenericObject = { [key: string]: string | number | boolean };
 function serializeQueryString(data: GenericObject): string {
