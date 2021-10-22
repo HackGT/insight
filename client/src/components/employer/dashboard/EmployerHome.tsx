@@ -26,7 +26,7 @@ const EmployerHome: React.FC<Props> = props => {
 
   useEffect(() => {
     if (data && !data?.company?.hasResumeAccess) {
-      setCurrentTab(EmployerTabs.SponsorFair);
+      setCurrentTab(EmployerTabs.Settings);
     }
   }, [data]);
 
@@ -78,14 +78,14 @@ const EmployerHome: React.FC<Props> = props => {
               </li>
             </>
           )}
-          <li className={`${currentTab === EmployerTabs.SponsorFair && "is-active"}`}>
+          {/* <li className={`${currentTab === EmployerTabs.SponsorFair && "is-active"}`}>
             <a onClick={() => setCurrentTab(EmployerTabs.SponsorFair)}>
               <span className="icon is-small">
                 <i className="fas fa-sliders-h" aria-hidden="true" />
               </span>
               <span>Sponsor Fair</span>
             </a>
-          </li>
+          </li> */}
           <li className={`${currentTab === EmployerTabs.Settings && "is-active"}`}>
             <a onClick={() => setCurrentTab(EmployerTabs.Settings)}>
               <span className="icon is-small">
