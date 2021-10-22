@@ -3,14 +3,14 @@
 import React from "react";
 
 interface Props {
-  sponsor: any;
+  company: any;
   openModal: (sponsor: any) => void;
 }
 
-const SponsorSquare: React.FC<Props> = props => (
-  <div className="button sponsor" onClick={() => props.openModal(props.sponsor)}>
-    <p>{props.sponsor.name}</p>
+const CompanySquare: React.FC<Props> = props => (
+  <div className="button sponsor" onClick={() => props.openModal(props.company)}>
+    <p>{props.company.name}</p>
   </div>
 );
 
-export default SponsorSquare;
+export default CompanySquare;
