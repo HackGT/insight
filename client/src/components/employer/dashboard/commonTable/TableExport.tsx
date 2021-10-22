@@ -8,11 +8,12 @@ import { SocketContext } from "../../../../context/socket";
 
 interface Props {
   tableRef: React.MutableRefObject<any>;
+  includeDownloadAll: boolean;
+  rowToUuid: (row: any) => any;
 }
 
 const TableExport: React.FC<Props> = props => {
   const socket = useContext(SocketContext);
-  console.log(socket);
   const [progressValue, setProgressValue] = useState(0);
   const [progressHidden, setProgressHidden] = useState(true);
 
@@ -34,9 +35,7 @@ const TableExport: React.FC<Props> = props => {
   }, [socket]);
 
   const downloadHandler = async (filetype: string) => {
-    const selectedUUIDs = props.tableRef.current
-      .getSelectedRows()
-      .map((row: any) => row.original.uuid);
+    const selectedUUIDs = props.tableRef.current.getSelectedRows().map(props.rowToUuid);
 
     if (selectedUUIDs.length > 0) {
       await axios.post("/api/export", {
@@ -105,19 +104,23 @@ const TableExport: React.FC<Props> = props => {
 								</span>
 								<span>All profiles as .csv</span>
 							</a> --}} */}
-              <hr className="dropdown-divider" />
-              <a className="dropdown-item" onClick={() => downloadAllHandler("zip")}>
-                <span className="icon is-small">
-                  <i className="fas fa-file-archive" />
-                </span>
-                <span>All HackGT profiles as .zip</span>
-              </a>
-              <a className="dropdown-item" onClick={() => downloadAllHandler("csv")}>
-                <span className="icon is-small">
-                  <i className="fas fa-file-csv" />
-                </span>
-                <span>All HackGT profiles as .csv</span>
-              </a>
+              {props.includeDownloadAll && (
+                <>
+                  <hr className="dropdown-divider" />
+                  <a className="dropdown-item" onClick={() => downloadAllHandler("zip")}>
+                    <span className="icon is-small">
+                      <i className="fas fa-file-archive" />
+                    </span>
+                    <span>All HackGT profiles as .zip</span>
+                  </a>
+                  <a className="dropdown-item" onClick={() => downloadAllHandler("csv")}>
+                    <span className="icon is-small">
+                      <i className="fas fa-file-csv" />
+                    </span>
+                    <span>All HackGT profiles as .csv</span>
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -15,7 +15,7 @@ const VisitsTable: React.FC = () => {
   // Table filtering states
   const [pageIndex, setPageIndex] = useState(0);
 
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<any>({});
 
   useEffect(() => {
     async function getInitialData() {
@@ -42,18 +42,16 @@ const VisitsTable: React.FC = () => {
   }, [pageIndex]);
 
   // Will fetch new data whenever the page index, search query, or tags filter changes
-  // useEffect(() => {
-  //   fetchData();
-  // }, [pageIndex]);
+  useEffect(() => {
+    fetchData();
+  }, [pageIndex]);
 
   const [detailModalInfo, setDetailModalInfo] = useState<any>(null);
   useEffect(() => {
     if (detailModalInfo) {
-      const updatedParticipant = data.participants.find(
-        (participant: any) => participant._id === detailModalInfo._id
-      );
-      if (updatedParticipant) {
-        setDetailModalInfo(updatedParticipant);
+      const updatedVisit = data.visits.find((visit: any) => visit._id === detailModalInfo._id);
+      if (updatedVisit) {
+        setDetailModalInfo(updatedVisit);
       }
     }
   }, [data]);
@@ -63,8 +61,8 @@ const VisitsTable: React.FC = () => {
       {
         Header: "Time",
         accessor: (row, i) => {
-          if (row.visitData?.time) {
-            const time = new Date(row.visitData.time);
+          if (row?.time) {
+            const time = new Date(row.time);
             return DateTime.fromJSDate(time).toLocaleString(DateTime.DATETIME_SHORT);
           }
 
@@ -73,11 +71,11 @@ const VisitsTable: React.FC = () => {
       },
       {
         Header: "Name",
-        accessor: "name",
+        accessor: (row, i) => row.participantData.name || "",
       },
       {
         Header: "Major",
-        accessor: (row, i) => row.major || "Unknown",
+        accessor: (row, i) => row.participantData.major || "Unknown",
         id: "major",
       },
       {
@@ -87,12 +85,10 @@ const VisitsTable: React.FC = () => {
       {
         Header: "Tags",
         accessor: (row, i) => {
-          if (row.visitData?.tags) {
+          if (row?.tags) {
             return (
               <div className="field is-grouped is-grouped-multiline">
-                {row.visitData.tags.map((tag: string) =>
-                  generateTag(row.visitData, tag, fetchData)
-                )}
+                {row.tags.map((tag: string) => generateTag(row, tag, fetchData))}
               </div>
             );
           }
@@ -105,12 +101,12 @@ const VisitsTable: React.FC = () => {
         Header: "Actions",
         accessor: (row, i) => {
           const actions = [];
-          if (row.visitData?.time) {
+          if (row?.time) {
             actions.push(
               <button
                 className="button tooltip"
                 data-tooltip="Star"
-                onClick={() => tagButtonHandler(row.visitData, "starred", fetchData)}
+                onClick={() => tagButtonHandler(row, "starred", fetchData)}
               >
                 <span className="icon">
                   <i className="fas fa-star" />
@@ -121,7 +117,7 @@ const VisitsTable: React.FC = () => {
               <button
                 className="button tooltip"
                 data-tooltip="Flag"
-                onClick={() => tagButtonHandler(row.visitData, "flagged", fetchData)}
+                onClick={() => tagButtonHandler(row, "flagged", fetchData)}
               >
                 <span className="icon">
                   <i className="fas fa-flag" />
@@ -132,7 +128,7 @@ const VisitsTable: React.FC = () => {
               <button
                 className="button tooltip"
                 data-tooltip="Add a tag"
-                onClick={() => tagButtonHandler(row.visitData, "", fetchData)}
+                onClick={() => tagButtonHandler(row, "", fetchData)}
               >
                 <span className="icon">
                   <i className="fas fa-tag" />
@@ -175,11 +171,26 @@ const VisitsTable: React.FC = () => {
 
   return (
     <>
-      <h1 className="title">Visits Information</h1>
-      <TableExport tableRef={tableRef} />
-      <Table columns={columns} data={data} setPageIndex={setPageIndex} ref={tableRef} />
+      <h1 className="title">Visit Information</h1>
+      <h6 className="subtitle is-6">
+        Here, you can view information about all the participants that have visited your company.
+        Feel free to take notes and star people that stand out!
+      </h6>
+      <TableExport
+        tableRef={tableRef}
+        rowToUuid={(row: any) => row.original.participantData.uuid}
+        includeDownloadAll={false}
+      />
+      <Table
+        columns={columns}
+        data={data}
+        setPageIndex={setPageIndex}
+        ref={tableRef}
+        dataField="visits"
+      />
       <ParticipantModal
-        participant={detailModalInfo}
+        participant={detailModalInfo?.participantData}
+        visitData={detailModalInfo}
         setDetailModalInfo={setDetailModalInfo}
         fetchData={fetchData}
       />

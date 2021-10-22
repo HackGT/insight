@@ -1,9 +1,8 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
-import { SocketContext } from "../../../context/socket";
 import ParticipantTable from "./search/ParticipantTable";
 import ManageEmployees from "./settings/ManageEmployees";
 import SponsorFairAdmin from "./fair/SponsorFairAdmin";
@@ -56,7 +55,7 @@ const EmployerHome: React.FC<Props> = props => {
               <span className="icon is-small">
                 <i className="fas fa-search" aria-hidden="true" />
               </span>
-              <span>Visits Information</span>
+              <span>Visit Information</span>
             </a>
           </li>
           <li className={`${currentTab === EmployerTabs.SearchParticipants && "is-active"}`}>

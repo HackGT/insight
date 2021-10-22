@@ -1,9 +1,4 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -23,7 +18,7 @@ const ParticipantTable: React.FC = () => {
   const [tagsFilter, setTagsFilter] = useState<string[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
 
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<any>({});
 
   useEffect(() => {
     async function getInitialData() {
@@ -188,16 +183,30 @@ const ParticipantTable: React.FC = () => {
   return (
     <>
       <h1 className="title">Search</h1>
+      <h6 className="subtitle is-6">
+        Here, you can search through all the participants at HackGT.
+      </h6>
       <TableFilter
         tagsFilter={tagsFilter}
         setTagsFilter={setTagsFilter}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
-      <TableExport tableRef={tableRef} />
-      <Table columns={columns} data={data} setPageIndex={setPageIndex} ref={tableRef} />
+      <TableExport
+        tableRef={tableRef}
+        rowToUuid={(row: any) => row.original.uuid}
+        includeDownloadAll
+      />
+      <Table
+        columns={columns}
+        data={data}
+        setPageIndex={setPageIndex}
+        ref={tableRef}
+        dataField="participants"
+      />
       <ParticipantModal
         participant={detailModalInfo}
+        visitData={detailModalInfo?.visitData}
         setDetailModalInfo={setDetailModalInfo}
         fetchData={fetchData}
       />
