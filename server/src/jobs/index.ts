@@ -4,7 +4,7 @@ import express from "express";
 
 import { config } from "../common";
 import { isAdmin } from "../middleware";
-import { exportJobHandler } from "./export";
+import { exportZipJobHandler } from "./exportZip";
 import { exportCsvJobHandler } from "./exportCsv";
 import { parseMissingResumeJobHandler } from "./parseMissingResume";
 import { parseResumeJobHandler } from "./parseResume";
@@ -30,7 +30,7 @@ agenda.define(
   { concurrency: 1, priority: "low" },
   parseMissingResumeJobHandler
 );
-agenda.define("export", { concurrency: 3, priority: "high" }, exportJobHandler);
+agenda.define("export-zip", { concurrency: 3, priority: "high" }, exportZipJobHandler);
 agenda.define("export-csv", { concurrency: 3, priority: "high" }, exportCsvJobHandler);
 
 export async function startTaskEngine() {
@@ -41,6 +41,7 @@ export async function startTaskEngine() {
 
 // Start agenda dashboard
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Agendash = require("agendash");
 
 export const taskDashboardRoutes = express.Router();

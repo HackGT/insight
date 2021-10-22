@@ -102,7 +102,7 @@ apiRoutes
       return;
     }
 
-    const jobName = filetype === "csv" ? "export-csv" : "export";
+    const jobName = filetype === "csv" ? "export-csv" : "export-zip";
     await agenda.now(jobName, {
       id: jobID,
       participantIDs,

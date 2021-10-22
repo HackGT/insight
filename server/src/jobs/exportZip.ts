@@ -8,7 +8,7 @@ import { webSocketServer } from "../app";
 import { formatSize, S3_ENGINE } from "../common";
 import { IParticipant, IVisit, Participant } from "../schema";
 
-export const exportJobHandler: JobHandler = async (job, done) => {
+export const exportZipJobHandler: JobHandler = async (job, done) => {
   const startTime = Date.now();
   const { requesterUUID } = job.attrs.data;
   const { participantIDs } = job.attrs.data;
