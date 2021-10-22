@@ -111,7 +111,7 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
       "company.company": user.company.company,
       "company.verified": false,
     });
-    company = await Company.findOne({ name: user.company.company });
+    company = await Company.findById(user.company.company);
   }
 
   // where we render if the user is type employer
