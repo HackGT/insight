@@ -21,7 +21,7 @@ export type JobHandler = (
 
 agenda.define(
   "update-participant-data",
-  { concurrency: 1, priority: "high" },
+  { concurrency: 1, priority: "normal" },
   updateParticipantDataJobHandler
 );
 agenda.define("parse-resume", { concurrency: 1, priority: "normal" }, parseResumeJobHandler);
@@ -30,8 +30,8 @@ agenda.define(
   { concurrency: 1, priority: "low" },
   parseMissingResumeJobHandler
 );
-agenda.define("export", { concurrency: 1, priority: "normal" }, exportJobHandler);
-agenda.define("export-csv", { concurrency: 1, priority: "normal" }, exportCsvJobHandler);
+agenda.define("export", { concurrency: 3, priority: "high" }, exportJobHandler);
+agenda.define("export-csv", { concurrency: 3, priority: "high" }, exportCsvJobHandler);
 
 export async function startTaskEngine() {
   await agenda.start();
