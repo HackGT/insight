@@ -34,7 +34,7 @@ const ParticipantHome: React.FC<Props> = props => {
       ParticipantContent = <SponsorInformation />;
       break;
     case ParticipantTabs.SponsorFairTab:
-      ParticipantContent = <SponsorFair />;
+      ParticipantContent = <SponsorFair user={props.user} />;
       break;
   }
 
