@@ -1,6 +1,9 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import axios from "axios";
 import useAxios from "axios-hooks";
 import React from "react";
+import Editor from "rich-markdown-editor";
 
 import { formatName } from "../../../../util";
 
@@ -47,9 +50,18 @@ const ManageEmployees: React.FC<Props> = props => {
     refetch();
   };
 
+  const handleEditCall = async (callId: string) => {
+    const title = (prompt("New title:") || "").trim();
+
+    if (!title) return;
+
+    await axios.patch(`/api/company/${companyId}/call/${callId}`, { title });
+    refetch();
+  };
+
   return (
     <div className="columns">
-      <div className="column is-two-thirds is-offset-one-quarter">
+      <div className="column is-half">
         <h1 className="title">Employees</h1>
         <ul>
           {data.users?.map((user: any) => (
@@ -99,6 +111,23 @@ const ManageEmployees: React.FC<Props> = props => {
             </ul>
           </>
         )}
+        <h1 className="title">Sponsor Fair Calls</h1>
+        <ul>
+          {data.company.calls.map((call: any) => (
+            <li className="single-line-button">
+              {call.title}
+              <span className="icon">
+                <i className="fas fa-pen" onClick={() => handleEditCall(call._id)} />
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h1 className="title">Description</h1>
+        <div className="columns" style={{ border: "2px", borderColor: "black", width: "500px" }}>
+          <Editor defaultValue={data.company.description} />
+        </div>
       </div>
     </div>
   );

@@ -161,8 +161,8 @@ export const Visit = mongoose.model<Model<IVisit>>(
   })
 );
 
-interface ICall {
-  id: mongoose.Types.ObjectId;
+interface ICall extends RootDocument {
+  id: string;
   url: string;
   title: string;
   tags: string[];
