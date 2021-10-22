@@ -101,9 +101,14 @@ interface EventInformation {
 //   },
 // ];
 
-const SponsorFair: React.FC = () => {
+interface Props {
+  user: any;
+}
+
+const SponsorFair: React.FC<Props> = props => {
   const [{ data, loading, error }] = useAxios("/api/company");
 
+  const [sponsorId, setSponsorId] = useState<null | string>(null);
   const [sponsorCall, setSponsorCall] = useState<EventInformation>({
     id: "0",
     url: "",
@@ -128,6 +133,7 @@ const SponsorFair: React.FC = () => {
           onClick={() => {
             console.log("hello");
             setSponsorCall(call);
+            setSponsorId(sponsor._id);
           }}
           className={sponsorCall.id === call.id ? "is-active" : ""}
         >
@@ -148,7 +154,14 @@ const SponsorFair: React.FC = () => {
         <aside className="menu">{callMenu}</aside>
       </div>
       <div className="column is-three-quarters">
-        {sponsorCall.url && <DailyWindow videoID={sponsorCall.url} event={sponsorCall} />}
+        {sponsorCall.url && (
+          <DailyWindow
+            videoID={sponsorCall.url}
+            event={sponsorCall}
+            user={props.user}
+            sponsorId={sponsorId}
+          />
+        )}
         <h1 className="title">{sponsorCall.title}</h1>
         <p>{sponsorCall.description}</p>
       </div>
