@@ -146,10 +146,7 @@ export const Visit = mongoose.model<Model<IVisit>>(
       type: String,
       index: true,
     },
-    company: {
-      type: mongoose.Types.ObjectId,
-      index: true,
-    },
+    company: mongoose.Types.ObjectId,
     tags: [String],
     notes: [String],
     time: Date,
