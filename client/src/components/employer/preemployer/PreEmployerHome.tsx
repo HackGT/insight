@@ -11,8 +11,10 @@ interface Props {
 const PreEmployerHome: React.FC<Props> = props => {
   const [{ data, loading, error }] = useAxios("/api/company");
   const [selectedCompany, setSelectedCompany] = useState<string>(
-    props.user.company?.name || "default"
+    props.user.company?._id || "default"
   );
+
+  console.log(selectedCompany);
 
   if (loading) {
     return <div>Loading</div>;
@@ -24,7 +26,7 @@ const PreEmployerHome: React.FC<Props> = props => {
 
   const handleSelectCompany = async () => {
     if (!selectedCompany || selectedCompany === "default") return;
-
+    console.log("selected company", selectedCompany);
     await axios.post(`/api/company/${encodeURIComponent(selectedCompany)}/join`);
     window.location.reload();
   };
@@ -66,7 +68,7 @@ const PreEmployerHome: React.FC<Props> = props => {
                       </option>
                     )}
                     {data.companies.map((company: any) => (
-                      <option value={company.name}>{company.name}</option>
+                      <option value={company._id}>{company.name}</option>
                     ))}
                   </select>
                 </div>

@@ -2,7 +2,7 @@ import * as http from "http";
 import * as crypto from "crypto";
 import { Server, Socket } from "socket.io";
 
-import { config } from "./common";
+import { config, mongoose } from "./common";
 import { User, IParticipant, IVisit } from "./schema";
 
 export class WebSocketServer {
@@ -70,9 +70,13 @@ export class WebSocketServer {
     }
   }
 
-  public async reloadParticipant(company: string, participant: IParticipant, visit?: IVisit) {
+  public async reloadParticipant(
+    company: mongoose.Types.ObjectId,
+    participant: IParticipant,
+    visit?: IVisit
+  ) {
     // Only send this event to people from the same company
-    const users = await User.find({ "company.name": company, "company.verified": true });
+    const users = await User.find({ "company.company": company, "company.verified": true });
     for (const user of users) {
       const sockets = this.sockets.get(user.uuid);
       if (!sockets) continue;

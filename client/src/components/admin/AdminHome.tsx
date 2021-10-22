@@ -30,7 +30,7 @@ const AdminHome: React.FC<Props> = props => {
     if (scannerID === null) return;
 
     await axios.patch(
-      `/api/company/${encodeURIComponent(company.name)}/employee/${encodeURIComponent(
+      `/api/company/${encodeURIComponent(company._id)}/employee/${encodeURIComponent(
         user.email
       )}/scanners/${encodeURIComponent(scannerID)}`
     );
@@ -40,13 +40,13 @@ const AdminHome: React.FC<Props> = props => {
   const handleDeleteEmployee = async (company: any, user: any) => {
     if (!window.confirm(`Are you sure you want to delete ${company.name}?`)) return;
 
-    await axios.delete(`/api/company/${encodeURIComponent(company.name)}`);
+    await axios.delete(`/api/company/${encodeURIComponent(company._id)}`);
     refetch();
   };
 
   const handleConfirmEmployee = async (company: any, pendingUser: any) => {
     await axios.patch(
-      `/api/company/${encodeURIComponent(company.name)}/employee/${encodeURIComponent(
+      `/api/company/${encodeURIComponent(company._id)}/employee/${encodeURIComponent(
         pendingUser.email || ""
       )}`
     );
@@ -59,7 +59,7 @@ const AdminHome: React.FC<Props> = props => {
 
     email = email.trim().toLowerCase();
     await axios.post(
-      `/api/company/${encodeURIComponent(company.name)}/employee/${encodeURIComponent(email)}`
+      `/api/company/${encodeURIComponent(company._id)}/employee/${encodeURIComponent(email)}`
     );
     refetch();
   };
@@ -77,7 +77,7 @@ const AdminHome: React.FC<Props> = props => {
     const name = prompt("New name:", company.name);
     if (!name) return;
 
-    await axios.patch(`/api/company/${encodeURIComponent(company.name)}`, {
+    await axios.patch(`/api/company/${encodeURIComponent(company._id)}`, {
       name: name.trim(),
     });
     refetch();
@@ -86,7 +86,7 @@ const AdminHome: React.FC<Props> = props => {
   const handleDeleteCompany = async (company: any) => {
     if (!window.confirm(`Are you sure you want to delete ${company.name}?`)) return;
 
-    await axios.delete(`/api/company/${encodeURIComponent(company.name)}`);
+    await axios.delete(`/api/company/${encodeURIComponent(company._id)}`);
     refetch();
   };
 

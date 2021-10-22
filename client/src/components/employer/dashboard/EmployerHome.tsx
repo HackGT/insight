@@ -5,10 +5,12 @@ import React, { useState } from "react";
 
 import ParticipantTable from "./search/ParticipantTable";
 import ManageEmployees from "./settings/ManageEmployees";
+import SponsorFairAdmin from "./fair/SponsorFairAdmin";
 
 enum EmployerTabs {
   SearchParticipants,
   Settings,
+  SponsorFair,
 }
 
 interface Props {
@@ -27,6 +29,8 @@ const EmployerHome: React.FC<Props> = props => {
     case EmployerTabs.Settings:
       EmployerContent = <ManageEmployees user={props.user} />;
       break;
+    case EmployerTabs.SponsorFair:
+      EmployerContent = <SponsorFairAdmin />;
   }
 
   return (
@@ -55,6 +59,14 @@ const EmployerHome: React.FC<Props> = props => {
                 <i className="fas fa-sliders-h" aria-hidden="true" />
               </span>
               <span>Settings</span>
+            </a>
+          </li>
+          <li className={`${currentTab === EmployerTabs.SponsorFair && "is-active"}`}>
+            <a onClick={() => setCurrentTab(EmployerTabs.SponsorFair)}>
+              <span className="icon is-small">
+                <i className="fas fa-sliders-h" aria-hidden="true" />
+              </span>
+              <span>Sponsor Fair</span>
             </a>
           </li>
         </ul>

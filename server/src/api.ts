@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as os from "os";
@@ -89,7 +90,7 @@ apiRoutes
       }
       participantIDs = (
         await Visit.aggregate([
-          { $match: { company: user.company.name } },
+          { $match: { company: user.company.company } },
           { $sort: { time: -1 } }, // Sort newest first
         ])
       ).map(v => v.participant);
@@ -155,7 +156,10 @@ apiRoutes.route("/search").get(isAnEmployer, async (request, response) => {
   // Make sure that visitData is turned from an array into the single company visit or else null
   participants = participants.map(p => ({
     ...p,
-    visitData: p.visitData.filter((v: IVisit) => v.company === user.company?.name)[0] ?? null,
+    visitData:
+      p.visitData.filter((v: IVisit) =>
+        v.company?._id.equals(user.company?.company?._id ?? "")
+      )[0] ?? null,
   }));
 
   response.json({
@@ -175,7 +179,7 @@ apiRoutes.route("/tags").get(isAnEmployer, async (request, response) => {
   }
 
   const tagResults: { tags: string[] }[] = await Visit.aggregate([
-    { $match: { company: user.company.name } },
+    { $match: { company: user.company.company } },
     { $unwind: "$tags" },
     { $group: { _id: "tags", tags: { $addToSet: "$tags" } } },
   ]);

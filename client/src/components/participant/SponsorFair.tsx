@@ -4,7 +4,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useEffect, useState } from "react";
 import parse from "html-react-parser";
-import DailyWindow from "./DailyWindow";
+import DailyWindow from "../video/DailyWindow";
 
 // import { fetchSponsors } from "../../util/cms";
 // import SponsorSquare from "./SponsorSquare";

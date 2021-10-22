@@ -1,5 +1,6 @@
 // The database schema used by Mongoose
 // Exports TypeScript interfaces to be used for type checking and Mongoose models derived from these interfaces
+import { Mongo } from "@sentry/tracing/dist/integrations";
 import { mongoose } from "./common";
 
 export interface IGCSOptions {
@@ -82,7 +83,7 @@ export interface IUser extends RootDocument {
   type: "participant" | "employer";
   // Only for employers
   company: {
-    name: string;
+    company: mongoose.Types.ObjectId;
     verified: boolean;
     scannerIDs: string[];
   } | null;
@@ -113,19 +114,20 @@ export const User = mongoose.model<Model<IUser>>(
     admin: Boolean,
     type: String,
     company: {
-      name: String,
+      company: mongoose.Types.ObjectId,
       verified: Boolean,
       scannerIDs: [String],
     },
   }).index({
     email: "text",
+
     name: "text",
   })
 );
 
 export interface IVisit extends RootDocument {
   participant: string;
-  company: string;
+  company: mongoose.Types.ObjectId;
   tags: string[];
   notes: string[];
   time: Date;
@@ -145,7 +147,7 @@ export const Visit = mongoose.model<Model<IVisit>>(
       index: true,
     },
     company: {
-      type: String,
+      type: mongoose.Types.ObjectId,
       index: true,
     },
     tags: [String],
@@ -162,9 +164,19 @@ export const Visit = mongoose.model<Model<IVisit>>(
   })
 );
 
+interface ICall {
+  id: mongoose.Types.ObjectId;
+  url: string;
+  title: string;
+  tags: string[];
+  description: string;
+}
+
 export interface ICompany extends RootDocument {
   name: string;
   visits: mongoose.Types.ObjectId[];
+  calls: [ICall];
+  descriptionMarkdown: string;
 }
 
 export const Company = mongoose.model<Model<ICompany>>(
