@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useAxios from "axios-hooks";
 
 import ParticipantTable from "./search/ParticipantTable";
@@ -23,6 +23,12 @@ interface Props {
 const EmployerHome: React.FC<Props> = props => {
   const [{ data, loading, error }] = useAxios(`/api/company/${props.user.company.company}`);
   const [currentTab, setCurrentTab] = useState(EmployerTabs.VisitsTable);
+
+  useEffect(() => {
+    if (data && !data?.company?.hasResumeAccess) {
+      setCurrentTab(EmployerTabs.SponsorFair);
+    }
+  }, [data]);
 
   if (loading) {
     return <div>Loading</div>;
@@ -72,20 +78,20 @@ const EmployerHome: React.FC<Props> = props => {
               </li>
             </>
           )}
-          <li className={`${currentTab === EmployerTabs.Settings && "is-active"}`}>
-            <a onClick={() => setCurrentTab(EmployerTabs.Settings)}>
-              <span className="icon is-small">
-                <i className="fas fa-sliders-h" aria-hidden="true" />
-              </span>
-              <span>Settings</span>
-            </a>
-          </li>
           <li className={`${currentTab === EmployerTabs.SponsorFair && "is-active"}`}>
             <a onClick={() => setCurrentTab(EmployerTabs.SponsorFair)}>
               <span className="icon is-small">
                 <i className="fas fa-sliders-h" aria-hidden="true" />
               </span>
               <span>Sponsor Fair</span>
+            </a>
+          </li>
+          <li className={`${currentTab === EmployerTabs.Settings && "is-active"}`}>
+            <a onClick={() => setCurrentTab(EmployerTabs.Settings)}>
+              <span className="icon is-small">
+                <i className="fas fa-sliders-h" aria-hidden="true" />
+              </span>
+              <span>Settings</span>
             </a>
           </li>
         </ul>
