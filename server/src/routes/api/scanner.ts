@@ -5,7 +5,7 @@ import express from "express";
 import { webSocketServer } from "../../app";
 import { config, formatName } from "../../common";
 import { Scanner, Company, Participant, Visit, createNew, User } from "../../schema";
-import { arduinoAuth } from "../../middleware";
+import { arduinoAuth, apiAuth } from "../../middleware";
 
 export const scannerRoutes = express.Router();
 
@@ -83,9 +83,9 @@ scannerRoutes.post(
 scannerRoutes.post(
   "/visit",
   bodyParser.text({ type: "text/plain" }),
-  arduinoAuth,
+  apiAuth,
   async (request, response) => {
-    const body = request.body.split("|");
+    const body = request.body.body.split("|");
     const scannerID = body[0].trim().toLowerCase();
     const uuid = body[1]?.trim().toLowerCase();
 
