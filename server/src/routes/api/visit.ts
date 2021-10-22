@@ -312,3 +312,48 @@ visitRoutes
       success: true,
     });
   });
+
+visitRoutes.route("/video-call").post(async (request, response) => {
+  const uuid = ((request.body.uuid as string) || "").trim().toLowerCase();
+  const companyId = request.body.company;
+
+  const company = await Company.findById(companyId);
+  if (!company) {
+    response.status(400).json({
+      error: "Could not match visit to a company",
+    });
+    return;
+  }
+
+  const participant = await Participant.findOne({ uuid });
+  if (!participant) {
+    response.status(400).json({
+      error: "Invalid UUID",
+    });
+    return;
+  }
+
+  let visit = await Visit.findOne({ company: company._id, participant: participant.uuid });
+  console.log(visit);
+  if (visit) {
+    visit.time = new Date();
+  } else {
+    visit = createNew(Visit, {
+      participant: participant.uuid,
+      company: company._id,
+      tags: [],
+      notes: [],
+      time: new Date(),
+    });
+    company.visits.push(visit._id);
+  }
+
+  await visit.save();
+  await company.save();
+
+  webSocketServer.reloadParticipant(company._id, participant, visit);
+
+  response.json({
+    success: true,
+  });
+});

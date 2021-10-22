@@ -4,6 +4,7 @@ import "../../App.css";
 import React, { useEffect, useRef } from "react";
 
 import DailyIframe from "@daily-co/daily-js";
+import axios from "axios";
 // import MainStageInformation from './MainStageInformation'
 interface EventInformation {
   id: string;
@@ -16,6 +17,8 @@ interface EventInformation {
 type Props = {
   videoID: string;
   event: EventInformation;
+  user?: any;
+  sponsorId?: null | string;
 };
 
 const DailyStage: React.FC<Props> = (props: Props) => {
@@ -50,6 +53,18 @@ const DailyStage: React.FC<Props> = (props: Props) => {
           url,
           token,
         });
+        // Make request to register visit after user has joined call
+        if (props.user && props.sponsorId) {
+          try {
+            await axios.post("/api/visit/video-call", {
+              uuid: props.user.uuid,
+              company: props.sponsorId,
+            });
+          } catch (err) {
+            console.log(err);
+          }
+        }
+
         callFrame.on("left-meeting", _ => {
           if (containerRef != null) {
             if (containerRef.current != null) {
