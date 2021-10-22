@@ -5,11 +5,9 @@ import { mongoose } from "../../common";
 import { isAdminOrEmployee, postParser, isAdmin } from "../../middleware";
 import { Company, createNew, ICompany, IUser, User } from "../../schema";
 
-import crypto from "crypto";
-
 export const companyRoutes = express.Router();
 
-companyRoutes.route("/").get(isAdminOrEmployee, async (request, response) => {
+companyRoutes.route("/").get(async (request, response) => {
   console.log(request.user);
   const rawCompanies: (ICompany & { users: IUser[] })[] = await Company.aggregate([
     {
