@@ -162,7 +162,6 @@ export const Visit = mongoose.model<Model<IVisit>>(
 );
 
 interface ICall extends RootDocument {
-  id: string;
   url: string;
   title: string;
   tags: string[];
@@ -173,7 +172,7 @@ export interface ICompany extends RootDocument {
   name: string;
   visits: mongoose.Types.ObjectId[];
   calls: ICall[];
-  descriptionMarkdown: string;
+  description: string;
   hasResumeAccess: boolean;
 }
 
@@ -202,7 +201,7 @@ export const Company = mongoose.model<Model<ICompany>>(
       type: [callsSchema],
       default: [],
     },
-    descriptionMarkdown: {
+    description: {
       type: String,
       default: "",
     },
