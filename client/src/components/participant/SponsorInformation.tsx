@@ -1,22 +1,23 @@
-import React, { useEffect, useState } from "react";
-import parse from "html-react-parser";
+import React, { useState } from "react";
+import useAxios from "axios-hooks";
+import Editor from "rich-markdown-editor";
 
-import { fetchSponsors } from "../../util/cms";
-import SponsorSquare from "./SponsorSquare";
+import SponsorSquare from "./CompanySquare";
 
 const SponsorInformation: React.FC = () => {
-  const [sponsors, setSponsors] = useState<any>([]);
+  const [{ data, loading, error }] = useAxios("/api/company");
   const [activeSponsor, setActiveSponsor] = useState<any>({});
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-  useEffect(() => {
-    async function getSponsors() {
-      const fetchedSponsors = await fetchSponsors();
-      setSponsors(fetchedSponsors);
-    }
+  if (loading) {
+    return <div>Loading</div>;
+  }
 
-    getSponsors();
-  }, []);
+  if (error) {
+    return <div>Error</div>;
+  }
+
+  console.log(data);
 
   const openModal = (sponsor: any) => {
     setActiveSponsor(sponsor);
@@ -31,8 +32,8 @@ const SponsorInformation: React.FC = () => {
   return (
     <>
       <div id="sponsor-content">
-        {sponsors.map((sponsor: any) => (
-          <SponsorSquare sponsor={sponsor} openModal={openModal} />
+        {data.companies.map((company: any) => (
+          <SponsorSquare company={company} openModal={openModal} />
         ))}
       </div>
       <article className={`modal ${modalOpen ? "is-active" : ""}`}>
@@ -47,51 +48,7 @@ const SponsorInformation: React.FC = () => {
             <button className="delete" aria-label="close" onClick={() => closeModal()} />
           </header>
           <section className="modal-card-body">
-            <div>
-              <div className="">
-                <b>About: </b>
-                <p id="company-about">{parse(activeSponsor.about || "")}</p>
-              </div>
-              <div className="">
-                <b>Website: </b>
-                <a
-                  id="company-website"
-                  target="_blank"
-                  rel="noreferrer"
-                  href={activeSponsor.website}
-                >
-                  {activeSponsor.website}
-                </a>
-              </div>
-              <div className="">
-                <b>Event Information: </b>
-                <p id="company-eventInformation">{parse(activeSponsor.eventInformation || "")}</p>
-              </div>
-              <div className="">
-                <b>Challenge Information: </b>
-                <p id="company-challengeInformation">
-                  {parse(activeSponsor.challengeInformation || "")}
-                </p>
-              </div>
-              <div className="">
-                <b>Recruiting: </b>
-                <p id="company-recruiting">{parse(activeSponsor.recruiting || "")}</p>
-              </div>
-              <div className="">
-                <b>Additional Info: </b>
-                <p id="company-additionalInfo">{parse(activeSponsor.additionalInfo || "")}</p>
-              </div>
-              <button className="button">
-                <a
-                  id="company-participantLink"
-                  target="_blank"
-                  rel="noreferrer"
-                  href={activeSponsor.blueJeansLink}
-                >
-                  Join Call as Participant
-                </a>
-              </button>
-            </div>
+            {activeSponsor?.description && <Editor value={activeSponsor.description} readOnly />}
           </section>
           <footer className="modal-card-foot">
             <div className="buttons">
