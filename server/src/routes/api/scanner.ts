@@ -85,7 +85,7 @@ scannerRoutes.post(
   bodyParser.text({ type: "text/plain" }),
   apiAuth,
   async (request, response) => {
-    const body = request.body.split("|");
+    const body = request.body.visit.split("|");
     const scannerID = body[0].trim().toLowerCase();
     const uuid = body[1]?.trim().toLowerCase();
 
