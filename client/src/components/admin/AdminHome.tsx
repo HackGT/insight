@@ -38,9 +38,13 @@ const AdminHome: React.FC<Props> = props => {
   };
 
   const handleDeleteEmployee = async (company: any, user: any) => {
-    if (!window.confirm(`Are you sure you want to delete ${company.name}?`)) return;
+    if (!window.confirm(`Are you sure you want to remove ${user.email}?`)) return;
 
-    await axios.delete(`/api/company/${encodeURIComponent(company._id)}`);
+    await axios.delete(
+      `/api/company/${encodeURIComponent(company._id)}/employee/${encodeURIComponent(
+        user.email || ""
+      )}`
+    );
     refetch();
   };
 
