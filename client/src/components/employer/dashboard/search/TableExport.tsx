@@ -25,7 +25,11 @@ const TableExport: React.FC<Props> = props => {
     socket?.on("export-complete", (progress: { id: string; filetype: string }) => {
       setProgressValue(0);
       setProgressHidden(true);
-      window.location.assign(`/api/export?id=${progress.id}&filetype=${progress.filetype}`);
+      const win = window.open(
+        `/api/export?id=${progress.id}&filetype=${progress.filetype}`,
+        "_blank"
+      );
+      win?.focus();
     });
   }, [socket]);
 

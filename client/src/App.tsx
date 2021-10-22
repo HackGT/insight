@@ -21,7 +21,6 @@ function App() {
       const newSocket = io({
         withCredentials: true,
         path: "/socket",
-        transports: ["websocket"],
       });
       setSocket(newSocket);
     };

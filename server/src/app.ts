@@ -13,7 +13,7 @@ import * as Sentry from "@sentry/browser";
 import { Integrations } from "@sentry/tracing";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
-import { PORT, VERSION_NUMBER, VERSION_HASH, COOKIE_OPTIONS } from "./common";
+import { PORT, VERSION_NUMBER, VERSION_HASH, COOKIE_OPTIONS, config } from "./common";
 
 // Set up Express and its middleware
 export const app = express();
@@ -96,7 +96,7 @@ import { taskDashboardRoutes, startTaskEngine } from "./jobs";
 
 app.use("/admin/tasks", taskDashboardRoutes);
 
-if (process.env.PRODUCTION !== "true") {
+if (!config.server.isProduction) {
   app.use(
     createProxyMiddleware("/socket", {
       target: `http://localhost:${PORT}`,
