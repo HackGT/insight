@@ -178,11 +178,12 @@ companyRoutes
     response.json({
       users,
       pendingUsers,
+      company,
     });
   })
-  // Rename company
+  // Rename company or update hasResumeAccess
   .patch(isAdminOrEmployee, postParser, async (request, response) => {
-    const company = await Company.findOne({ name: request.params.company });
+    const company = await Company.findById(request.params.company);
     if (!company) {
       response.status(400).json({
         error: "Unknown company",
@@ -191,27 +192,30 @@ companyRoutes
     }
 
     const name = (request.body.name || "").trim();
-    console.log(request.body);
-    if (!name) {
-      response.status(400).json({
-        error: "Invalid name",
-      });
-      return;
+    const { hasResumeAccess } = request.body;
+
+    // if (!name) {
+    //   response.status(400).json({
+    //     error: "Invalid name",
+    //   });
+    //   return;
+    // }
+
+    if (name) {
+      const existingCompany = await Company.findOne({ name });
+      if (existingCompany) {
+        response.status(409).json({
+          error: "A company with that name already exists",
+        });
+        return;
+      }
+      company.name = name;
     }
 
-    const existingCompany = await Company.findOne({ name });
-    if (existingCompany) {
-      response.status(409).json({
-        error: "A company with that name already exists",
-      });
-      return;
+    if (hasResumeAccess !== undefined) {
+      company.hasResumeAccess = hasResumeAccess;
     }
 
-    company.name = name;
-    // await User.updateMany(
-    //   { "company.company": request.params.company },
-    //   { $set: { "company.company": company } }
-    // );
     await company.save();
     response.json({
       success: true,

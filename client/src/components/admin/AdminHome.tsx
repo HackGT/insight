@@ -83,6 +83,13 @@ const AdminHome: React.FC<Props> = props => {
     refetch();
   };
 
+  const handleResumeAccessCompany = async (company: any, hasResumeAccess: boolean) => {
+    await axios.patch(`/api/company/${encodeURIComponent(company._id)}`, {
+      hasResumeAccess: !hasResumeAccess,
+    });
+    window.location.reload();
+  };
+
   const handleDeleteCompany = async (company: any) => {
     if (!window.confirm(`Are you sure you want to delete ${company.name}?`)) return;
 
@@ -192,7 +199,7 @@ const AdminHome: React.FC<Props> = props => {
                 </p>
                 <p className="control">
                   <button
-                    className="button is-info is-outlined rename-company"
+                    className="button is-info is-outlined"
                     onClick={() => handleRenameCompany(company)}
                   >
                     Rename
@@ -200,7 +207,17 @@ const AdminHome: React.FC<Props> = props => {
                 </p>
                 <p className="control">
                   <button
-                    className="button is-danger is-outlined delete-company"
+                    className={`button ${
+                      company.hasResumeAccess ? "is-danger" : "is-info"
+                    } is-outlined`}
+                    onClick={() => handleResumeAccessCompany(company, company.hasResumeAccess)}
+                  >
+                    {company.hasResumeAccess ? "Remove Resume Access" : "Give Resume Access"}
+                  </button>
+                </p>
+                <p className="control">
+                  <button
+                    className="button is-danger is-outlined"
                     onClick={() => handleDeleteCompany(company)}
                   >
                     Delete

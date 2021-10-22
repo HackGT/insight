@@ -172,9 +172,23 @@ interface ICall {
 export interface ICompany extends RootDocument {
   name: string;
   visits: mongoose.Types.ObjectId[];
-  calls: [ICall];
+  calls: ICall[];
   descriptionMarkdown: string;
+  hasResumeAccess: boolean;
 }
+
+const callsSchema = new mongoose.Schema({
+  url: String,
+  title: String,
+  tags: {
+    type: [String],
+    default: [],
+  },
+  description: {
+    type: String,
+    default: "",
+  },
+});
 
 export const Company = mongoose.model<Model<ICompany>>(
   "Company",
@@ -184,6 +198,18 @@ export const Company = mongoose.model<Model<ICompany>>(
       index: true,
     },
     visits: [mongoose.Types.ObjectId],
+    calls: {
+      type: [callsSchema],
+      default: [],
+    },
+    descriptionMarkdown: {
+      type: String,
+      default: "",
+    },
+    hasResumeAccess: {
+      type: Boolean,
+      default: false,
+    },
   })
 );
 
