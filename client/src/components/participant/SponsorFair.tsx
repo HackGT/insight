@@ -8,7 +8,7 @@ import useAxios from "axios-hooks";
 import DailyWindow from "../video/DailyWindow";
 
 interface EventInformation {
-  id: string;
+  _id: string;
   url: string;
   title: string;
   tags: string[];
@@ -110,7 +110,7 @@ const SponsorFair: React.FC<Props> = props => {
 
   const [sponsorId, setSponsorId] = useState<null | string>(null);
   const [sponsorCall, setSponsorCall] = useState<EventInformation>({
-    id: "0",
+    _id: "0",
     url: "",
     title: "",
     tags: [],
@@ -131,11 +131,10 @@ const SponsorFair: React.FC<Props> = props => {
       <li>
         <a
           onClick={() => {
-            console.log("hello");
             setSponsorCall(call);
             setSponsorId(sponsor._id);
           }}
-          className={sponsorCall.id === call.id ? "is-active" : ""}
+          className={sponsorCall._id === call._id ? "is-active" : ""}
         >
           {call.title}
         </a>

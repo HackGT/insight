@@ -7,7 +7,7 @@ import DailyIframe from "@daily-co/daily-js";
 import axios from "axios";
 // import MainStageInformation from './MainStageInformation'
 interface EventInformation {
-  id: string;
+  _id: string;
   url: string;
   title: string;
   tags: string[];
