@@ -96,13 +96,15 @@ import { taskDashboardRoutes, startTaskEngine } from "./jobs";
 
 app.use("/admin/tasks", taskDashboardRoutes);
 
-app.use(
-  createProxyMiddleware("/socket", {
-    target: `http://localhost:${PORT}`,
-    changeOrigin: true,
-    ws: true,
-  })
-);
+if (process.env.PRODUCTION !== "true") {
+  app.use(
+    createProxyMiddleware("/socket", {
+      target: `http://localhost:${PORT}`,
+      changeOrigin: true,
+      ws: true,
+    })
+  );
+}
 
 startTaskEngine().catch(err => {
   throw err;
