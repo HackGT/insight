@@ -127,10 +127,10 @@
     normalize-path "^2.0.1"
     through2 "^2.0.3"
 
-"@hex-labs/eslint-config@^1.1.15":
-  version "1.1.15"
-  resolved "https://registry.yarnpkg.com/@hex-labs/eslint-config/-/eslint-config-1.1.15.tgz#19c4dad30e325d3fe9866ca879e8a1135212197e"
-  integrity sha512-4qsbitEOU/syXUBGMiAJDO6fE/gjL5jP97RgXHHU3xV9lgXZIXLlozEZvBxikbwKsXYvM4dM8ThfFq0hsQRueQ==
+"@hex-labs/eslint-config@^1.1.16":
+  version "1.1.16"
+  resolved "https://registry.yarnpkg.com/@hex-labs/eslint-config/-/eslint-config-1.1.16.tgz#4f7404a7be79fff5a25efeed07dbd6fd45d46978"
+  integrity sha512-3xuF5Jvnog62Iodv68YFRiDgAi/zGnZYBIXRooIKrkJJKLHOBq1fKKjnEWZKnRJn5CWgxeAVoOrmV+Eq5NJ7PQ==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^4.28.0"
     "@typescript-eslint/parser" "^4.28.0"

@@ -1,9 +1,4 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -11,27 +6,22 @@ import { Column } from "react-table";
 import { DateTime } from "luxon";
 import axios from "axios";
 
-import TableFilter from "../commonTable/TableFilter";
 import { handleAddVisit, generateTag, tagButtonHandler } from "../commonTable/util";
 import ParticipantModal from "../commonTable/ParticipantModal";
 import Table from "../commonTable/Table";
 import TableExport from "../commonTable/TableExport";
 
-const ParticipantTable: React.FC = () => {
+const VisitsTable: React.FC = () => {
   // Table filtering states
-  const [searchQuery, setSearchQuery] = useState("");
-  const [tagsFilter, setTagsFilter] = useState<string[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
 
   const [data, setData] = useState<any>([]);
 
   useEffect(() => {
     async function getInitialData() {
-      const response = await axios.get("/api/search", {
+      const response = await axios.get("/api/visit", {
         params: {
-          q: "",
           page: 0,
-          filter: "",
         },
       });
 
@@ -42,21 +32,19 @@ const ParticipantTable: React.FC = () => {
   }, []);
 
   const fetchData = useCallback(async () => {
-    const response = await axios.get("/api/search", {
+    const response = await axios.get("/api/visit", {
       params: {
-        q: searchQuery,
         page: pageIndex,
-        filter: JSON.stringify(tagsFilter),
       },
     });
 
     setData(response.data);
-  }, [searchQuery, pageIndex, tagsFilter]);
+  }, [pageIndex]);
 
   // Will fetch new data whenever the page index, search query, or tags filter changes
-  useEffect(() => {
-    fetchData();
-  }, [pageIndex, searchQuery, tagsFilter]);
+  // useEffect(() => {
+  //   fetchData();
+  // }, [pageIndex]);
 
   const [detailModalInfo, setDetailModalInfo] = useState<any>(null);
   useEffect(() => {
@@ -180,20 +168,14 @@ const ParticipantTable: React.FC = () => {
         id: "actions",
       },
     ],
-    [searchQuery, pageIndex, tagsFilter]
+    [pageIndex]
   );
 
   const tableRef = useRef<any>();
 
   return (
     <>
-      <h1 className="title">Search</h1>
-      <TableFilter
-        tagsFilter={tagsFilter}
-        setTagsFilter={setTagsFilter}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-      />
+      <h1 className="title">Visits Information</h1>
       <TableExport tableRef={tableRef} />
       <Table columns={columns} data={data} setPageIndex={setPageIndex} ref={tableRef} />
       <ParticipantModal
@@ -205,4 +187,4 @@ const ParticipantTable: React.FC = () => {
   );
 };
 
-export default ParticipantTable;
+export default VisitsTable;

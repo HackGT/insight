@@ -7,8 +7,10 @@ import { SocketContext } from "../../../context/socket";
 import ParticipantTable from "./search/ParticipantTable";
 import ManageEmployees from "./settings/ManageEmployees";
 import SponsorFairAdmin from "./fair/SponsorFairAdmin";
+import VisitsTable from "./visits/VisitsTable";
 
 enum EmployerTabs {
+  VisitsTable,
   SearchParticipants,
   Settings,
   SponsorFair,
@@ -19,11 +21,14 @@ interface Props {
 }
 
 const EmployerHome: React.FC<Props> = props => {
-  const [currentTab, setCurrentTab] = useState(EmployerTabs.SearchParticipants);
+  const [currentTab, setCurrentTab] = useState(EmployerTabs.VisitsTable);
 
   let EmployerContent: any;
 
   switch (currentTab) {
+    case EmployerTabs.VisitsTable:
+      EmployerContent = <VisitsTable />;
+      break;
     case EmployerTabs.SearchParticipants:
       EmployerContent = <ParticipantTable />;
       break;
@@ -46,6 +51,14 @@ const EmployerHome: React.FC<Props> = props => {
             <span>Information</span>
           </a>
         </li> */}
+          <li className={`${currentTab === EmployerTabs.VisitsTable && "is-active"}`}>
+            <a onClick={() => setCurrentTab(EmployerTabs.VisitsTable)}>
+              <span className="icon is-small">
+                <i className="fas fa-search" aria-hidden="true" />
+              </span>
+              <span>Visits Information</span>
+            </a>
+          </li>
           <li className={`${currentTab === EmployerTabs.SearchParticipants && "is-active"}`}>
             <a onClick={() => setCurrentTab(EmployerTabs.SearchParticipants)}>
               <span className="icon is-small">
