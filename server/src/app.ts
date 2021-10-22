@@ -7,11 +7,13 @@ import cookieParser from "cookie-parser";
 import * as chalk from "chalk";
 import path from "path";
 import morgan from "morgan";
+import cors from "cors";
 import flash from "connect-flash";
 import * as Sentry from "@sentry/browser";
 import { Integrations } from "@sentry/tracing";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
-import { PORT, VERSION_NUMBER, VERSION_HASH, COOKIE_OPTIONS } from "./common";
+import { PORT, VERSION_NUMBER, VERSION_HASH, COOKIE_OPTIONS, config } from "./common";
 
 // Set up Express and its middleware
 export const app = express();
@@ -26,6 +28,7 @@ Sentry.init({
 });
 
 app.use(compression());
+app.use(cors());
 
 const cookieParserInstance = cookieParser(
   undefined,
@@ -92,6 +95,16 @@ app.use("/uploads", uploadsRoutes);
 import { taskDashboardRoutes, startTaskEngine } from "./jobs";
 
 app.use("/admin/tasks", taskDashboardRoutes);
+
+if (!config.server.isProduction) {
+  app.use(
+    createProxyMiddleware("/socket", {
+      target: `http://localhost:${PORT}`,
+      changeOrigin: true,
+      ws: true,
+    })
+  );
+}
 
 startTaskEngine().catch(err => {
   throw err;

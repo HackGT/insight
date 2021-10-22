@@ -1,8 +1,9 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
+import { SocketContext } from "../../../context/socket";
 import ParticipantTable from "./search/ParticipantTable";
 import ManageEmployees from "./settings/ManageEmployees";
 import SponsorFairAdmin from "./fair/SponsorFairAdmin";

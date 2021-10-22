@@ -1,34 +1,39 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import * as http from "http";
-import * as crypto from "crypto";
 import { Server, Socket } from "socket.io";
+import { ExtendedError } from "socket.io/dist/namespace";
+import passport from "passport";
 
-import { config, mongoose } from "./common";
 import { User, IParticipant, IVisit } from "./schema";
+import { sessionMiddleware } from "./auth/auth";
+import { mongoose } from "./common";
 
 export class WebSocketServer {
   private readonly sockets: Map<string, Socket[]> = new Map();
 
   constructor(httpServer: http.Server) {
-    const io = new Server(httpServer);
+    const io = new Server(httpServer, {
+      path: "/socket",
+    });
+
+    const wrap =
+      (middleware: any) => (socket: Socket, next: (err?: ExtendedError | undefined) => void) =>
+        middleware(socket.request, {}, next);
+
+    io.use(wrap(sessionMiddleware));
+    io.use(wrap(passport.initialize()));
+    io.use(wrap(passport.session()));
+
+    io.use((socket, next) => {
+      if ((socket.request as any).user) {
+        next();
+      } else {
+        next(new Error("Unauthorized"));
+      }
+    });
 
     io.on("connection", async socket => {
-      const uuid = (socket.handshake.query.uuid as string) || "";
-      const time = parseInt(socket.handshake.query.time as string);
-      const token = (socket.handshake.query.token as string) || "";
-      const correctToken = crypto
-        .createHmac("sha256", config.secrets.apiKey + time)
-        .update(uuid)
-        .digest()
-        .toString("hex");
-      if (token !== correctToken /* || (Date.now() - time) > 60000 */) {
-        socket.disconnect();
-        return;
-      }
-      const userExists = await User.exists({ uuid });
-      if (!userExists) {
-        socket.disconnect();
-        return;
-      }
+      const { uuid } = (socket.request as any).user;
       const sockets = this.sockets.get(uuid) ?? [];
       sockets.push(socket);
       this.sockets.set(uuid, sockets);
