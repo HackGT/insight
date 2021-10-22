@@ -51,7 +51,7 @@ const EmployerHome: React.FC<Props> = props => {
       EmployerContent = <ManageEmployees user={props.user} />;
       break;
     case EmployerTabs.SponsorFair:
-      EmployerContent = <SponsorFairAdmin />;
+      EmployerContent = <SponsorFairAdmin user={props.user} />;
   }
 
   return (
