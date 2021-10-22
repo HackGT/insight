@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import express from "express";
 
 import { webSocketServer } from "../../app";
@@ -29,8 +30,8 @@ async function getVisit(
     response.status(403).send();
     return null;
   }
-  const visit = await Visit.findById(request.params.id);
-  if (!visit || visit.company !== user.company.name) {
+  const visit = await Visit.findOne({ _id: request.params.id, company: user.company.company });
+  if (!visit) {
     response.status(403).json({
       error: "Invalid visit ID",
     });
@@ -157,7 +158,7 @@ visitRoutes
     }
     const visit = await Visit.findOne({
       participant: request.params.id,
-      company: user.company.name,
+      company: user.company.company,
     });
     if (!visit) {
       response.status(404).json({
@@ -178,7 +179,7 @@ visitRoutes
     const { participant, visit } = data;
     const user = request.user as IUser;
 
-    const company = await Company.findOne({ name: user.company!.name });
+    const company = await Company.findById(user.company!.company);
     if (!company) {
       response.json({
         error: "Could not find company for user",
@@ -187,7 +188,7 @@ visitRoutes
     }
     company.visits = company.visits.filter(v => !v.equals(visit._id));
     await Promise.all([company.save(), visit.remove()]);
-    webSocketServer.reloadParticipant(company.name, participant, undefined);
+    webSocketServer.reloadParticipant(company._id, participant, undefined);
     response.json({ success: true });
   });
 
@@ -205,9 +206,9 @@ visitRoutes
     if (Number.isNaN(page) || page < 0) {
       page = 0;
     }
-    const total = await Visit.countDocuments({ company: user.company.name });
+    const total = await Visit.countDocuments({ company: user.company.company });
     const visits = await Visit.aggregate([
-      { $match: { company: user.company.name } },
+      { $match: { company: user.company.company } },
       { $sort: { time: -1 } }, // Sort newest first
       { $skip: page * PAGE_SIZE },
       { $limit: PAGE_SIZE },
@@ -259,7 +260,8 @@ visitRoutes
     }
 
     // Scanners are guaranteed to belong to only a single company
-    const company = await Company.findOne({ name: scanningEmployees[0].company?.name });
+    const company = await Company.findById(scanningEmployees[0].company?.company);
+    console.log(company);
     if (!company) {
       response.status(400).json({
         error: "Could not match scanner to company",
@@ -275,13 +277,14 @@ visitRoutes
       return;
     }
 
-    let visit = await Visit.findOne({ company: company.name, participant: participant.uuid });
+    let visit = await Visit.findOne({ company: company._id, participant: participant.uuid });
+    console.log(visit);
     if (visit) {
       visit.time = new Date();
     } else {
       visit = createNew(Visit, {
         participant: participant.uuid,
-        company: company.name,
+        company: company._id,
         tags: [],
         notes: [],
         time: new Date(),
@@ -303,7 +306,7 @@ visitRoutes
         webSocketServer.visitNotification(employee.uuid, participant, visit);
       }
     }
-    webSocketServer.reloadParticipant(company.name, participant, visit);
+    webSocketServer.reloadParticipant(company._id, participant, visit);
 
     response.json({
       success: true,

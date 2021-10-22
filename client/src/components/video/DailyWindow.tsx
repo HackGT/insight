@@ -61,7 +61,6 @@ const DailyStage: React.FC<Props> = (props: Props) => {
       }
     }
   }
-
   useEffect(() => {
     if (containerRef != null) {
       if (containerRef.current != null) {

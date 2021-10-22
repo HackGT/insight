@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import * as http from "http";
 import { Server, Socket } from "socket.io";
 import { ExtendedError } from "socket.io/dist/namespace";
@@ -5,6 +6,7 @@ import passport from "passport";
 
 import { User, IParticipant, IVisit } from "./schema";
 import { sessionMiddleware } from "./auth/auth";
+import { mongoose } from "./common";
 
 export class WebSocketServer {
   private readonly sockets: Map<string, Socket[]> = new Map();
@@ -73,9 +75,13 @@ export class WebSocketServer {
     }
   }
 
-  public async reloadParticipant(company: string, participant: IParticipant, visit?: IVisit) {
+  public async reloadParticipant(
+    company: mongoose.Types.ObjectId,
+    participant: IParticipant,
+    visit?: IVisit
+  ) {
     // Only send this event to people from the same company
-    const users = await User.find({ "company.name": company, "company.verified": true });
+    const users = await User.find({ "company.company": company, "company.verified": true });
     for (const user of users) {
       const sockets = this.sockets.get(user.uuid);
       if (!sockets) continue;

@@ -72,7 +72,7 @@
     "word-extractor": "^1.0.4"
   },
   "devDependencies": {
-    "@hex-labs/eslint-config": "^1.1.15",
+    "@hex-labs/eslint-config": "^1.1.16",
     "@hex-labs/prettier-config": "^1.1.13",
     "@hex-labs/tsconfig": "^1.1.13",
     "eslint": "^7.32.0",

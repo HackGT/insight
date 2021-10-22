@@ -9,8 +9,8 @@ interface Props {
 }
 
 const ManageEmployees: React.FC<Props> = props => {
-  const companyName = props.user.company.name;
-  const [{ data, loading, error }, refetch] = useAxios(`/api/company/${companyName}`);
+  const companyId = props.user.company.company;
+  const [{ data, loading, error }, refetch] = useAxios(`/api/company/${companyId}`);
 
   if (loading) {
     return <div>Loading</div>;
@@ -24,7 +24,7 @@ const ManageEmployees: React.FC<Props> = props => {
     if (!window.confirm(`Are you sure you want to remove ${email}?`)) return;
 
     await axios.delete(
-      `/api/company/${encodeURIComponent(companyName || "")}/employee/${encodeURIComponent(
+      `/api/company/${encodeURIComponent(companyId || "")}/employee/${encodeURIComponent(
         email || ""
       )}`
     );
@@ -40,7 +40,7 @@ const ManageEmployees: React.FC<Props> = props => {
       return;
 
     await axios.patch(
-      `/api/company/${encodeURIComponent(companyName || "")}/employee/${encodeURIComponent(
+      `/api/company/${encodeURIComponent(companyId || "")}/employee/${encodeURIComponent(
         email || ""
       )}`
     );

@@ -6,27 +6,22 @@ import { Column } from "react-table";
 import { DateTime } from "luxon";
 import axios from "axios";
 
-import TableFilter from "../commonTable/TableFilter";
 import { handleAddVisit, generateTag, tagButtonHandler } from "../commonTable/util";
 import ParticipantModal from "../commonTable/ParticipantModal";
 import Table from "../commonTable/Table";
 import TableExport from "../commonTable/TableExport";
 
-const ParticipantTable: React.FC = () => {
+const VisitsTable: React.FC = () => {
   // Table filtering states
-  const [searchQuery, setSearchQuery] = useState("");
-  const [tagsFilter, setTagsFilter] = useState<string[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
 
   const [data, setData] = useState<any>({});
 
   useEffect(() => {
     async function getInitialData() {
-      const response = await axios.get("/api/search", {
+      const response = await axios.get("/api/visit", {
         params: {
-          q: "",
           page: 0,
-          filter: "",
         },
       });
 
@@ -37,30 +32,26 @@ const ParticipantTable: React.FC = () => {
   }, []);
 
   const fetchData = useCallback(async () => {
-    const response = await axios.get("/api/search", {
+    const response = await axios.get("/api/visit", {
       params: {
-        q: searchQuery,
         page: pageIndex,
-        filter: JSON.stringify(tagsFilter),
       },
     });
 
     setData(response.data);
-  }, [searchQuery, pageIndex, tagsFilter]);
+  }, [pageIndex]);
 
   // Will fetch new data whenever the page index, search query, or tags filter changes
   useEffect(() => {
     fetchData();
-  }, [pageIndex, searchQuery, tagsFilter]);
+  }, [pageIndex]);
 
   const [detailModalInfo, setDetailModalInfo] = useState<any>(null);
   useEffect(() => {
     if (detailModalInfo) {
-      const updatedParticipant = data.participants.find(
-        (participant: any) => participant._id === detailModalInfo._id
-      );
-      if (updatedParticipant) {
-        setDetailModalInfo(updatedParticipant);
+      const updatedVisit = data.visits.find((visit: any) => visit._id === detailModalInfo._id);
+      if (updatedVisit) {
+        setDetailModalInfo(updatedVisit);
       }
     }
   }, [data]);
@@ -70,8 +61,8 @@ const ParticipantTable: React.FC = () => {
       {
         Header: "Time",
         accessor: (row, i) => {
-          if (row.visitData?.time) {
-            const time = new Date(row.visitData.time);
+          if (row?.time) {
+            const time = new Date(row.time);
             return DateTime.fromJSDate(time).toLocaleString(DateTime.DATETIME_SHORT);
           }
 
@@ -80,11 +71,11 @@ const ParticipantTable: React.FC = () => {
       },
       {
         Header: "Name",
-        accessor: "name",
+        accessor: (row, i) => row.participantData.name || "",
       },
       {
         Header: "Major",
-        accessor: (row, i) => row.major || "Unknown",
+        accessor: (row, i) => row.participantData.major || "Unknown",
         id: "major",
       },
       {
@@ -94,12 +85,10 @@ const ParticipantTable: React.FC = () => {
       {
         Header: "Tags",
         accessor: (row, i) => {
-          if (row.visitData?.tags) {
+          if (row?.tags) {
             return (
               <div className="field is-grouped is-grouped-multiline">
-                {row.visitData.tags.map((tag: string) =>
-                  generateTag(row.visitData, tag, fetchData)
-                )}
+                {row.tags.map((tag: string) => generateTag(row, tag, fetchData))}
               </div>
             );
           }
@@ -112,12 +101,12 @@ const ParticipantTable: React.FC = () => {
         Header: "Actions",
         accessor: (row, i) => {
           const actions = [];
-          if (row.visitData?.time) {
+          if (row?.time) {
             actions.push(
               <button
                 className="button tooltip"
                 data-tooltip="Star"
-                onClick={() => tagButtonHandler(row.visitData, "starred", fetchData)}
+                onClick={() => tagButtonHandler(row, "starred", fetchData)}
               >
                 <span className="icon">
                   <i className="fas fa-star" />
@@ -128,7 +117,7 @@ const ParticipantTable: React.FC = () => {
               <button
                 className="button tooltip"
                 data-tooltip="Flag"
-                onClick={() => tagButtonHandler(row.visitData, "flagged", fetchData)}
+                onClick={() => tagButtonHandler(row, "flagged", fetchData)}
               >
                 <span className="icon">
                   <i className="fas fa-flag" />
@@ -139,7 +128,7 @@ const ParticipantTable: React.FC = () => {
               <button
                 className="button tooltip"
                 data-tooltip="Add a tag"
-                onClick={() => tagButtonHandler(row.visitData, "", fetchData)}
+                onClick={() => tagButtonHandler(row, "", fetchData)}
               >
                 <span className="icon">
                   <i className="fas fa-tag" />
@@ -175,38 +164,33 @@ const ParticipantTable: React.FC = () => {
         id: "actions",
       },
     ],
-    [searchQuery, pageIndex, tagsFilter]
+    [pageIndex]
   );
 
   const tableRef = useRef<any>();
 
   return (
     <>
-      <h1 className="title">Search</h1>
+      <h1 className="title">Visit Information</h1>
       <h6 className="subtitle is-6">
-        Here, you can search through all the participants at HackGT.
+        Here, you can view information about all the participants that have visited your company.
+        Feel free to take notes and star people that stand out!
       </h6>
-      <TableFilter
-        tagsFilter={tagsFilter}
-        setTagsFilter={setTagsFilter}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-      />
       <TableExport
         tableRef={tableRef}
-        rowToUuid={(row: any) => row.original.uuid}
-        includeDownloadAll
+        rowToUuid={(row: any) => row.original.participantData.uuid}
+        includeDownloadAll={false}
       />
       <Table
         columns={columns}
         data={data}
         setPageIndex={setPageIndex}
         ref={tableRef}
-        dataField="participants"
+        dataField="visits"
       />
       <ParticipantModal
-        participant={detailModalInfo}
-        visitData={detailModalInfo?.visitData}
+        participant={detailModalInfo?.participantData}
+        visitData={detailModalInfo}
         setDetailModalInfo={setDetailModalInfo}
         fetchData={fetchData}
       />
@@ -214,4 +198,4 @@ const ParticipantTable: React.FC = () => {
   );
 };
 
-export default ParticipantTable;
+export default VisitsTable;

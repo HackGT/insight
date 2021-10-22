@@ -106,12 +106,12 @@ uiRoutes.route("/").get(authenticateWithRedirect, async (request, response) => {
   let pendingUsers: IUser[] = [];
   let company: ICompany | null = null;
   if (user.company && user.company.verified) {
-    users = await User.find({ "company.name": user.company.name, "company.verified": true });
+    users = await User.find({ "company.company": user.company.company, "company.verified": true });
     pendingUsers = await User.find({
-      "company.name": user.company.name,
+      "company.company": user.company.company,
       "company.verified": false,
     });
-    company = await Company.findOne({ name: user.company.name });
+    company = await Company.findById(user.company.company);
   }
 
   // where we render if the user is type employer
@@ -230,7 +230,7 @@ uiRoutes.route("/admin").get(isAdmin, async (request, response) => {
       $lookup: {
         from: "users",
         localField: "name",
-        foreignField: "company.name",
+        foreignField: "company.company",
         as: "users",
       },
     },

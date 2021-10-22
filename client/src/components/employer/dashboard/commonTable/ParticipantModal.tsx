@@ -9,6 +9,7 @@ import { handleAddVisit, generateTag, tagButtonHandler, handleDeleteVisit } from
 
 interface Props {
   participant: any;
+  visitData: any;
   setDetailModalInfo: React.Dispatch<any>;
   fetchData: () => void;
 }
@@ -61,20 +62,18 @@ const ParticipantModal: React.FC<Props> = props => {
     getResumeLink();
   }, [props, props.participant]);
 
-  const visitData = props.participant?.visitData;
-
   const handleAddNote = async () => {
     const note = (prompt("New note:") || "").trim();
     if (!note) return;
 
-    await axios.post(`/api/visit/${visitData._id}/note`, { note });
+    await axios.post(`/api/visit/${props.visitData._id}/note`, { note });
     props.fetchData();
   };
 
   const handleDeleteNote = async (note: any) => {
     if (!window.confirm("Are you sure that you want to delete this note?")) return;
 
-    await axios.delete(`/api/visit/${visitData._id}/note`, { data: { note } });
+    await axios.delete(`/api/visit/${props.visitData._id}/note`, { data: { note } });
     props.fetchData();
   };
 
@@ -108,17 +107,17 @@ const ParticipantModal: React.FC<Props> = props => {
               <div className="side-by-side-flex">
                 <strong>Tags:</strong>
                 <div className="field is-grouped is-grouped-multiline" id="detail-tags">
-                  {visitData &&
-                    visitData.tags.map((tag: string) =>
-                      generateTag(visitData, tag, props.fetchData)
+                  {props.visitData &&
+                    props.visitData.tags.map((tag: string) =>
+                      generateTag(props.visitData, tag, props.fetchData)
                     )}
                 </div>
               </div>
               <p>
                 <strong>Notes:</strong>
                 <ul id="detail-notes">
-                  {visitData &&
-                    visitData.notes.map((note: string) => (
+                  {props.visitData &&
+                    props.visitData.notes.map((note: string) => (
                       <li>
                         <span>{note}</span>
                         <button
@@ -163,10 +162,10 @@ const ParticipantModal: React.FC<Props> = props => {
               </span>
               <span>Download Resume</span>
             </button>
-            {visitData ? (
+            {props.visitData ? (
               <button
                 className="button is-danger"
-                onClick={() => handleDeleteVisit(visitData, props.fetchData)}
+                onClick={() => handleDeleteVisit(props.visitData, props.fetchData)}
               >
                 <span className="icon is-small">
                   <i className="fas fa-trash-alt" />
@@ -185,11 +184,11 @@ const ParticipantModal: React.FC<Props> = props => {
               </button>
             )}
             <span className="spacer" />
-            {visitData && (
+            {props.visitData && (
               <>
                 <button
                   className="button is-warning"
-                  onClick={() => tagButtonHandler(visitData, "starred", props.fetchData)}
+                  onClick={() => tagButtonHandler(props.visitData, "starred", props.fetchData)}
                 >
                   <span className="icon is-small">
                     <i className="fas fa-star" />
@@ -198,7 +197,7 @@ const ParticipantModal: React.FC<Props> = props => {
                 </button>
                 <button
                   className="button is-success"
-                  onClick={() => tagButtonHandler(visitData, "flagged", props.fetchData)}
+                  onClick={() => tagButtonHandler(props.visitData, "flagged", props.fetchData)}
                 >
                   <span className="icon is-small">
                     <i className="fas fa-flag" />
@@ -207,7 +206,7 @@ const ParticipantModal: React.FC<Props> = props => {
                 </button>
                 <button
                   className="button is-info"
-                  onClick={() => tagButtonHandler(visitData, "", props.fetchData)}
+                  onClick={() => tagButtonHandler(props.visitData, "", props.fetchData)}
                 >
                   <span className="icon is-small">
                     <i className="fas fa-plus" />

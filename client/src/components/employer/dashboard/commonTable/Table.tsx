@@ -20,6 +20,7 @@ const IndeterminateCheckbox = React.forwardRef<any, any>(({ indeterminate, ...re
 interface Props {
   columns: Column<any>[];
   data: any;
+  dataField: string;
   setPageIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
@@ -74,7 +75,7 @@ const Table = forwardRef<any, Props>((props, ref) => {
   } = useTable(
     {
       columns: memoizedColumns,
-      data: memoizedData?.participants || [],
+      data: memoizedData[props.dataField] || [],
       manualPagination: true,
       initialState: { pageIndex: 0 },
       pageCount: dataPageCount,

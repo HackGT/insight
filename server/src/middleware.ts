@@ -108,7 +108,12 @@ export function isAdminOrEmployee(
     }
     const user = request.user as IUser | undefined;
     if (user) {
-      if (user.company && user.company.verified && user.company.name === request.params.company) {
+      if (
+        user.company &&
+        user.company.verified &&
+        user.company.company &&
+        user.company.company.toString() === request.params.company
+      ) {
         next();
         return;
       }

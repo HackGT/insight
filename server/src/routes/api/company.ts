@@ -1,17 +1,20 @@
+/* eslint-disable no-underscore-dangle */
 import express from "express";
+import { mongoose } from "../../common";
 
 import { isAdminOrEmployee, postParser, isAdmin } from "../../middleware";
 import { Company, createNew, ICompany, IUser, User } from "../../schema";
 
 export const companyRoutes = express.Router();
 
-companyRoutes.route("/").get(async (request, response) => {
+companyRoutes.route("/").get(isAdminOrEmployee, async (request, response) => {
+  console.log(request.user);
   const rawCompanies: (ICompany & { users: IUser[] })[] = await Company.aggregate([
     {
       $lookup: {
         from: "users",
-        localField: "name",
-        foreignField: "company.name",
+        localField: "_id",
+        foreignField: "company.company",
         as: "users",
       },
     },
@@ -44,7 +47,7 @@ companyRoutes
       });
       return;
     }
-    if (!user.company || user.company.name !== request.params.company) {
+    if (!user.company || user.company.company._id.toString() !== request.params.company) {
       response.status(400).json({
         error: "User has invalid company set",
       });
@@ -67,7 +70,7 @@ companyRoutes
       });
       return;
     }
-    if (!user.company || user.company.name !== request.params.company) {
+    if (!user.company || user.company.company._id.toString() !== request.params.company) {
       response.status(400).json({
         error: "User has invalid company set",
       });
@@ -90,7 +93,7 @@ companyRoutes
       });
       return;
     }
-    const company = await Company.findOne({ name: request.params.company });
+    const company = await Company.findById(request.params.company);
     if (!company) {
       response.status(400).json({
         error: "Unknown company",
@@ -99,7 +102,7 @@ companyRoutes
     }
 
     user.company = {
-      name: request.params.company,
+      company: new mongoose.Types.ObjectId(request.params.company),
       verified: true,
       scannerIDs: [],
     };
@@ -121,7 +124,7 @@ companyRoutes
       });
       return;
     }
-    if (!user.company || user.company.name !== request.params.company) {
+    if (!user.company || user.company.company._id.toString() !== request.params.company) {
       response.status(400).json({
         error: "User has invalid company set",
       });
@@ -134,9 +137,10 @@ companyRoutes
       .map(scanner => scanner.replace(/,/g, "").trim().toLowerCase());
     // Check if scanner is already tied to another company
     for (const scanner of scanners) {
+      // eslint-disable-next-line no-await-in-loop
       const existingScanners = await User.find({
         "company.scannerIDs": scanner,
-        "company.name": { $ne: user!.company!.name },
+        "company.company": { $ne: user?.company?.company },
       });
       if (existingScanners.length > 0) {
         response.json({
@@ -157,7 +161,7 @@ companyRoutes
   .route("/:company")
   // Get company user information
   .get(isAdminOrEmployee, async (request, response) => {
-    const company = await Company.findOne({ name: request.params.company });
+    const company = await Company.findById(request.params.company);
     if (!company) {
       response.status(400).json({
         error: "Unknown company",
@@ -165,20 +169,21 @@ companyRoutes
       return;
     }
 
-    const users = await User.find({ "company.name": company.name, "company.verified": true });
+    const users = await User.find({ "company.company": company, "company.verified": true });
     const pendingUsers = await User.find({
-      "company.name": company.name,
+      "company.company": company,
       "company.verified": false,
     });
 
     response.json({
       users,
       pendingUsers,
+      company,
     });
   })
-  // Rename company
+  // Rename company or update hasResumeAccess
   .patch(isAdminOrEmployee, postParser, async (request, response) => {
-    const company = await Company.findOne({ name: request.params.company });
+    const company = await Company.findById(request.params.company);
     if (!company) {
       response.status(400).json({
         error: "Unknown company",
@@ -187,27 +192,30 @@ companyRoutes
     }
 
     const name = (request.body.name || "").trim();
-    console.log(request.body);
-    if (!name) {
-      response.status(400).json({
-        error: "Invalid name",
-      });
-      return;
+    const { hasResumeAccess } = request.body;
+
+    // if (!name) {
+    //   response.status(400).json({
+    //     error: "Invalid name",
+    //   });
+    //   return;
+    // }
+
+    if (name) {
+      const existingCompany = await Company.findOne({ name });
+      if (existingCompany) {
+        response.status(409).json({
+          error: "A company with that name already exists",
+        });
+        return;
+      }
+      company.name = name;
     }
 
-    const existingCompany = await Company.findOne({ name });
-    if (existingCompany) {
-      response.status(409).json({
-        error: "A company with that name already exists",
-      });
-      return;
+    if (hasResumeAccess !== undefined) {
+      company.hasResumeAccess = hasResumeAccess;
     }
 
-    company.name = name;
-    await User.updateMany(
-      { "company.name": request.params.company },
-      { $set: { "company.name": name } }
-    );
     await company.save();
     response.json({
       success: true,
@@ -215,7 +223,7 @@ companyRoutes
   })
   // Delete company
   .delete(isAdmin, async (request, response) => {
-    const company = await Company.findOne({ name: request.params.company });
+    const company = await Company.findById(request.params.company);
     if (!company) {
       response.status(400).json({
         error: "Unknown company",
@@ -223,7 +231,7 @@ companyRoutes
       return;
     }
 
-    await User.updateMany({ "company.name": request.params.company }, { $set: { company: null } });
+    await User.updateMany({ "company.company": company }, { $set: { company: null } });
     await company.remove();
     response.json({
       success: true,
@@ -256,7 +264,7 @@ companyRoutes
       });
       return;
     }
-    const company = await Company.findOne({ name: request.params.company });
+    const company = await Company.findById(request.params.company);
     if (!company) {
       response.status(400).json({
         error: "Unknown company",
@@ -271,7 +279,7 @@ companyRoutes
     }
 
     user.company = {
-      name: company.name,
+      company: company._id,
       verified: false,
       scannerIDs: [],
     };

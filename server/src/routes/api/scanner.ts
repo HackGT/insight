@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import bodyParser from "body-parser";
 import express from "express";
 
@@ -101,7 +102,7 @@ scannerRoutes.post(
     }
 
     // Scanners are guaranteed to belong to only a single company
-    const company = await Company.findOne({ name: scanningEmployees[0].company?.name });
+    const company = await Company.findById(scanningEmployees[0].company?.company);
     if (!company) {
       console.log("Could not match scanner to company:", scannerID, scanningEmployees[0].name);
       response.status(400).json({
@@ -118,13 +119,13 @@ scannerRoutes.post(
       });
       return;
     }
-    let visit = await Visit.findOne({ company: company.name, participant: participant.uuid });
+    let visit = await Visit.findOne({ company: company._id, participant: participant.uuid });
     if (visit) {
       visit.time = new Date();
     } else {
       visit = createNew(Visit, {
         participant: participant.uuid,
-        company: company.name,
+        company,
         tags: [],
         notes: [],
         time: new Date(),
@@ -145,7 +146,7 @@ scannerRoutes.post(
         webSocketServer.visitNotification(employee.uuid, participant, visit);
       }
     }
-    webSocketServer.reloadParticipant(company.name, participant, visit);
+    webSocketServer.reloadParticipant(company._id, participant, visit);
 
     response.json({ success: true });
   }

@@ -1441,10 +1441,10 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
-"@hex-labs/eslint-config-react@^1.1.15":
-  version "1.1.15"
-  resolved "https://registry.yarnpkg.com/@hex-labs/eslint-config-react/-/eslint-config-react-1.1.15.tgz#af58b376c561ae8b7567b94631da4f63b575fdfe"
-  integrity sha512-v68MBbl3U40DYbr2qew05N03XvmR+l4uEA+AswH5Cv0ZEOLmOcCt1/Lu06XVFw2kmLHowc+inpR0B/8+6lAiGw==
+"@hex-labs/eslint-config-react@^1.1.16":
+  version "1.1.16"
+  resolved "https://registry.yarnpkg.com/@hex-labs/eslint-config-react/-/eslint-config-react-1.1.16.tgz#b000398d738d1a3ea97e0715067410d88249566c"
+  integrity sha512-6zNTkVqFV/Wkb05S1m/GwkaIgwrc9a+YmHi68HJOlwG6rBnbxSla66pH5haY/AaNtSdmDnRjtRooFpAr/syqQg==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^4.28.0"
     "@typescript-eslint/parser" "^4.28.0"
