@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import useAxios from "axios-hooks";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
-import axios from "axios";
 
 import "./App.css";
 import "./bulma-tooltip.min.css";
@@ -19,9 +18,9 @@ function App() {
 
   useEffect(() => {
     const authorizeWebsocket = async () => {
-      const newSocket = io(`http://${window.location.hostname}:3000`, {
+      const newSocket = io({
         withCredentials: true,
-        transports: ["websocket"],
+        path: "/socket",
       });
       setSocket(newSocket);
     };

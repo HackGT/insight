@@ -11,11 +11,7 @@ export class WebSocketServer {
 
   constructor(httpServer: http.Server) {
     const io = new Server(httpServer, {
-      cors: {
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST"],
-        credentials: true,
-      },
+      path: "/socket",
     });
 
     const wrap =
