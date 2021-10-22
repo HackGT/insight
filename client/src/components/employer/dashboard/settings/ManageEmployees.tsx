@@ -54,7 +54,6 @@ const ManageEmployees: React.FC<Props> = props => {
 
   const handleEditCall = async (callId: string) => {
     const title = (prompt("New title:") || "").trim();
-
     if (!title) return;
 
     await axios.patch(`/api/company/${companyId}/call/${callId}`, { title });
