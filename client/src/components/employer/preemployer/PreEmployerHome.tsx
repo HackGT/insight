@@ -11,10 +11,8 @@ interface Props {
 const PreEmployerHome: React.FC<Props> = props => {
   const [{ data, loading, error }] = useAxios("/api/company");
   const [selectedCompany, setSelectedCompany] = useState<string>(
-    props.user.company?._id || "default"
+    props.user.company?.company || "default"
   );
-
-  console.log(selectedCompany);
 
   if (loading) {
     return <div>Loading</div>;
@@ -38,13 +36,20 @@ const PreEmployerHome: React.FC<Props> = props => {
           <h1 className="title">Hello, {formatName(props.user.name)}!</h1>
           <h2 className="subtitle">{props.user.email}</h2>
           <p>In order to start using Insight, you'll need to be associated with company.</p>
-          {props.user.company?.name && (
+          {props.user.company?.company && (
             <>
               <br />
               <article className="message is-info">
                 <div className="message-body">
                   You're currently pending approval to join{" "}
-                  <strong>{props.user.company.name}</strong>.
+                  <strong>
+                    {
+                      data.companies.find(
+                        (company: any) => company._id === props.user.company.company
+                      )?.name
+                    }
+                  </strong>
+                  .
                 </div>
               </article>
             </>
