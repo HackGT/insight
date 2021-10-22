@@ -12,7 +12,6 @@ export class WebSocketServer {
   constructor(httpServer: http.Server) {
     const io = new Server(httpServer, {
       path: "/socket",
-      destroyUpgrade: false,
     });
 
     const wrap =
