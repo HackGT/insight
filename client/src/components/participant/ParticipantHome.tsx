@@ -38,10 +38,6 @@ const ParticipantHome: React.FC<Props> = props => {
       break;
   }
 
-  if (props.user.type !== "participant" && !props.user.admin) {
-    return <Navigate to="/" />;
-  }
-
   if (loading) {
     return <div>Loading</div>;
   }

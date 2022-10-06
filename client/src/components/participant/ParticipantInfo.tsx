@@ -11,10 +11,6 @@ interface Props {
 const ParticipantInfo: React.FC<Props> = props => {
   const [{ data, loading, error }] = useAxios("/api/participant");
 
-  if (props.user.type !== "participant" && !props.user.admin) {
-    return <Navigate to="/" />;
-  }
-
   if (loading) {
     return <div>Loading</div>;
   }
