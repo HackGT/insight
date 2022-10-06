@@ -25,9 +25,10 @@ interface Props {
 }
 
 const Navigation: React.FC<Props> = props => {
-  const filteredRoutes = routes.filter((page: Page) => page.isAllowed(props.user));
+  const hi = "";
+  // const filteredRoutes = routes.filter((page: Page) => page.isAllowed(props.user));
 
-  return <Header routes={filteredRoutes} />;
+  return <Header routes={routes} />;
 };
 
 export default Navigation;

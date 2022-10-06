@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo } from "react";
 import { useTable, usePagination, useRowSelect, Column, Hooks } from "react-table";
 
@@ -10,11 +11,7 @@ const IndeterminateCheckbox = React.forwardRef<any, any>(({ indeterminate, ...re
     resolvedRef.current.indeterminate = indeterminate;
   }, [resolvedRef, indeterminate]);
 
-  return (
-    <>
-      <input type="checkbox" ref={resolvedRef} {...rest} />
-    </>
-  );
+  return <input type="checkbox" ref={resolvedRef} {...rest} />;
 });
 
 interface Props {
@@ -104,6 +101,7 @@ const Table = forwardRef<any, Props>((props, ref) => {
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
+                // @ts-ignore
                 <th {...column.getHeaderProps()}>{column.render("Header")}</th>
               ))}
             </tr>
@@ -115,6 +113,7 @@ const Table = forwardRef<any, Props>((props, ref) => {
             return (
               <tr {...row.getRowProps()}>
                 {row.cells.map(cell => (
+                  // @ts-ignore
                   <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
                 ))}
               </tr>

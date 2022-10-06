@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import useAxios from "axios-hooks";
-import Editor from "rich-markdown-editor";
+// import Editor from "rich-markdown-editor";
 
 import SponsorSquare from "./CompanySquare";
 
@@ -48,7 +48,7 @@ const SponsorInformation: React.FC = () => {
             <button className="delete" aria-label="close" onClick={() => closeModal()} />
           </header>
           <section className="modal-card-body">
-            {activeSponsor?.description && <Editor value={activeSponsor.description} readOnly />}
+            {/* {activeSponsor?.description && <Editor value={activeSponsor.description} readOnly />} */}
           </section>
           <footer className="modal-card-foot">
             <div className="buttons">

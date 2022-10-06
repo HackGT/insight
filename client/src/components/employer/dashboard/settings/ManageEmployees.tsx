@@ -3,7 +3,7 @@
 import axios from "axios";
 import useAxios from "axios-hooks";
 import React, { useRef } from "react";
-import Editor from "rich-markdown-editor";
+// import Editor from "rich-markdown-editor";
 
 import { formatName } from "../../../../util";
 
@@ -143,11 +143,11 @@ const ManageEmployees: React.FC<Props> = props => {
       <h6 className="subtitle is-6">
         This is your company description published for all participants to see.
       </h6>
-      <Editor
+      {/* <Editor
         defaultValue={data.company.description}
         ref={editorState}
         style={{ marginBottom: "15px" }}
-      />
+      /> */}
       <button className="button is-info is-outlined" onClick={() => handleEditDescription()}>
         Update Description
       </button>

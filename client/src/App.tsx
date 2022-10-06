@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import useAxios from "axios-hooks";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
+import axios from "axios";
+import { initializeApp } from "firebase/app";
+import { setPersistence, getAuth, inMemoryPersistence } from "firebase/auth";
+import { useLogin, LoadingScreen, AuthProvider } from "@hex-labs/core";
 
 import "./App.css";
 import "./bulma-tooltip.min.css";
@@ -12,9 +16,18 @@ import Navigation from "./components/layout/Navigation";
 import EmployerManager from "./components/employer/EmployerManager";
 import { SocketContext } from "./context/socket";
 
+export const app = initializeApp({
+  apiKey: "AIzaSyCsukUZtMkI5FD_etGfefO4Sr7fHkZM7Rg",
+  authDomain: "auth.hexlabs.org",
+});
+
+setPersistence(getAuth(app), inMemoryPersistence);
+axios.defaults.withCredentials = true;
+
 function App() {
-  const [{ data, loading, error }] = useAxios("/auth/check");
   const [socket, setSocket] = useState<Socket | null>(null);
+
+  // const [{ data, loading, error }] = useAxios("/auth/check");
 
   useEffect(() => {
     const authorizeWebsocket = async () => {
@@ -28,28 +41,40 @@ function App() {
     authorizeWebsocket();
   }, [setSocket]);
 
+  const [loading, loggedIn] = useLogin(app);
+
   if (loading) {
-    return <div>Loading</div>;
+    return <LoadingScreen />;
+  }
+  if (!loggedIn) {
+    window.location.href = `https://login.hexlabs.org?redirect=${window.location.href}`;
+    return <LoadingScreen />;
   }
 
-  if (error) {
-    return <div>Error</div>;
-  }
+  // if (loading) {
+  //   return <div>Loading</div>;
+  // }
+
+  // if (error) {
+  //   return <div>Error</div>;
+  // }
+
+  const data = null;
 
   return (
-    <SocketContext.Provider value={socket}>
-      <Router>
+    <AuthProvider app={app}>
+      <SocketContext.Provider value={socket}>
         <Navigation user={data} />
         <div className="container is-dark">
-          <Switch>
-            <Route exact path="/participant" render={() => <ParticipantHome user={data} />} />
-            <Route exact path="/employer" render={() => <EmployerManager user={data} />} />
-            <Route exact path="/admin" render={() => <AdminHome user={data} />} />
-          </Switch>
+          <Routes>
+            <Route path="/participant" element={<ParticipantHome user={data} />} />
+            <Route path="/employer" element={<EmployerManager user={data} />} />
+            <Route path="/admin" element={<AdminHome user={data} />} />
+          </Routes>
         </div>
         <Footer />
-      </Router>
-    </SocketContext.Provider>
+      </SocketContext.Provider>
+    </AuthProvider>
   );
 }
 

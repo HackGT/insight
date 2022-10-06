@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */

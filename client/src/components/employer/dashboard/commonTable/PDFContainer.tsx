@@ -1,6 +1,6 @@
 /* eslint-disable prefer-destructuring */
 import React, { useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
+// import { Document, Page, pdfjs } from "react-pdf";
 
 interface PDFProps {
   url: string;
@@ -11,7 +11,7 @@ interface Props {
   link: PDFProps;
 }
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 const PDFContainer: React.FC<Props> = props => {
@@ -21,10 +21,10 @@ const PDFContainer: React.FC<Props> = props => {
   const link = props.link;
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  function onDocumentLoadSuccess({ numPages }: any) {
+  const onDocumentLoadSuccess = ({ numPages }: any) => {
     setNumPages(numPages);
     setPageNumber(1);
-  }
+  };
 
   function changePage(offset: any) {
     setPageNumber(prevPageNumber => prevPageNumber + offset);
@@ -40,9 +40,9 @@ const PDFContainer: React.FC<Props> = props => {
   console.log(link);
   return (
     <>
-      <Document file={link} onLoadSuccess={onDocumentLoadSuccess}>
+      {/* <Document file={link} onLoadSuccess={onDocumentLoadSuccess}>
         <Page pageNumber={pageNumber} />
-      </Document>
+      </Document> */}
       <div>
         <p>
           Page {pageNumber || (numPages ? 1 : "--")} of {numPages || "--"}

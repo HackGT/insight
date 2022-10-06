@@ -1,6 +1,6 @@
 import React from "react";
 import useAxios from "axios-hooks";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import { formatName } from "../../util";
 
@@ -12,7 +12,7 @@ const ParticipantInfo: React.FC<Props> = props => {
   const [{ data, loading, error }] = useAxios("/api/participant");
 
   if (props.user.type !== "participant" && !props.user.admin) {
-    return <Redirect to="/" />;
+    return <Navigate to="/" />;
   }
 
   if (loading) {

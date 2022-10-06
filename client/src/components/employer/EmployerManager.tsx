@@ -1,5 +1,5 @@
 import React from "react";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import PreEmployerHome from "./preemployer/PreEmployerHome";
 import EmployerHome from "./dashboard/EmployerHome";
@@ -10,7 +10,7 @@ interface Props {
 
 const EmployerManager: React.FC<Props> = props => {
   if (props.user.type !== "employer" && !props.user.admin) {
-    return <Redirect to="/" />;
+    return <Navigate to="/" />;
   }
 
   if (props.user.company && props.user.company?.verified) {

@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState } from "react";
 import useAxios from "axios-hooks";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import { formatName } from "../../util";
 import SponsorInformation from "./SponsorInformation";
@@ -24,7 +24,7 @@ const ParticipantHome: React.FC<Props> = props => {
   const [{ data, loading, error }] = useAxios("/api/participant");
   const [currentTab, setCurrentTab] = useState(ParticipantTabs.ParticipantInformationTab);
 
-  let ParticipantContent: any;
+  let ParticipantContent: React.ReactElement;
 
   switch (currentTab) {
     case ParticipantTabs.ParticipantInformationTab:
@@ -39,7 +39,7 @@ const ParticipantHome: React.FC<Props> = props => {
   }
 
   if (props.user.type !== "participant" && !props.user.admin) {
-    return <Redirect to="/" />;
+    return <Navigate to="/" />;
   }
 
   if (loading) {
@@ -92,8 +92,12 @@ const ParticipantHome: React.FC<Props> = props => {
         </ul>
       </nav>
       <section>{ParticipantContent}</section>
-      <section>{SponsorInformation}</section>
-      <section>{SponsorFair}</section>
+      <section>
+        <SponsorInformation />
+      </section>
+      <section>
+        <SponsorFair user={props.user} />
+      </section>
     </>
   );
 };

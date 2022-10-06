@@ -1,7 +1,7 @@
 import React from "react";
 import useAxios from "axios-hooks";
 import axios from "axios";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import { formatName } from "../../util";
 import AdminManager from "./AdminManager";
@@ -14,7 +14,7 @@ const AdminHome: React.FC<Props> = props => {
   const [{ data, loading, error }, refetch] = useAxios("/api/company");
 
   if (!props.user.admin) {
-    return <Redirect to="/" />;
+    return <Navigate to="/" />;
   }
 
   if (loading) {
