@@ -2,68 +2,64 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import axios from "axios";
 import useAxios from "axios-hooks";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { apiUrl, Service, useAuth } from "@hex-labs/core";
 // import Editor from "rich-markdown-editor";
 
 import { formatName } from "../../../../util";
 
 interface Props {
   user: any;
+  company: any;
+  companyRefetch: any;
 }
 
 const ManageEmployees: React.FC<Props> = props => {
-  const companyId = props.user.company.company;
+  const { company } = props
+
   const editorState = useRef<any>();
 
-  const [{ data, loading, error }, refetch] = useAxios(`/api/company/${companyId}`);
-
-  if (loading) {
-    return <div>Loading</div>;
-  }
-
-  if (error) {
-    return <div>Error</div>;
-  }
-
-  const handleRemoveEmployee = async (email: any) => {
-    if (!window.confirm(`Are you sure you want to remove ${email}?`)) return;
+  const handleRemoveEmployee = async (user: any) => {
+    if (!window.confirm(`Are you sure you want to remove ${user.name}?`)) return;
 
     await axios.delete(
-      `/api/company/${encodeURIComponent(companyId || "")}/employee/${encodeURIComponent(
-        email || ""
-      )}`
-    );
-    refetch();
+      apiUrl(Service.USERS, `/companies/${company.id}/employees`),
+      {
+        data: {
+          userId: user.id
+        }
+      }
+    )
+    props.companyRefetch();
   };
 
-  const handleConfirmEmployee = async (email: any) => {
+  const handleConfirmEmployee = async (user: any) => {
     if (
       !window.confirm(
-        `Are you sure you want to add ${email} as an employee? They will have full access to your collected resumes and notes.`
+        `Are you sure you want to add ${user.name} as an employee? They will have full access to your collected resumes and notes.`
       )
     )
       return;
 
-    await axios.patch(
-      `/api/company/${encodeURIComponent(companyId || "")}/employee/${encodeURIComponent(
-        email || ""
-      )}`
+    await axios.post(
+      apiUrl(Service.USERS, `/companies/${company.id}/employees/accept-request`), {
+      data: {
+        employeeId: user.uid
+      }
+    },
     );
-    refetch();
-  };
-
-  const handleEditCall = async (callId: string) => {
-    const title = (prompt("New title:") || "").trim();
-
-    if (!title) return;
-
-    await axios.patch(`/api/company/${companyId}/call/${callId}`, { title });
-    refetch();
+    props.companyRefetch();
   };
 
   const handleEditDescription = async () => {
-    await axios.patch(`/api/company/${companyId}`, { description: editorState.current.value() });
-    refetch();
+    await axios.put(
+      apiUrl(Service.USERS, `/companies/${company.id}`), {
+      data: {
+        description: editorState.current.value(),
+      }
+    },
+    );
+    props.companyRefetch();
   };
 
   return (
@@ -73,18 +69,18 @@ const ManageEmployees: React.FC<Props> = props => {
           <h1 className="title">Employees</h1>
           <h6 className="subtitle is-6">All the employees registered under your company.</h6>
           <ul>
-            {data.users?.map((user: any) => (
+            {props.company.employees?.map((emp: any) => (
               <li className="single-line-button">
                 <span className="icon">
                   <i className="fas fa-user-tie" />
                 </span>
-                <strong>{formatName(user.name)}</strong> ({user.email})&nbsp;&nbsp;
+                <strong>{formatName(emp.name)}</strong> ({emp.email})&nbsp;&nbsp;
                 {/* <button className="button is-link is-outlined set-scanner" data-company="{{../user.company.name}}"
 									data-email="{{this.email}}" data-scanners="{{join this.company.scannerIDs}}">Scanners</button> */}
-                {user.uuid !== props.user.uuid && (
+                {emp.id !== props.user.id && (
                   <button
                     className="button is-danger is-outlined "
-                    onClick={() => handleRemoveEmployee(user.email)}
+                    onClick={() => handleRemoveEmployee(emp)}
                   >
                     Remove
                   </button>
@@ -92,12 +88,12 @@ const ManageEmployees: React.FC<Props> = props => {
               </li>
             ))}
           </ul>
-          {data.pendingUsers?.length > 0 && (
+          {props.company.pendingEmployees?.length > 0 && (
             <>
               <br />
               <h5 className="title is-5">Pending Employee Requests</h5>
               <ul>
-                {data.pendingUsers.map((pendingUser: any) => (
+                {props.company.pendingEmployees.map((pendingUser: any) => (
                   <li className="single-line-button">
                     <span className="icon">
                       <i className="fas fa-user-clock" />
@@ -105,13 +101,13 @@ const ManageEmployees: React.FC<Props> = props => {
                     <strong>{formatName(pendingUser.name)}</strong> ({pendingUser.email})
                     <button
                       className="button is-success is-outlined"
-                      onClick={() => handleConfirmEmployee(pendingUser.email)}
+                      onClick={() => handleConfirmEmployee(pendingUser)}
                     >
                       Confirm
                     </button>
                     <button
                       className="button is-danger is-outlined"
-                      onClick={() => handleRemoveEmployee(pendingUser.email)}
+                      onClick={() => handleRemoveEmployee(pendingUser)}
                     >
                       Delete
                     </button>
@@ -121,23 +117,7 @@ const ManageEmployees: React.FC<Props> = props => {
             </>
           )}
         </div>
-        <div className="column is-half">
-          <h1 className="title">Sponsor Fair Calls</h1>
-          <h6 className="subtitle is-6">
-            Edit the names of your call links. If you would like to add more calls, please reach out
-            to a team member.
-          </h6>
-          <ul>
-            {data.company.calls.map((call: any) => (
-              <li className="single-line-button">
-                {call.title}
-                <span className="icon">
-                  <i className="fas fa-pen" onClick={() => handleEditCall(call._id)} />
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+       
       </div>
       <h1 className="title">Description</h1>
       <h6 className="subtitle is-6">

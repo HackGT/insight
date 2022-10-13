@@ -5,7 +5,7 @@ import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import { initializeApp } from "firebase/app";
 import { setPersistence, getAuth, inMemoryPersistence } from "firebase/auth";
-import { useLogin, LoadingScreen, AuthProvider } from "@hex-labs/core";
+import { useLogin, LoadingScreen, AuthProvider, useAuth } from "@hex-labs/core";
 
 import "./App.css";
 import "./bulma-tooltip.min.css";
@@ -26,9 +26,8 @@ axios.defaults.withCredentials = true;
 
 function App() {
   const [socket, setSocket] = useState<Socket | null>(null);
-
-  // const [{ data, loading, error }] = useAxios("/auth/check");
-
+  
+  const { user } = useAuth();
   useEffect(() => {
     const authorizeWebsocket = async () => {
       const newSocket = io({
@@ -67,7 +66,7 @@ function App() {
         <Navigation user={data} />
         <div className="container is-dark">
           <Routes>
-            <Route path="/participant" element={<ParticipantHome user={data} />} />
+            {/* <Route path="/participant" element={<ParticipantHome user={data} />} /> */}
             <Route path="/employer" element={<EmployerManager user={data} />} />
             <Route path="/admin" element={<AdminHome user={data} />} />
           </Routes>

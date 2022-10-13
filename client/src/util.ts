@@ -1,3 +1,3 @@
 export function formatName(name: any): string {
-  return `${name.preferred || name.first} ${name.last}`;
+  return `${name.first} ${name.last}`;
 }

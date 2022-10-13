@@ -8,7 +8,6 @@ import { Navigate } from "react-router-dom";
 import { formatName } from "../../util";
 import SponsorInformation from "./SponsorInformation";
 import ParticipantInfo from "./ParticipantInfo";
-import SponsorFair from "./SponsorFair";
 
 interface Props {
   user: any;
@@ -17,7 +16,6 @@ interface Props {
 enum ParticipantTabs {
   ParticipantInformationTab,
   SponsorInformationTab,
-  SponsorFairTab,
 }
 
 const ParticipantHome: React.FC<Props> = props => {
@@ -32,9 +30,6 @@ const ParticipantHome: React.FC<Props> = props => {
       break;
     case ParticipantTabs.SponsorInformationTab:
       ParticipantContent = <SponsorInformation />;
-      break;
-    case ParticipantTabs.SponsorFairTab:
-      ParticipantContent = <SponsorFair user={props.user} />;
       break;
   }
 
@@ -77,22 +72,11 @@ const ParticipantHome: React.FC<Props> = props => {
               <span>Sponsor Information</span>
             </a>
           </li>
-          <li className={`${currentTab === ParticipantTabs.SponsorFairTab && "is-active"}`}>
-            <a onClick={() => setCurrentTab(ParticipantTabs.SponsorFairTab)}>
-              <span className="icon is-small">
-                <i className="fas fa-sliders-h" aria-hidden="true" />
-              </span>
-              <span>Sponsor Fair</span>
-            </a>
-          </li>
         </ul>
       </nav>
       <section>{ParticipantContent}</section>
       <section>
         <SponsorInformation />
-      </section>
-      <section>
-        <SponsorFair user={props.user} />
       </section>
     </>
   );

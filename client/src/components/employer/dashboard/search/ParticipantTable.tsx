@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Column } from "react-table";
 import { DateTime } from "luxon";
 import axios from "axios";
+import { apiUrl, Service, useAuth } from "@hex-labs/core";
 
 import TableFilter from "../commonTable/TableFilter";
 import { handleAddVisit, generateTag, tagButtonHandler } from "../commonTable/util";
@@ -13,7 +14,12 @@ import ParticipantModal from "../commonTable/ParticipantModal";
 import Table from "../commonTable/Table";
 import TableExport from "../commonTable/TableExport";
 
-const ParticipantTable: React.FC = () => {
+interface Props {
+  company: any;
+  companyRefetch: any;
+}
+
+const ParticipantTable: React.FC<Props> = (props) => {
   // Table filtering states
   const [searchQuery, setSearchQuery] = useState("");
   const [tagsFilter, setTagsFilter] = useState<string[]>([]);
@@ -21,15 +27,19 @@ const ParticipantTable: React.FC = () => {
 
   const [data, setData] = useState<any>({});
 
+  // TODO: use hardcoded hexathon value? Or should allow them to see all participants from 
+  // all hexathons they'd sponsored before?
+  // use hardcoded hexathon value
   useEffect(() => {
     async function getInitialData() {
-      const response = await axios.get("/api/search", {
-        params: {
-          q: "",
-          page: 0,
-          filter: "",
-        },
-      });
+      const response = await axios.get(
+        apiUrl(Service.REGISTRATION, `/applications/`),
+        {
+          params: {
+            hexathon: process.env.REACT_APP_HEXATHON_ID,
+            status: "ACCEPTED"
+          },
+        });
 
       setData(response.data);
     }
@@ -38,13 +48,15 @@ const ParticipantTable: React.FC = () => {
   }, []);
 
   const fetchData = useCallback(async () => {
-    const response = await axios.get("/api/search", {
-      params: {
-        q: searchQuery,
-        page: pageIndex,
-        filter: JSON.stringify(tagsFilter),
-      },
-    });
+    const response = await axios.get(
+      apiUrl(Service.REGISTRATION, `/applications/`),
+      {
+        params: {
+          hexathon: process.env.REACT_APP_HEXATHON_ID,
+          status: "ACCEPTED",
+          search: searchQuery
+        },
+      });
 
     setData(response.data);
   }, [searchQuery, pageIndex, tagsFilter]);

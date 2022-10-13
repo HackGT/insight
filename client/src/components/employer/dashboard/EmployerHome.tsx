@@ -7,59 +7,42 @@ import useAxios from "axios-hooks";
 
 import ParticipantTable from "./search/ParticipantTable";
 import ManageEmployees from "./settings/ManageEmployees";
-import SponsorFairAdmin from "./fair/SponsorFairAdmin";
 import VisitsTable from "./visits/VisitsTable";
 
 enum EmployerTabs {
   VisitsTable,
   SearchParticipants,
   Settings,
-  SponsorFair,
 }
 
 interface Props {
   user: any;
+  company: any;
+  companyRefetch: any;
 }
 
 const EmployerHome: React.FC<Props> = props => {
-  const [{ data, loading, error }] = useAxios(`/api/company/${props.user.company.company}`);
   const [currentTab, setCurrentTab] = useState(EmployerTabs.VisitsTable);
-
-  useEffect(() => {
-    if (data && !data?.company?.hasResumeAccess) {
-      setCurrentTab(EmployerTabs.Settings);
-    }
-  }, [data]);
-
-  if (loading) {
-    return <div>Loading</div>;
-  }
-
-  if (error) {
-    return <div>Error</div>;
-  }
 
   let EmployerContent: any;
 
   switch (currentTab) {
     case EmployerTabs.VisitsTable:
-      EmployerContent = <VisitsTable />;
+      EmployerContent = <VisitsTable company={props.company} user = {props.user} companyRefetch={props.companyRefetch}/>;
       break;
     case EmployerTabs.SearchParticipants:
-      EmployerContent = <ParticipantTable />;
+      EmployerContent = <ParticipantTable company={props.company} companyRefetch={props.companyRefetch}/>;
       break;
     case EmployerTabs.Settings:
-      EmployerContent = <ManageEmployees user={props.user} />;
+      EmployerContent = <ManageEmployees company={props.company} user = {props.user} companyRefetch={props.companyRefetch}/>;
       break;
-    case EmployerTabs.SponsorFair:
-      EmployerContent = <SponsorFairAdmin user={props.user} />;
   }
 
   return (
     <>
       <nav className="tabs is-fullwidth">
         <ul>
-          {data.company.hasResumeAccess && (
+          (
             <>
               <li className={`${currentTab === EmployerTabs.VisitsTable && "is-active"}`}>
                 <a onClick={() => setCurrentTab(EmployerTabs.VisitsTable)}>
@@ -78,7 +61,7 @@ const EmployerHome: React.FC<Props> = props => {
                 </a>
               </li>
             </>
-          )}
+          )
           {/* <li className={`${currentTab === EmployerTabs.SponsorFair && "is-active"}`}>
             <a onClick={() => setCurrentTab(EmployerTabs.SponsorFair)}>
               <span className="icon is-small">

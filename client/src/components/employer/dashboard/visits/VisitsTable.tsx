@@ -6,25 +6,36 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Column } from "react-table";
 import { DateTime } from "luxon";
 import axios from "axios";
+import { apiUrl, Service, useAuth } from "@hex-labs/core";
 
 import { handleAddVisit, generateTag, tagButtonHandler } from "../commonTable/util";
 import ParticipantModal from "../commonTable/ParticipantModal";
 import Table from "../commonTable/Table";
 import TableExport from "../commonTable/TableExport";
 
-const VisitsTable: React.FC = () => {
+interface Props {
+  user: any;
+  company: any;
+  companyRefetch: any;
+}
+
+const VisitsTable: React.FC<Props> = (props) => {
   // Table filtering states
+
+  const {company, user, companyRefetch} = props
   const [pageIndex, setPageIndex] = useState(0);
 
   const [data, setData] = useState<any>({});
 
   useEffect(() => {
     async function getInitialData() {
-      const response = await axios.get("/api/visit", {
-        params: {
-          page: 0,
-        },
-      });
+      await axios.get(
+        apiUrl(Service.HEXATHONS, `/sponsor-visit`), {
+        data: {
+          employeeId: user.uid
+        }
+      },
+      );
 
       setData(response.data);
     }
