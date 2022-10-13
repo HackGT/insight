@@ -3,6 +3,7 @@
 /* eslint-disable no-underscore-dangle */
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { apiUrl, Service, useAuth } from "@hex-labs/core";
 
 import PDFContainer from "./PDFContainer";
 import { handleAddVisit, generateTag, tagButtonHandler, handleDeleteVisit } from "./util";
@@ -66,14 +67,26 @@ const ParticipantModal: React.FC<Props> = props => {
     const note = (prompt("New note:") || "").trim();
     if (!note) return;
 
-    await axios.post(`/api/visit/${props.visitData._id}/note`, { note });
+    await axios.put(
+      apiUrl(Service.HEXATHONS, `/sponsor-visit/${props.visitData.id}`),
+      {
+        notes: [...props.visitData.notes, note]
+      }
+    );
+
     props.fetchData();
   };
 
   const handleDeleteNote = async (note: any) => {
     if (!window.confirm("Are you sure that you want to delete this note?")) return;
 
-    await axios.delete(`/api/visit/${props.visitData._id}/note`, { data: { note } });
+    await axios.put(
+      apiUrl(Service.HEXATHONS, `/sponsor-visit/${props.visitData.id}`),
+      {
+        notes: props.visitData.notes.filter((n: any) => n != note)
+      }
+    );
+
     props.fetchData();
   };
 
@@ -137,7 +150,7 @@ const ParticipantModal: React.FC<Props> = props => {
               <h4 className="title is-4">Resume</h4>
 
               {props.participant.resume &&
-              props.participant.resume.path.toLowerCase().indexOf(".pdf") >= 0 ? (
+                props.participant.resume.path.toLowerCase().indexOf(".pdf") >= 0 ? (
                 <PDFContainer link={link} />
               ) : props.participant.resume ? (
                 'Unable to render resume. Click "Download Resume" below to view the file.'

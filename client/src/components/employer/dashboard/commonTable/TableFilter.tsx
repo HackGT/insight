@@ -13,6 +13,7 @@ interface Props {
 }
 
 const TableFilter: React.FC<Props> = props => {
+  // TODO: add query visit based on tag/starred to backend
   const [{ data: tagsData }] = useAxios("/api/tags");
 
   const handleTagSelected = (tag: string) => {

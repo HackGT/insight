@@ -10,7 +10,7 @@ import { useLogin, LoadingScreen, AuthProvider, useAuth, apiUrl, Service} from "
 import "./App.css";
 import "./bulma-tooltip.min.css";
 import AdminHome from "./components/admin/AdminHome";
-import ParticipantHome from "./components/participant/ParticipantHome";
+// import ParticipantHome from "./components/participant/ParticipantHome";
 import Footer from "./components/layout/Footer";
 import Navigation from "./components/layout/Navigation";
 import EmployerManager from "./components/employer/EmployerManager";
