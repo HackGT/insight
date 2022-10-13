@@ -17,7 +17,7 @@ interface Props {
 const ManageEmployees: React.FC<Props> = props => {
   const { company } = props
 
-  const editorState = useRef<any>();
+  const [description, setDescription] = useState(company.description)
 
   const handleRemoveEmployee = async (user: any) => {
     if (!window.confirm(`Are you sure you want to remove ${user.name}?`)) return;
@@ -42,11 +42,10 @@ const ManageEmployees: React.FC<Props> = props => {
       return;
 
     await axios.post(
-      apiUrl(Service.USERS, `/companies/${company.id}/employees/accept-request`), {
-      data: {
+      apiUrl(Service.USERS, `/companies/${company.id}/employees/accept-request`),
+      {
         employeeId: user.uid
       }
-    },
     );
     props.companyRefetch();
   };
@@ -54,10 +53,8 @@ const ManageEmployees: React.FC<Props> = props => {
   const handleEditDescription = async () => {
     await axios.put(
       apiUrl(Service.USERS, `/companies/${company.id}`), {
-      data: {
-        description: editorState.current.value(),
-      }
-    },
+      description
+    }
     );
     props.companyRefetch();
   };
@@ -117,17 +114,15 @@ const ManageEmployees: React.FC<Props> = props => {
             </>
           )}
         </div>
-       
+
       </div>
       <h1 className="title">Description</h1>
       <h6 className="subtitle is-6">
-        This is your company description published for all participants to see.
+        {company.description}
       </h6>
-      {/* <Editor
-        defaultValue={data.company.description}
-        ref={editorState}
-        style={{ marginBottom: "15px" }}
-      /> */}
+      <textarea value={description} onChange={e =>
+        setDescription(e.target.value)
+      } />
       <button className="button is-info is-outlined" onClick={() => handleEditDescription()}>
         Update Description
       </button>

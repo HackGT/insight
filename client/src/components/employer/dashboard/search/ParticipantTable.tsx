@@ -27,9 +27,6 @@ const ParticipantTable: React.FC<Props> = (props) => {
 
   const [data, setData] = useState<any>({});
 
-  // TODO: use hardcoded hexathon value? Or should allow them to see all participants from 
-  // all hexathons they'd sponsored before?
-  // use hardcoded hexathon value
   useEffect(() => {
     async function getInitialData() {
       const response = await axios.get(

@@ -7,7 +7,7 @@ import { formatName } from "../../../util";
 
 interface Props {
   user: any;
-  userRefetch: any;
+  companyRefetch: any;
 }
 
 const PreEmployerHome: React.FC<Props> = props => {
@@ -28,7 +28,7 @@ const PreEmployerHome: React.FC<Props> = props => {
   const handleSelectCompany = async () => {
     if (!selectedCompany || selectedCompany === "default") return;
     console.log("selected company", selectedCompany);
-    await axios.post(`/api/company/${encodeURIComponent(selectedCompany)}/join`);
+    await axios.post(apiUrl(Service.USERS, `/companies/${selectedCompany}/employees/request`));
     window.location.reload();
   };
 
@@ -67,7 +67,7 @@ const PreEmployerHome: React.FC<Props> = props => {
                 {data.map((company: any) => (
 
                   <button className="button" onClick={() => handleSelectCompany()}>
-                    "Request to join"
+                    Request to join
                   </button>
                 )
                 )}

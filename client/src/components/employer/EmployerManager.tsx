@@ -12,14 +12,21 @@ interface Props {
 
 const EmployerManager: React.FC<Props> = props => {
   const { user } = useAuth()
+
   const [{ data: companyData, loading: companyLoading, error: companyError }, companyRefetch] = useAxios({
     method: "GET",
-    url: apiUrl(Service.USERS, `/companies/employees/${user?.uid}`)
+    url: apiUrl(Service.USERS, `/companies/employees/${user?.uid}`),
+    params: {
+      hexathon: process.env.REACT_APP_HEXATHON_ID
+    }
   });
 
   const [{data: userData, loading: userLoading, error: userError}, userRefetch] = useAxios({
     method: "GET",
-    url: apiUrl(Service.USERS, `/users/${user?.uid}`)
+    url: apiUrl(Service.USERS, `/users/${user?.uid}`),
+    params: {
+      hexathon: process.env.REACT_APP_HEXATHON_ID
+    }
   });
 
 
@@ -27,15 +34,16 @@ const EmployerManager: React.FC<Props> = props => {
     return <div>Loading</div>;
   }
 
-  if (companyError || userError) {
+  if (userError) {
     return <div>Error</div>;
   }
 
-  if (companyData) {
+  if (!companyError) {
     return <EmployerHome company={companyData} user={userData} companyRefetch={companyRefetch} />;
-  } else {
-    return <PreEmployerHome user={userData} userRefetch={userRefetch}/>;
-  }
+  } 
+    
+  return <PreEmployerHome user={userData} companyRefetch={companyRefetch}/>;
+
 
 };
 

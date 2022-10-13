@@ -7,7 +7,7 @@ import useAxios from "axios-hooks";
 
 import ParticipantTable from "./search/ParticipantTable";
 import ManageEmployees from "./settings/ManageEmployees";
-import VisitsTable from "./visits/VisitsTable";
+// import VisitsTable from "./visits/VisitsTable";
 
 enum EmployerTabs {
   VisitsTable,
@@ -22,14 +22,14 @@ interface Props {
 }
 
 const EmployerHome: React.FC<Props> = props => {
-  const [currentTab, setCurrentTab] = useState(EmployerTabs.VisitsTable);
-
+  const [currentTab, setCurrentTab] = useState(EmployerTabs.Settings);
+  
   let EmployerContent: any;
 
   switch (currentTab) {
-    case EmployerTabs.VisitsTable:
-      EmployerContent = <VisitsTable company={props.company} user = {props.user} companyRefetch={props.companyRefetch}/>;
-      break;
+    // case EmployerTabs.VisitsTable:
+    //   EmployerContent = <VisitsTable company={props.company} user = {props.user} companyRefetch={props.companyRefetch}/>;
+    //   break;
     case EmployerTabs.SearchParticipants:
       EmployerContent = <ParticipantTable company={props.company} companyRefetch={props.companyRefetch}/>;
       break;
