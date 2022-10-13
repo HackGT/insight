@@ -13,28 +13,35 @@ interface Props {
 
 const AdminHome: React.FC<Props> = props => {
 
+  const { user } = useAuth();
   const [{ data, loading, error }, refetch] = useAxios({
     method: "GET",
     url: apiUrl(Service.USERS, "/companies/")
   });
 
-  // if (!userData.admin) {
-  //   return <Navigate to="/" />;
-  // }
+  const [{ data: userData, loading: userLoading, error: userError }, userRefetch] = useAxios({
+    method: "GET",
+    url: apiUrl(Service.USERS, `/users/${user?.uid}`),
+    params: {
+      hexathon: process.env.REACT_APP_HEXATHON_ID
+    }
+  });
 
-  if (loading) {
+  if (loading || userLoading) {
     return <div>Loading</div>;
   }
 
-  if (error) {
+  if (error || userError) {
     return <div>Error</div>;
+  }
+
+  if (!userData.roles.admin) {
+    window.alert("No permission to access")
+    return <Navigate to="/" />;
   }
 
 
   const handleDeleteEmployee = async (company: any, user: any) => {
-    console.log("in delete emp")
-    console.log(user)
-    console.log(company)
     if (!window.confirm(`Are you sure you want to delete ${formatName(user.name)} from ${company.name}?`)) return;
 
     await axios.delete(
