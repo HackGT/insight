@@ -25,28 +25,63 @@ interface Props {
 const VisitsTable: React.FC<Props> = (props) => {
   // Table filtering states
 
-  const limit = 50
-  const { user, company, companyRefetch } = props
-  const [detailModalInfo, setDetailModalInfo] = useState<any>(null);
+  // const { user, company, companyRefetch } = props
+  // const [detailModalInfo, setDetailModalInfo] = useState<any>(null);
+  // const [pageIndex, setPageIndex] = useState(0);
+
+  // const [{ data, loading, error }, fetchData] = useAxios({
+  //   method: "GET",
+  //   url: apiUrl(Service.HEXATHONS, `/sponsor-visit`)
+  // });
+
+
+  // if (loading) {
+  //   return <div>Loading</div>;
+  // }
+
+  // if (error) {
+  //   return <div>Error</div>;
+  // }
+
   const [pageIndex, setPageIndex] = useState(0);
 
-  const [{ data, loading, error }, fetchData] = useAxios({
-    method: "GET",
-    url: apiUrl(Service.HEXATHONS, `/sponsor-visit`),
-    params: {
-      offset: pageIndex,
-      limit
-    },
-  });
+  const [data, setData] = useState<any>({});
 
+  useEffect(() => {
+    async function getInitialData() {
+      const response = await axios.get(apiUrl(Service.HEXATHONS, `/sponsor-visit`));
 
-  if (loading) {
-    return <div>Loading</div>;
-  }
+      setData(response.data);
+    }
 
-  if (error) {
-    return <div>Error</div>;
-  }
+    getInitialData();
+  }, []);
+
+  const fetchData = useCallback(async () => {
+    const response = await axios.get("/api/visit", {
+      params: {
+        page: pageIndex,
+      },
+    });
+
+    setData(response.data);
+  }, [pageIndex]);
+
+  // Will fetch new data whenever the page index, search query, or tags filter changes
+  useEffect(() => {
+    fetchData();
+  }, [pageIndex]);
+
+  const [detailModalInfo, setDetailModalInfo] = useState<any>(null);
+  useEffect(() => {
+    if (detailModalInfo) {
+      const updatedVisit = data.visits.find((visit: any) => visit._id === detailModalInfo._id);
+      if (updatedVisit) {
+        setDetailModalInfo(updatedVisit);
+      }
+    }
+  }, [data]);
+
 
   const columns = useMemo<Column<any>[]>(
     () => [

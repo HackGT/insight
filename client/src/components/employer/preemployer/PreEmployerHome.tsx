@@ -12,7 +12,7 @@ interface Props {
 
 const PreEmployerHome: React.FC<Props> = props => {
   const { user, companyRefetch } = props
-  
+
   const [{ data, loading, error }, refetch] = useAxios({
     method: "GET",
     url: apiUrl(Service.USERS, "/companies/")
@@ -91,9 +91,9 @@ const PreEmployerHome: React.FC<Props> = props => {
       <br />
       <div className="field is-grouped is-grouped-centered">
         <p className="control">
-          <a className="button is-medium" href="/logout">
+          {/* <a className="button is-medium" href="/logout">
             Log out
-          </a>
+          </a> */}
         </p>
       </div>
     </>

@@ -27,7 +27,7 @@ const ParticipantTable: React.FC<Props> = (props) => {
 
   const [data, setData] = useState<any>({});
 
-  // TOOD: populate /users data based on /application data
+  // TODO: populate /users data based on /application data
   useEffect(() => {
     async function getInitialData() {
       const response = await axios.get(
@@ -93,15 +93,15 @@ const ParticipantTable: React.FC<Props> = (props) => {
         Header: "Name",
         accessor: "name",
       },
-      {
-        Header: "Major",
-        accessor: (row, i) => row.major || "Unknown",
-        id: "major",
-      },
-      {
-        Header: "Links",
-        accessor: "links",
-      },
+      // {
+      //   Header: "Major",
+      //   accessor: (row, i) => row.major || "Unknown",
+      //   id: "major",
+      // },
+      // {
+      //   Header: "Links",
+      //   accessor: "links",
+      // },
       {
         Header: "Tags",
         accessor: (row, i) => {
