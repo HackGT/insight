@@ -61,7 +61,7 @@ function App() {
         <div className="container is-dark">
           <Routes>
             {/* <Route path="/participant" element={<ParticipantHome user={data} />} /> */}
-            <Route path="/employer" element={<EmployerManager user={userData} />} />
+            <Route path="/" element={<EmployerManager user={userData} />} />
             <Route path="/admin" element={<AdminHome user={userData} />} />
           </Routes>
         </div>

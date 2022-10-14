@@ -11,6 +11,8 @@ interface Props {
 }
 
 const PreEmployerHome: React.FC<Props> = props => {
+  const { user, companyRefetch } = props
+  
   const [{ data, loading, error }, refetch] = useAxios({
     method: "GET",
     url: apiUrl(Service.USERS, "/companies/")
@@ -27,9 +29,13 @@ const PreEmployerHome: React.FC<Props> = props => {
 
   const handleSelectCompany = async () => {
     if (!selectedCompany || selectedCompany === "default") return;
-    console.log("selected company", selectedCompany);
-    await axios.post(apiUrl(Service.USERS, `/companies/${selectedCompany}/employees/request`));
-    window.location.reload();
+    const existingRequest = data[selectedCompany].pendingEmployees.filter((emp: { userId: any; }) => emp.userId == user.userId)
+    if (existingRequest.length != 0) {
+      window.alert("Already requested!")
+    }
+    await axios.post(apiUrl(Service.USERS, `/companies/${data[selectedCompany].id}/employees/request`));
+    window.alert("Successfully requested!")
+    refetch()
   };
 
   return (
@@ -57,8 +63,8 @@ const PreEmployerHome: React.FC<Props> = props => {
                         Please select
                       </option>
                     )}
-                    {data.map((company: any) => (
-                      <option value={company.id}>{company.name}</option>
+                    {data.map((company: any, index: number) => (
+                      <option value={index}>{company.name}</option>
                     ))}
                   </select>
                 </div>

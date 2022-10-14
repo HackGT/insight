@@ -16,7 +16,7 @@ export class Page {
 
 export const routes = [
   // new Page("Participant Home", "/participant", user => user.type === "participant" || user.admin),
-  new Page("Employer Home", "/employer", user => user.type === "employer" || user.admin),
+  new Page("Home", "/", user => user.type === "employer" || user.admin),
   new Page("Admin", "/admin", user => user.admin),
 ];
 
