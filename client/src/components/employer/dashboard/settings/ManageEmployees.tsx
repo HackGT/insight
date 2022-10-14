@@ -50,6 +50,12 @@ const ManageEmployees: React.FC<Props> = props => {
     props.companyRefetch();
   };
 
+  const handleLogOut = async () => {
+    await axios.get(apiUrl(Service.AUTH, `/auth/logout`));
+    window.alert("Successfully logged out")
+    window.location.href = `https://login.hexlabs.org?redirect=${window.location.href}`;
+  }
+
   const handleEditDescription = async () => {
     await axios.put(
       apiUrl(Service.USERS, `/companies/${company.id}`), {
@@ -125,6 +131,11 @@ const ManageEmployees: React.FC<Props> = props => {
       } />
       <button className="button is-info is-outlined" onClick={() => handleEditDescription()}>
         Update Description
+      </button>
+      <br/>
+      <br/>
+      <button className="button" onClick={() => handleLogOut()}>
+        Logout
       </button>
     </>
   );

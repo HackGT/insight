@@ -38,6 +38,12 @@ const PreEmployerHome: React.FC<Props> = props => {
     refetch()
   };
 
+  const handleLogOut = async () => {
+    await axios.get(apiUrl(Service.AUTH, `/auth/logout`));
+    window.alert("Successfully logged out")
+    window.location.href = `https://login.hexlabs.org?redirect=${window.location.href}`;
+  }
+
   return (
     <>
       <section className="columns">
@@ -91,9 +97,9 @@ const PreEmployerHome: React.FC<Props> = props => {
       <br />
       <div className="field is-grouped is-grouped-centered">
         <p className="control">
-          {/* <a className="button is-medium" href="/logout">
-            Log out
-          </a> */}
+          <button className="button" onClick={() => handleLogOut()}>
+            Logout
+          </button>
         </p>
       </div>
     </>
