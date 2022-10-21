@@ -29,6 +29,7 @@ import useAxios from "axios-hooks";
 import { formatName } from "../../../../util";
 
 interface Props {
+  companyHasAccess: boolean
   participantId: string;
   // visitData: any;
   setModalUser: React.Dispatch<any>;
@@ -274,7 +275,7 @@ const ParticipantModal: React.FC<Props> = props => {
                     target="_blank"
                     color="teal.500"
                   > */}
-              {data.applicationData.resume?.id ? (
+              {data.applicationData.resume?.id && props.companyHasAccess? (
                 <button
                   onClick={() => {
                     window.open(apiUrl(Service.FILES, `/files/${data.applicationData.resume?.id}/view`), '_blank')?.focus();
@@ -292,6 +293,7 @@ const ParticipantModal: React.FC<Props> = props => {
                 <button
                   type="button"
                   className="button is-info"
+                  disabled
                 >
                   <span className="icon is-small">
                     <i className="fas fa-download" />

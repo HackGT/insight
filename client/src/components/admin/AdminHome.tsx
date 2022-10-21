@@ -112,7 +112,7 @@ const AdminHome: React.FC<Props> = props => {
       hasResumeAccess: !company.hasResumeAccess
     }
     );
-    refetch()
+    window.location.reload()
   };
 
   const handleDeleteCompany = async (company: any) => {

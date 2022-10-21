@@ -4,7 +4,6 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Column } from "react-table";
-import { Link as ChakraLink, Text } from "@chakra-ui/react";
 import { DateTime } from "luxon";
 import axios from "axios";
 import { apiUrl, Service, useAuth, SearchableTable } from "@hex-labs/core";
@@ -136,6 +135,7 @@ const ParticipantTable: React.FC<Props> = (props) => {
       />
       <ParticipantModal
         participantId={modalUser}
+        companyHasAccess = {props.company.hasResumeAccess}
         // visitData={detailModalInfo?.visitData}
         setModalUser={setModalUser}
       // fetchData={fetchData}
