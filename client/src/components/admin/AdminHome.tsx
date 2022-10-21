@@ -109,10 +109,10 @@ const AdminHome: React.FC<Props> = props => {
   const handleResumeAccessCompany = async (company: any, hasResumeAccess: boolean) => {
     await axios.put(
       apiUrl(Service.USERS, `/companies/${company.id}`), {
-      hasResumeAccess
+      hasResumeAccess: !company.hasResumeAccess
     }
     );
-    window.location.reload();
+    refetch()
   };
 
   const handleDeleteCompany = async (company: any) => {

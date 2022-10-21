@@ -30,8 +30,10 @@ const PreEmployerHome: React.FC<Props> = props => {
   const handleSelectCompany = async () => {
     if (!selectedCompany || selectedCompany === "default") return;
     const existingRequest = data[selectedCompany].pendingEmployees.filter((emp: { userId: any; }) => emp.userId == user.userId)
-    if (existingRequest.length != 0) {
+    const existingEmployee = data[selectedCompany].employees.filter((emp: { userId: any; }) => emp.userId == user.userId)
+    if (existingRequest.length != 0 || existingEmployee.length != 0) {
       window.alert("Already requested!")
+      return
     }
     await axios.post(apiUrl(Service.USERS, `/companies/${data[selectedCompany].id}/employees/request`));
     window.alert("Successfully requested!")
@@ -76,14 +78,9 @@ const PreEmployerHome: React.FC<Props> = props => {
                 </div>
               </div>
               <div className="control">
-                {data.map((company: any) => (
-
-                  <button className="button" onClick={() => handleSelectCompany()}>
-                    Request to join
-                  </button>
-                )
-                )}
-
+                <button className="button" onClick={() => handleSelectCompany()}>
+                  Request to join
+                </button>
               </div>
             </div>
           </p>
