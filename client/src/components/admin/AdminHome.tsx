@@ -1,54 +1,67 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import useAxios from "axios-hooks";
 import axios from "axios";
 import { Navigate } from "react-router-dom";
 
 import { formatName } from "../../util";
-import AdminManager from "./AdminManager";
+// import AdminManager from "./AdminManager";
+import { apiUrl, Service, useAuth } from "@hex-labs/core";
 
 interface Props {
   user: any;
 }
 
 const AdminHome: React.FC<Props> = props => {
-  const [{ data, loading, error }, refetch] = useAxios("/api/company");
 
-  if (!props.user.admin) {
-    return <Navigate to="/" />;
-  }
+  const { user } = useAuth();
+  const [{ data, loading, error }, refetch] = useAxios({
+    method: "GET",
+    url: apiUrl(Service.USERS, "/companies/")
+  });
 
-  if (loading) {
+  const [{ data: userData, loading: userLoading, error: userError }, userRefetch] = useAxios({
+    method: "GET",
+    url: apiUrl(Service.USERS, `/users/${user?.uid}`),
+    params: {
+      hexathon: process.env.REACT_APP_HEXATHON_ID
+    }
+  });
+
+  if (loading || userLoading) {
     return <div>Loading</div>;
   }
 
-  if (error) {
+  if (error || userError) {
     return <div>Error</div>;
   }
 
-  const handleSetScanner = async (company: any, user: any) => {
-    const scannerID = prompt("Scanner ID:", user.scanners);
-    if (scannerID === null) return;
+  if (!userData.roles.admin) {
+    window.alert("No permission to access")
+    return <Navigate to="/" />;
+  }
 
-    await axios.patch(
-      `/api/company/${encodeURIComponent(company._id)}/employee/${encodeURIComponent(
-        user.email
-      )}/scanners/${encodeURIComponent(scannerID)}`
-    );
-    refetch();
-  };
 
   const handleDeleteEmployee = async (company: any, user: any) => {
-    if (!window.confirm(`Are you sure you want to delete ${company.name}?`)) return;
+    if (!window.confirm(`Are you sure you want to delete ${formatName(user.name)} from ${company.name}?`)) return;
 
-    await axios.delete(`/api/company/${encodeURIComponent(company._id)}`);
+    await axios.delete(
+      apiUrl(Service.USERS, `/companies/${company.id}/employees`),
+      {
+        data: {
+          userId: user.userId
+        }
+      }
+    );
+
     refetch();
   };
 
   const handleConfirmEmployee = async (company: any, pendingUser: any) => {
-    await axios.patch(
-      `/api/company/${encodeURIComponent(company._id)}/employee/${encodeURIComponent(
-        pendingUser.email || ""
-      )}`
+    await axios.post(
+      apiUrl(Service.USERS, `/companies/${company.id}/employees/accept-request`),
+      {
+        employeeId: pendingUser.userId
+      }
     );
     refetch();
   };
@@ -59,7 +72,9 @@ const AdminHome: React.FC<Props> = props => {
 
     email = email.trim().toLowerCase();
     await axios.post(
-      `/api/company/${encodeURIComponent(company._id)}/employee/${encodeURIComponent(email)}`
+      apiUrl(Service.USERS, `/companies/${company.id}/employees/add`), {
+      employees: email
+    },
     );
     refetch();
   };
@@ -69,7 +84,13 @@ const AdminHome: React.FC<Props> = props => {
     if (!name) return;
 
     name = name.trim();
-    await axios.post(`/api/company/${encodeURIComponent(name)}`);
+    await axios.post(
+      apiUrl(Service.USERS, `/companies/`),
+      {
+        name,
+        hexathon: process.env.REACT_APP_HEXATHON_ID,
+      }
+    );
     refetch();
   };
 
@@ -77,23 +98,29 @@ const AdminHome: React.FC<Props> = props => {
     const name = prompt("New name:", company.name);
     if (!name) return;
 
-    await axios.patch(`/api/company/${encodeURIComponent(company._id)}`, {
-      name: name.trim(),
-    });
+    await axios.put(
+      apiUrl(Service.USERS, `/companies/${company.id}`), {
+      name,
+    }
+    );
     refetch();
   };
 
   const handleResumeAccessCompany = async (company: any, hasResumeAccess: boolean) => {
-    await axios.patch(`/api/company/${encodeURIComponent(company._id)}`, {
-      hasResumeAccess: !hasResumeAccess,
-    });
-    window.location.reload();
+    await axios.put(
+      apiUrl(Service.USERS, `/companies/${company.id}`), {
+      hasResumeAccess: !company.hasResumeAccess
+    }
+    );
+    window.location.reload()
   };
 
   const handleDeleteCompany = async (company: any) => {
     if (!window.confirm(`Are you sure you want to delete ${company.name}?`)) return;
 
-    await axios.delete(`/api/company/${encodeURIComponent(company._id)}`);
+    await axios.delete(
+      apiUrl(Service.USERS, `/companies/${company.id}`)
+    );
     refetch();
   };
 
@@ -111,61 +138,49 @@ const AdminHome: React.FC<Props> = props => {
         Add company
       </button>
       <section className="columns is-multiline">
-        {data.companies.length === 0 ? (
+        {data.length === 0 ? (
           <div className="column is-half is-offset-one-quarter has-text-centered">
             <p>
               <em>No companies yet</em>
             </p>
           </div>
         ) : (
-          data.companies.map((company: any) => (
+          data.map((company: any) => (
             <div className="column is-half">
               <h1 className="title">{company.name}</h1>
               <ul>
-                <li>
+                {/* <li>
                   <strong>{company.visits.length}</strong> visits
-                </li>
+                </li> */}
                 <li>
-                  <strong>{company.users.length}</strong> employee(s)
+                  <strong>{company.employees.length}</strong> employee(s)
                 </li>
-                {company.users.length === 0 ? (
+                {company.employees.length === 0 ? (
                   <li className="has-text-centered">
-                    <em>No users</em>
+                    <em>No Employees</em>
                   </li>
                 ) : (
-                  company.users.map((user: any) => (
+                  company.employees.map((emp: any) => (
                     <li className="single-line-button">
                       <span className="icon">
                         <i className="fas fa-user-tie" />
                       </span>
-                      <strong>{formatName(user.name)}</strong> ({user.email}
-                      )&nbsp;&nbsp;|&nbsp;&nbsp;Scanner(s):
-                      {!user.scannerIds || user.scannerIDs.length === 0 ? (
-                        <em>None</em>
-                      ) : (
-                        <strong>{user.scannerIDs.join(",")}</strong>
-                      )}
-                      <button
-                        className="button is-link is-outlined set-scanner"
-                        onClick={() => handleSetScanner(company, user)}
-                      >
-                        Scanners
-                      </button>
+                      <strong>{formatName(emp.name)}</strong> ({emp.email})
                       <button
                         className="button is-danger is-outlined remove-employee"
-                        onClick={() => handleDeleteEmployee(company, user)}
+                        onClick={() => handleDeleteEmployee(company, emp)}
                       >
                         Remove
                       </button>
                     </li>
                   ))
                 )}
-                {company.pendingUsers.length === 0 ? (
+                {company.pendingEmployees.length === 0 ? (
                   <li>
                     <hr />
                   </li>
                 ) : (
-                  company.pendingUsers.map((pendingUser: any) => (
+                  company.pendingEmployees.map((pendingUser: any) => (
                     <li className="single-line-button">
                       <span className="icon">
                         <i className="fas fa-user-clock" />
@@ -207,9 +222,8 @@ const AdminHome: React.FC<Props> = props => {
                 </p>
                 <p className="control">
                   <button
-                    className={`button ${
-                      company.hasResumeAccess ? "is-danger" : "is-info"
-                    } is-outlined`}
+                    className={`button ${company.hasResumeAccess ? "is-danger" : "is-info"
+                      } is-outlined`}
                     onClick={() => handleResumeAccessCompany(company, company.hasResumeAccess)}
                   >
                     {company.hasResumeAccess ? "Remove Resume Access" : "Give Resume Access"}
@@ -231,7 +245,7 @@ const AdminHome: React.FC<Props> = props => {
 
       <hr />
 
-      <AdminManager />
+      {/* <AdminManager /> */}
     </>
   );
 };

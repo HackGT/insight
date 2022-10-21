@@ -1,66 +1,72 @@
-import React, { useState } from "react";
-import useAxios from "axios-hooks";
-// import Editor from "rich-markdown-editor";
+export {}
+// import React, { useState } from "react";
+// import useAxios from "axios-hooks";
+// // import Editor from "rich-markdown-editor";
 
-import SponsorSquare from "./CompanySquare";
+// import SponsorSquare from "./CompanySquare";
 
-const SponsorInformation: React.FC = () => {
-  const [{ data, loading, error }] = useAxios("/api/company");
-  const [activeSponsor, setActiveSponsor] = useState<any>({});
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
+// interface Props {
+//   company: any;
+// }
 
-  if (loading) {
-    return <div>Loading</div>;
-  }
+// const SponsorInformation: React.FC<Props> = (props) => {
+//   const { company } = props
+//   // const [{ data, loading, error }] = useAxios("/api/company");
+//   const [activeSponsor, setActiveSponsor] = useState<any>({});
+//   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-  if (error) {
-    return <div>Error</div>;
-  }
+//   // if (loading) {
+//   //   return <div>Loading</div>;
+//   // }
 
-  console.log(data);
+//   // if (error) {
+//   //   return <div>Error</div>;
+//   // }
 
-  const openModal = (sponsor: any) => {
-    setActiveSponsor(sponsor);
-    setModalOpen(true);
-  };
+//   // console.log(data);
 
-  const closeModal = () => {
-    setActiveSponsor({});
-    setModalOpen(false);
-  };
+//   const openModal = (sponsor: any) => {
+//     setActiveSponsor(sponsor);
+//     setModalOpen(true);
+//   };
 
-  return (
-    <>
-      <div id="sponsor-content">
-        {data.companies.map((company: any) => (
-          <SponsorSquare company={company} openModal={openModal} />
-        ))}
-      </div>
-      <article className={`modal ${modalOpen ? "is-active" : ""}`}>
-        <div className="modal-background" />
-        <div className="modal-card">
-          <header className="modal-card-head">
-            <div className="modal-title">
-              <h1 className="title" id="sponsor-name">
-                {activeSponsor.name}
-              </h1>
-            </div>
-            <button className="delete" aria-label="close" onClick={() => closeModal()} />
-          </header>
-          <section className="modal-card-body">
-            {/* {activeSponsor?.description && <Editor value={activeSponsor.description} readOnly />} */}
-          </section>
-          <footer className="modal-card-foot">
-            <div className="buttons">
-              <button className="button" id="detail-close" onClick={() => closeModal()}>
-                Close
-              </button>
-            </div>
-          </footer>
-        </div>
-      </article>
-    </>
-  );
-};
+//   const closeModal = () => {
+//     setActiveSponsor({});
+//     setModalOpen(false);
+//   };
 
-export default SponsorInformation;
+//   return (
+//     <>
+//       <div id="sponsor-content">
+//         {data.companies.map((company: any) => (
+//           <SponsorSquare company={company} openModal={openModal} />
+//         ))}
+//       </div>
+//       <article className={`modal ${modalOpen ? "is-active" : ""}`}>
+//         <div className="modal-background" />
+//         <div className="modal-card">
+//           <header className="modal-card-head">
+//             <div className="modal-title">
+//               <h1 className="title" id="sponsor-name">
+//                 {activeSponsor.name}
+//               </h1>
+//             </div>
+//             <button className="delete" aria-label="close" onClick={() => closeModal()} />
+//           </header>
+//           <section className="modal-card-body">
+//             {/* {activeSponsor?.description && <Editor value={activeSponsor.description} readOnly />} */}
+//           </section>
+//           <footer className="modal-card-foot">
+//             <div className="buttons">
+//               <button className="button" id="detail-close" onClick={() => closeModal()}>
+//                 Close
+//               </button>
+//             </div>
+//           </footer>
+//         </div>
+//       </article>
+//     </>
+//   );
+// };
+
+// export default SponsorInformation;

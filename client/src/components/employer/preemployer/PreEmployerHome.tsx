@@ -1,18 +1,23 @@
 import axios from "axios";
 import useAxios from "axios-hooks";
 import React, { useState } from "react";
+import { apiUrl, Service, useAuth } from "@hex-labs/core";
 
 import { formatName } from "../../../util";
 
 interface Props {
   user: any;
+  companyRefetch: any;
 }
 
 const PreEmployerHome: React.FC<Props> = props => {
-  const [{ data, loading, error }] = useAxios("/api/company");
-  const [selectedCompany, setSelectedCompany] = useState<string>(
-    props.user.company?.company || "default"
-  );
+  const { user, companyRefetch } = props
+
+  const [{ data, loading, error }, refetch] = useAxios({
+    method: "GET",
+    url: apiUrl(Service.USERS, "/companies/")
+  });
+  const [selectedCompany, setSelectedCompany] = useState<string>("default");
 
   if (loading) {
     return <div>Loading</div>;
@@ -24,10 +29,22 @@ const PreEmployerHome: React.FC<Props> = props => {
 
   const handleSelectCompany = async () => {
     if (!selectedCompany || selectedCompany === "default") return;
-    console.log("selected company", selectedCompany);
-    await axios.post(`/api/company/${encodeURIComponent(selectedCompany)}/join`);
-    window.location.reload();
+    const existingRequest = data[selectedCompany].pendingEmployees.filter((emp: { userId: any; }) => emp.userId == user.userId)
+    const existingEmployee = data[selectedCompany].employees.filter((emp: { userId: any; }) => emp.userId == user.userId)
+    if (existingRequest.length != 0 || existingEmployee.length != 0) {
+      window.alert("Already requested!")
+      return
+    }
+    await axios.post(apiUrl(Service.USERS, `/companies/${data[selectedCompany].id}/employees/request`));
+    window.alert("Successfully requested!")
+    refetch()
   };
+
+  const handleLogOut = async () => {
+    await axios.get(apiUrl(Service.AUTH, `/auth/logout`));
+    window.alert("Successfully logged out")
+    window.location.href = `https://login.hexlabs.org?redirect=${window.location.href}`;
+  }
 
   return (
     <>
@@ -36,24 +53,6 @@ const PreEmployerHome: React.FC<Props> = props => {
           <h1 className="title">Hello, {formatName(props.user.name)}!</h1>
           <h2 className="subtitle">{props.user.email}</h2>
           <p>In order to start using Insight, you'll need to be associated with company.</p>
-          {props.user.company?.company && (
-            <>
-              <br />
-              <article className="message is-info">
-                <div className="message-body">
-                  You're currently pending approval to join{" "}
-                  <strong>
-                    {
-                      data.companies.find(
-                        (company: any) => company._id === props.user.company.company
-                      )?.name
-                    }
-                  </strong>
-                  .
-                </div>
-              </article>
-            </>
-          )}
           <p className="content">
             <div className="field has-addons">
               <div className="control is-expanded">
@@ -63,7 +62,7 @@ const PreEmployerHome: React.FC<Props> = props => {
                     value={selectedCompany}
                     onChange={event => setSelectedCompany(event.target.value)}
                   >
-                    {data.companies.length === 0 ? (
+                    {data.length === 0 ? (
                       <option disabled value="default">
                         No companies available
                       </option>
@@ -72,15 +71,15 @@ const PreEmployerHome: React.FC<Props> = props => {
                         Please select
                       </option>
                     )}
-                    {data.companies.map((company: any) => (
-                      <option value={company._id}>{company.name}</option>
+                    {data.map((company: any, index: number) => (
+                      <option value={index}>{company.name}</option>
                     ))}
                   </select>
                 </div>
               </div>
               <div className="control">
                 <button className="button" onClick={() => handleSelectCompany()}>
-                  {props.user.company?.name ? "Change company" : "Request to join"}
+                  Request to join
                 </button>
               </div>
             </div>
@@ -94,17 +93,10 @@ const PreEmployerHome: React.FC<Props> = props => {
 
       <br />
       <div className="field is-grouped is-grouped-centered">
-        {props.user.admin && (
-          <p className="control">
-            <a className="button is-medium" href="/admin">
-              Admin Settings
-            </a>
-          </p>
-        )}
         <p className="control">
-          <a className="button is-medium" href="/logout">
-            Log out
-          </a>
+          <button className="button" onClick={() => handleLogOut()}>
+            Logout
+          </button>
         </p>
       </div>
     </>
