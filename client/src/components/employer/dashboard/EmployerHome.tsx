@@ -43,8 +43,8 @@ const EmployerHome: React.FC<Props> = props => {
       <nav className="tabs is-fullwidth">
         <ul>
           (
-            <>
-              {/* <li className={`${currentTab === EmployerTabs.VisitsTable && "is-active"}`}>
+            {/* <>
+              <li className={`${currentTab === EmployerTabs.VisitsTable && "is-active"}`}>
                 <a onClick={() => setCurrentTab(EmployerTabs.VisitsTable)}>
                   <span className="icon is-small">
                     <i className="fas fa-search" aria-hidden="true" />
@@ -60,7 +60,7 @@ const EmployerHome: React.FC<Props> = props => {
                   <span>Participants</span>
                 </a>
               </li>
-            </>
+            {/* </> */}
           )
           {/* <li className={`${currentTab === EmployerTabs.SponsorFair && "is-active"}`}>
             <a onClick={() => setCurrentTab(EmployerTabs.SponsorFair)}>
