@@ -7,10 +7,10 @@ import useAxios from "axios-hooks";
 
 import ParticipantTable from "./search/ParticipantTable";
 import ManageEmployees from "./settings/ManageEmployees";
-import VisitsTable from "./visits/VisitsTable";
+// import VisitsTable from "./visits/VisitsTable";
 
 enum EmployerTabs {
-  VisitsTable,
+  // VisitsTable,
   SearchParticipants,
   Settings,
 }
@@ -27,9 +27,9 @@ const EmployerHome: React.FC<Props> = props => {
   let EmployerContent: any;
 
   switch (currentTab) {
-    case EmployerTabs.VisitsTable:
-      EmployerContent = <VisitsTable company={props.company} user = {props.user} companyRefetch={props.companyRefetch}/>;
-      break;
+    // case EmployerTabs.VisitsTable:
+    //   EmployerContent = <VisitsTable company={props.company} user = {props.user} companyRefetch={props.companyRefetch}/>;
+    //   break;
     case EmployerTabs.SearchParticipants:
       EmployerContent = <ParticipantTable company={props.company} companyRefetch={props.companyRefetch}/>;
       break;
@@ -44,20 +44,20 @@ const EmployerHome: React.FC<Props> = props => {
         <ul>
           (
             <>
-              <li className={`${currentTab === EmployerTabs.VisitsTable && "is-active"}`}>
+              {/* <li className={`${currentTab === EmployerTabs.VisitsTable && "is-active"}`}>
                 <a onClick={() => setCurrentTab(EmployerTabs.VisitsTable)}>
                   <span className="icon is-small">
                     <i className="fas fa-search" aria-hidden="true" />
                   </span>
                   <span>Visit Information</span>
                 </a>
-              </li>
+              </li> */}
               <li className={`${currentTab === EmployerTabs.SearchParticipants && "is-active"}`}>
                 <a onClick={() => setCurrentTab(EmployerTabs.SearchParticipants)}>
                   <span className="icon is-small">
                     <i className="fas fa-search" aria-hidden="true" />
                   </span>
-                  <span>Search Participants</span>
+                  <span>Participants</span>
                 </a>
               </li>
             </>

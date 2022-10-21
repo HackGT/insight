@@ -5,7 +5,8 @@ import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import { initializeApp } from "firebase/app";
 import { setPersistence, getAuth, inMemoryPersistence } from "firebase/auth";
-import { useLogin, LoadingScreen, AuthProvider, useAuth, apiUrl, Service} from "@hex-labs/core";
+import { useLogin, LoadingScreen, AuthProvider, useAuth, apiUrl, Service } from "@hex-labs/core";
+import { ChakraProvider } from '@chakra-ui/react'
 
 import "./App.css";
 import "./bulma-tooltip.min.css";
@@ -42,7 +43,7 @@ function App() {
   const { user } = useAuth()
 
   const [loading, loggedIn] = useLogin(app);
-  
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -52,11 +53,12 @@ function App() {
     window.location.href = `https://login.hexlabs.org?redirect=${window.location.href}`;
     return <LoadingScreen />;
   }
-  
+
   const userData = null
   return (
-    <AuthProvider app={app}>
-      {/* <SocketContext.Provider value={socket}> */}
+    <ChakraProvider>
+      <AuthProvider app={app}>
+        {/* <SocketContext.Provider value={socket}> */}
         <Navigation user={userData} />
         <div className="container is-dark">
           <Routes>
@@ -66,8 +68,9 @@ function App() {
           </Routes>
         </div>
         <Footer />
-      {/* </SocketContext.Provider> */}
-    </AuthProvider>
+        {/* </SocketContext.Provider> */}
+      </AuthProvider>
+    </ChakraProvider>
   );
 }
 
