@@ -12,19 +12,18 @@ interface Props {
 }
 
 const AdminHome: React.FC<Props> = props => {
-
   const { user } = useAuth();
   const [{ data, loading, error }, refetch] = useAxios({
     method: "GET",
-    url: apiUrl(Service.USERS, "/companies/")
+    url: apiUrl(Service.USERS, "/companies/"),
   });
 
   const [{ data: userData, loading: userLoading, error: userError }, userRefetch] = useAxios({
     method: "GET",
     url: apiUrl(Service.USERS, `/users/${user?.uid}`),
     params: {
-      hexathon: process.env.REACT_APP_HEXATHON_ID
-    }
+      hexathon: process.env.REACT_APP_HEXATHON_ID,
+    },
   });
 
   if (loading || userLoading) {
@@ -36,33 +35,31 @@ const AdminHome: React.FC<Props> = props => {
   }
 
   if (!userData.roles.admin) {
-    window.alert("No permission to access")
+    window.alert("No permission to access");
     return <Navigate to="/" />;
   }
 
-
   const handleDeleteEmployee = async (company: any, user: any) => {
-    if (!window.confirm(`Are you sure you want to delete ${formatName(user.name)} from ${company.name}?`)) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${formatName(user.name)} from ${company.name}?`
+      )
+    )
+      return;
 
-    await axios.delete(
-      apiUrl(Service.USERS, `/companies/${company.id}/employees`),
-      {
-        data: {
-          userId: user.userId
-        }
-      }
-    );
+    await axios.delete(apiUrl(Service.USERS, `/companies/${company.id}/employees`), {
+      data: {
+        userId: user.userId,
+      },
+    });
 
     refetch();
   };
 
   const handleConfirmEmployee = async (company: any, pendingUser: any) => {
-    await axios.post(
-      apiUrl(Service.USERS, `/companies/${company.id}/employees/accept-request`),
-      {
-        employeeId: pendingUser.userId
-      }
-    );
+    await axios.post(apiUrl(Service.USERS, `/companies/${company.id}/employees/accept-request`), {
+      employeeId: pendingUser.userId,
+    });
     refetch();
   };
 
@@ -71,11 +68,9 @@ const AdminHome: React.FC<Props> = props => {
     if (!email) return;
 
     email = email.trim().toLowerCase();
-    await axios.post(
-      apiUrl(Service.USERS, `/companies/${company.id}/employees/add`), {
-      employees: email
-    },
-    );
+    await axios.post(apiUrl(Service.USERS, `/companies/${company.id}/employees/add`), {
+      employees: email,
+    });
     refetch();
   };
 
@@ -84,13 +79,10 @@ const AdminHome: React.FC<Props> = props => {
     if (!name) return;
 
     name = name.trim();
-    await axios.post(
-      apiUrl(Service.USERS, `/companies/`),
-      {
-        name,
-        hexathon: process.env.REACT_APP_HEXATHON_ID,
-      }
-    );
+    await axios.post(apiUrl(Service.USERS, `/companies/`), {
+      name,
+      hexathon: process.env.REACT_APP_HEXATHON_ID,
+    });
     refetch();
   };
 
@@ -98,29 +90,23 @@ const AdminHome: React.FC<Props> = props => {
     const name = prompt("New name:", company.name);
     if (!name) return;
 
-    await axios.put(
-      apiUrl(Service.USERS, `/companies/${company.id}`), {
+    await axios.put(apiUrl(Service.USERS, `/companies/${company.id}`), {
       name,
-    }
-    );
+    });
     refetch();
   };
 
   const handleResumeAccessCompany = async (company: any, hasResumeAccess: boolean) => {
-    await axios.put(
-      apiUrl(Service.USERS, `/companies/${company.id}`), {
-      hasResumeAccess: !company.hasResumeAccess
-    }
-    );
-    window.location.reload()
+    await axios.put(apiUrl(Service.USERS, `/companies/${company.id}`), {
+      hasResumeAccess: !company.hasResumeAccess,
+    });
+    window.location.reload();
   };
 
   const handleDeleteCompany = async (company: any) => {
     if (!window.confirm(`Are you sure you want to delete ${company.name}?`)) return;
 
-    await axios.delete(
-      apiUrl(Service.USERS, `/companies/${company.id}`)
-    );
+    await axios.delete(apiUrl(Service.USERS, `/companies/${company.id}`));
     refetch();
   };
 
@@ -222,8 +208,9 @@ const AdminHome: React.FC<Props> = props => {
                 </p>
                 <p className="control">
                   <button
-                    className={`button ${company.hasResumeAccess ? "is-danger" : "is-info"
-                      } is-outlined`}
+                    className={`button ${
+                      company.hasResumeAccess ? "is-danger" : "is-info"
+                    } is-outlined`}
                     onClick={() => handleResumeAccessCompany(company, company.hasResumeAccess)}
                   >
                     {company.hasResumeAccess ? "Remove Resume Access" : "Give Resume Access"}

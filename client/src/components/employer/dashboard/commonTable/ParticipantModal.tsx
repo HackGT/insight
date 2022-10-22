@@ -29,7 +29,7 @@ import useAxios from "axios-hooks";
 import { formatName } from "../../../../util";
 
 interface Props {
-  companyHasAccess: boolean
+  companyHasAccess: boolean;
   participantId: string;
   // visitData: any;
   setModalUser: React.Dispatch<any>;
@@ -38,31 +38,30 @@ interface Props {
 
 // const updatedVisit = data.visits.find((visit: any) => visit._id === detailModalInfo._id);
 const ParticipantModal: React.FC<Props> = props => {
-
   const [link, setLink] = useState({
     url: "",
     withCredentials: false,
   });
   const downloadDisabled = link.url === "";
 
+  console.log("participantId", props.participantId);
+
   const [{ data, loading, error }, userRefetch] = useAxios({
     method: "GET",
-    url: apiUrl(Service.REGISTRATION, `/applications/${props.participantId}`)
+    url: apiUrl(Service.REGISTRATION, `/applications/${props.participantId}`),
   });
 
-
   useEffect(() => {
-    console.log("got the weirdData")
-    console.log(data)
-    console.log("got the weirdData")
-  }, [data])
+    console.log("got the weirdData");
+    console.log(data);
+    console.log("got the weirdData");
+  }, [data]);
 
   if (props.participantId === "" || loading || error) {
-    console.log("was null")
-    return null
+    console.log("was null");
+    return null;
   }
-  console.log(props.participantId)
-
+  console.log(props.participantId);
 
   // useEffect(() => {
   //   // Get a time-limited public link to the resume for use with Google / Microsoft viewer
@@ -136,112 +135,106 @@ const ParticipantModal: React.FC<Props> = props => {
   //   return null;
   // }
 
-  return (
-    props.participantId !== "" ? (
-      <article className="modal is-active">
-        <div className="modal-backgrosund" />
-        <div className="modal-card">
-          <header className="modal-card-head">
-            <div className="modal-title">
-              <h1 className="title" id="detail-name">
-                {data.name}
-              </h1>
-              
-            </div>
-            <button
-              className="delete"
-              aria-label="close"
-              onClick={() => props.setModalUser("")}
-            />
-          </header>
-          <section className="modal-card-body">
-            <div className="columns">
-              <div className="column">
-                <Box paddingX="30px" paddingTop="20px">
+  console.log("data", data);
+  console.log(props.companyHasAccess);
 
-                  <Accordion defaultIndex={[0, 1, 2, 3]} allowMultiple>
-                    <AccordionItem>
-                      <h2>
-                        <AccordionButton>
-                          <Box flex="1" textAlign="left">
-                            <Text style={{ fontWeight: "bold" }}>Contact Information</Text>
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                      </h2>
-                      <AccordionPanel pb={3}>
-                        <Stack>
-                          <Text>
-                            <Text color="gray" fontSize="sm">
-                              Email
-                            </Text>
-                            {data.email}
+  return props.participantId !== "" ? (
+    <article className="modal is-active">
+      <div className="modal-backgrosund" />
+      <div className="modal-card">
+        <header className="modal-card-head">
+          <div className="modal-title">
+            <h1 className="title" id="detail-name">
+              {data.name}
+            </h1>
+          </div>
+          <button className="delete" aria-label="close" onClick={() => props.setModalUser("")} />
+        </header>
+        <section className="modal-card-body">
+          <div className="columns">
+            <div className="column">
+              <Box paddingX="30px" paddingTop="20px">
+                <Accordion defaultIndex={[0, 1, 2, 3]} allowMultiple>
+                  <AccordionItem>
+                    <h2>
+                      <AccordionButton>
+                        <Box flex="1" textAlign="left">
+                          <Text style={{ fontWeight: "bold" }}>Contact Information</Text>
+                        </Box>
+                        <AccordionIcon />
+                      </AccordionButton>
+                    </h2>
+                    <AccordionPanel pb={3}>
+                      <Stack>
+                        <Text>
+                          <Text color="gray" fontSize="sm">
+                            Email
                           </Text>
-                          <Text>
-                            <Text color="gray" fontSize="sm">
-                              Phone Number
-                            </Text>
-                            {data.applicationData.phoneNumber}
+                          {data.email}
+                        </Text>
+                        <Text>
+                          <Text color="gray" fontSize="sm">
+                            Phone Number
                           </Text>
-                          <Text>
-                            <Text color="gray" fontSize="sm">
-                              School Email
-                            </Text>
-                            {data.applicationData.schoolEmail}
+                          {data.applicationData.phoneNumber}
+                        </Text>
+                        <Text>
+                          <Text color="gray" fontSize="sm">
+                            School Email
                           </Text>
-                        </Stack>
-                      </AccordionPanel>
-                    </AccordionItem>
+                          {data.applicationData.schoolEmail}
+                        </Text>
+                      </Stack>
+                    </AccordionPanel>
+                  </AccordionItem>
 
-                    <AccordionItem>
-                      <h2>
-                        <AccordionButton>
-                          <Box flex="1" textAlign="left">
-                            <Text style={{ fontWeight: "bold" }}>General Information</Text>
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                      </h2>
-                      <AccordionPanel pb={4}>
-                        <Stack>
-                          <Text>
-                            <Text color="gray" fontSize="sm">
-                              University
-                            </Text>
-                            {data.applicationData.school}
+                  <AccordionItem>
+                    <h2>
+                      <AccordionButton>
+                        <Box flex="1" textAlign="left">
+                          <Text style={{ fontWeight: "bold" }}>General Information</Text>
+                        </Box>
+                        <AccordionIcon />
+                      </AccordionButton>
+                    </h2>
+                    <AccordionPanel pb={4}>
+                      <Stack>
+                        <Text>
+                          <Text color="gray" fontSize="sm">
+                            University
                           </Text>
-                          <Text>
-                            <Text color="gray" fontSize="sm">
-                              School Year
-                            </Text>
-                            {data.applicationData.schoolYear}
+                          {data.applicationData.school}
+                        </Text>
+                        <Text>
+                          <Text color="gray" fontSize="sm">
+                            School Year
                           </Text>
-                          <Text>
-                            <Text color="gray" fontSize="sm">
-                              Major
-                            </Text>
-                            {data.applicationData.major}
+                          {data.applicationData.schoolYear}
+                        </Text>
+                        <Text>
+                          <Text color="gray" fontSize="sm">
+                            Major
                           </Text>
-                          
-                          <Text>
-                            <Text color="gray" fontSize="sm">
-                              Identifies as
-                            </Text>
-                            {data.applicationData.gender}
-                          </Text>
-                          <Text>
-                            <Text color="gray" fontSize="sm">
-                              Ethnicity
-                            </Text>
-                            {data.applicationData.ethnicity}
-                          </Text>
-                         
-                         
-                        </Stack>
-                      </AccordionPanel>
-                    </AccordionItem>
+                          {data.applicationData.major}
+                        </Text>
 
-                    {/* <AccordionItem>
+                        <Text>
+                          <Text color="gray" fontSize="sm">
+                            Identifies as
+                          </Text>
+                          {data.applicationData.gender}
+                        </Text>
+                        <Text>
+                          <Text color="gray" fontSize="sm">
+                            Ethnicity
+                          </Text>
+                          {data.applicationData.ethnicity}
+                        </Text>
+                      </Stack>
+                    </AccordionPanel>
+                  </AccordionItem>
+
+                  {/* <AccordionItem>
                       <h2>
                         <AccordionButton>
                           <Box flex="1" textAlign="left">
@@ -263,46 +256,41 @@ const ParticipantModal: React.FC<Props> = props => {
                         </Stack>
                       </AccordionPanel>
                     </AccordionItem> */}
-                  </Accordion>
-                </Box>
-              </div>
+                </Accordion>
+              </Box>
             </div>
-          </section>
-          <footer className="modal-card-foot">
-            <div className="buttons">
-              {/* <Link
+          </div>
+        </section>
+        <footer className="modal-card-foot">
+          <div className="buttons">
+            {/* <Link
                     href={apiUrl(Service.FILES, `/files/${data.applicationData.resume?.id}/view`)}
                     target="_blank"
                     color="teal.500"
                   > */}
-              {data.applicationData.resume?.id && props.companyHasAccess? (
-                <button
-                  onClick={() => {
-                    window.open(apiUrl(Service.FILES, `/files/${data.applicationData.resume?.id}/view`), '_blank')?.focus();
-                  }}
-                  type="button"
-                  className="button is-info"
-                  disabled={false}
-                >
-                  <span className="icon is-small">
-                    <i className="fas fa-download" />
-                  </span>
-                  <span>Download Resume</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="button is-info"
-                  disabled
-                >
-                  <span className="icon is-small">
-                    <i className="fas fa-download" />
-                  </span>
-                  <span>Download Resume</span>
-                </button>
-              )}
+            <button
+              onClick={() => {
+                window
+                  .open(
+                    apiUrl(
+                      Service.FILES,
+                      `/files/${data.applicationData.resume?.id}/view?hexathon=${process.env.REACT_APP_HEXATHON_ID}`
+                    ),
+                    "_blank"
+                  )
+                  ?.focus();
+              }}
+              type="button"
+              className="button is-info"
+              disabled={!data.applicationData.resume?.id || !props.companyHasAccess}
+            >
+              <span className="icon is-small">
+                <i className="fas fa-download" />
+              </span>
+              <span>Download Resume</span>
+            </button>
 
-              {/* {props.visitData ? (
+            {/* {props.visitData ? (
               <button
                 className="button is-danger"
                 onClick={() => handleDeleteVisit(props.visitData, props.fetchData)}
@@ -323,8 +311,8 @@ const ParticipantModal: React.FC<Props> = props => {
                 <span>Add to visits</span>
               </button>
             )} */}
-              <span className="spacer" />
-              {/* {props.visitData && (
+            <span className="spacer" />
+            {/* {props.visitData && (
               <>
                 <button
                   className="button is-warning"
@@ -362,19 +350,15 @@ const ParticipantModal: React.FC<Props> = props => {
               </>
             )} */}
 
-              <span className="spacer" />
-              <button
-                className="button"
-                id="detail-close"
-                onClick={() => props.setModalUser("")}
-              >
-                Close
-              </button>
-            </div>
-          </footer>
-        </div>
-      </article>
-    ) : null)
+            <span className="spacer" />
+            <button className="button" id="detail-close" onClick={() => props.setModalUser("")}>
+              Close
+            </button>
+          </div>
+        </footer>
+      </div>
+    </article>
+  ) : null;
 };
 
 export default ParticipantModal;

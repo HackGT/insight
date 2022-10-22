@@ -15,53 +15,47 @@ interface Props {
 }
 
 const ManageEmployees: React.FC<Props> = props => {
-  const { company } = props
+  const { company } = props;
 
-  const [description, setDescription] = useState(company.description)
+  const [description, setDescription] = useState(company.description);
 
   const handleRemoveEmployee = async (user: any) => {
-    if (!window.confirm(`Are you sure you want to remove ${user.name}?`)) return;
+    if (!window.confirm(`Are you sure you want to remove ${user.name.first} ${user.name.last}?`))
+      return;
 
-    await axios.delete(
-      apiUrl(Service.USERS, `/companies/${company.id}/employees`),
-      {
-        data: {
-          userId: user.id
-        }
-      }
-    )
+    await axios.delete(apiUrl(Service.USERS, `/companies/${company.id}/employees`), {
+      data: {
+        userId: user.userId,
+      },
+    });
     props.companyRefetch();
   };
 
   const handleConfirmEmployee = async (user: any) => {
+    console.log(user);
     if (
       !window.confirm(
-        `Are you sure you want to add ${user.name} as an employee? They will have full access to your collected resumes and notes.`
+        `Are you sure you want to add ${user.name.first} ${user.name.last} as an employee? They will have full access to your collected resumes and notes.`
       )
     )
       return;
 
-    await axios.post(
-      apiUrl(Service.USERS, `/companies/${company.id}/employees/accept-request`),
-      {
-        employeeId: user.uid
-      }
-    );
+    await axios.post(apiUrl(Service.USERS, `/companies/${company.id}/employees/accept-request`), {
+      employeeId: user.userId,
+    });
     props.companyRefetch();
   };
 
   const handleLogOut = async () => {
     await axios.get(apiUrl(Service.AUTH, `/auth/logout`));
-    window.alert("Successfully logged out")
+    window.alert("Successfully logged out");
     window.location.href = `https://login.hexlabs.org?redirect=${window.location.href}`;
-  }
+  };
 
   const handleEditDescription = async () => {
-    await axios.put(
-      apiUrl(Service.USERS, `/companies/${company.id}`), {
-      description
-    }
-    );
+    await axios.put(apiUrl(Service.USERS, `/companies/${company.id}`), {
+      description,
+    });
     props.companyRefetch();
   };
 
@@ -120,20 +114,15 @@ const ManageEmployees: React.FC<Props> = props => {
             </>
           )}
         </div>
-
       </div>
       <h1 className="title">Description</h1>
-      <h6 className="subtitle is-6">
-        {company.description}
-      </h6>
-      <textarea value={description} onChange={e =>
-        setDescription(e.target.value)
-      } />
+      <h6 className="subtitle is-6">{company.description}</h6>
+      <textarea value={description} onChange={e => setDescription(e.target.value)} />
       <button className="button is-info is-outlined" onClick={() => handleEditDescription()}>
         Update Description
       </button>
-      <br/>
-      <br/>
+      <br />
+      <br />
       <button className="button" onClick={() => handleLogOut()}>
         Logout
       </button>

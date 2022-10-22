@@ -20,7 +20,7 @@ interface Props {
   companyRefetch: any;
 }
 
-const ParticipantTable: React.FC<Props> = (props) => {
+const ParticipantTable: React.FC<Props> = props => {
   // Table filtering states
 
   // const handleGetResume = async (userId: any) => {
@@ -38,17 +38,15 @@ const ParticipantTable: React.FC<Props> = (props) => {
     {
       key: 0,
       header: "Name",
-      accessor: (row: any) =>
-      (
+      accessor: (row: any) => (
         <button
           className="button is-info is-outlined"
           style={{ marginBottom: "10px" }}
           onClick={() => {
-            console.log("current user")
-            console.log(row)
-            setModalUser(row.id)
-          }
-          }
+            console.log("current user");
+            console.log(row);
+            setModalUser(row.id);
+          }}
         >
           {row.name}
         </button>
@@ -76,7 +74,7 @@ const ParticipantTable: React.FC<Props> = (props) => {
     // }
   ];
 
-  const [modalUser, setModalUser] = useState("")
+  const [modalUser, setModalUser] = useState("");
   const [offset, setOffset] = useState(0);
   const [searchText, setSearchText] = useState("");
   const [{ data, error }] = useAxios({
@@ -94,14 +92,13 @@ const ParticipantTable: React.FC<Props> = (props) => {
     method: "GET",
     url: apiUrl(Service.HEXATHONS, `/sponsor-visit`),
     params: {
-      hexathon: process.env.REACT_APP_HEXATHON_ID
-    }
+      hexathon: process.env.REACT_APP_HEXATHON_ID,
+    },
   });
 
   useEffect(() => {
-    console.log(visitData)
-  }, [visitData])
-
+    console.log(visitData);
+  }, [visitData]);
 
   const onPreviousClicked = () => {
     setOffset(offset - limit);
@@ -135,13 +132,12 @@ const ParticipantTable: React.FC<Props> = (props) => {
       />
       <ParticipantModal
         participantId={modalUser}
-        companyHasAccess = {props.company.hasResumeAccess}
+        companyHasAccess={props.company.hasResumeAccess}
         // visitData={detailModalInfo?.visitData}
         setModalUser={setModalUser}
-      // fetchData={fetchData}
+        // fetchData={fetchData}
       />
     </>
-
   );
 };
 
