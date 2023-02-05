@@ -1,6 +1,7 @@
 import React from "react";
 
-import Header from "./Header";
+import {Header, HeaderItem} from "@hex-labs/core"
+import { Link } from "react-router-dom";
 
 export class Page {
   name: string;
@@ -28,7 +29,20 @@ const Navigation: React.FC<Props> = props => {
   const hi = "";
   // const filteredRoutes = routes.filter((page: Page) => page.isAllowed(props.user));
 
-  return <Header routes={routes} />;
+  return (
+    <Header>
+      (
+        <>
+        <Link to="/">
+            <HeaderItem>Home</HeaderItem>
+          </Link>
+          <Link to="/admin">
+            <HeaderItem>Admin</HeaderItem>
+          </Link>
+        </>
+      )
+    </Header>
+  );
 };
 
 export default Navigation;
