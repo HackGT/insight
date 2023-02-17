@@ -1,7 +1,7 @@
 import axios from "axios";
 import useAxios from "axios-hooks";
 import React, { useState } from "react";
-import { apiUrl, Service, useAuth } from "@hex-labs/core";
+import { apiUrl, ErrorScreen, LoadingScreen, Service, useAuth } from "@hex-labs/core";
 
 import { formatName } from "../../../util";
 
@@ -20,11 +20,11 @@ const PreEmployerHome: React.FC<Props> = props => {
   const [selectedCompany, setSelectedCompany] = useState<string>("default");
 
   if (loading) {
-    return <div>Loading</div>;
+    return <LoadingScreen />;
   }
 
   if (error) {
-    return <div>Error</div>;
+    return <ErrorScreen error={undefined} />;;
   }
 
   const handleSelectCompany = async () => {
