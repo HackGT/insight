@@ -25,11 +25,10 @@ interface Props {
   user: any;
 }
 
-const Navigation: React.FC<Props> = props => {
-  const hi = "";
+const Navigation: React.FC<Props> = props => 
   // const filteredRoutes = routes.filter((page: Page) => page.isAllowed(props.user));
 
-  return (
+   (
     <Header>
       (
         <>
@@ -42,7 +41,7 @@ const Navigation: React.FC<Props> = props => {
         </>
       )
     </Header>
-  );
-};
+  )
+;
 
 export default Navigation;
