@@ -16,14 +16,14 @@ const AdminHome: React.FC<Props> = props => {
   const [{ data, loading, error }, refetch] = useAxios({
     method: "GET",
     url: apiUrl(Service.USERS, "/companies/"),
+    params: {
+      hexathon: process.env.REACT_APP_HEXATHON_ID,
+    },
   });
 
   const [{ data: userData, loading: userLoading, error: userError }, userRefetch] = useAxios({
     method: "GET",
     url: apiUrl(Service.USERS, `/users/${user?.uid}`),
-    params: {
-      hexathon: process.env.REACT_APP_HEXATHON_ID,
-    },
   });
 
   if (loading || userLoading) {
