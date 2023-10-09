@@ -23,7 +23,7 @@ interface Props {
 
 const EmployerHome: React.FC<Props> = props => {
   const [currentTab, setCurrentTab] = useState(EmployerTabs.Settings);
-  
+
   let EmployerContent: any;
 
   switch (currentTab) {
@@ -31,10 +31,18 @@ const EmployerHome: React.FC<Props> = props => {
     //   EmployerContent = <VisitsTable company={props.company} user = {props.user} companyRefetch={props.companyRefetch}/>;
     //   break;
     case EmployerTabs.SearchParticipants:
-      EmployerContent = <ParticipantTable company={props.company} companyRefetch={props.companyRefetch}/>;
+      EmployerContent = (
+        <ParticipantTable company={props.company} companyRefetch={props.companyRefetch} />
+      );
       break;
     case EmployerTabs.Settings:
-      EmployerContent = <ManageEmployees company={props.company} user = {props.user} companyRefetch={props.companyRefetch}/>;
+      EmployerContent = (
+        <ManageEmployees
+          company={props.company}
+          user={props.user}
+          companyRefetch={props.companyRefetch}
+        />
+      );
       break;
   }
 
@@ -42,8 +50,7 @@ const EmployerHome: React.FC<Props> = props => {
     <>
       <nav className="tabs is-fullwidth">
         <ul>
-          (
-            {/* <>
+          {/* <>
               <li className={`${currentTab === EmployerTabs.VisitsTable && "is-active"}`}>
                 <a onClick={() => setCurrentTab(EmployerTabs.VisitsTable)}>
                   <span className="icon is-small">
@@ -52,16 +59,16 @@ const EmployerHome: React.FC<Props> = props => {
                   <span>Visit Information</span>
                 </a>
               </li> */}
-              <li className={`${currentTab === EmployerTabs.SearchParticipants && "is-active"}`}>
-                <a onClick={() => setCurrentTab(EmployerTabs.SearchParticipants)}>
-                  <span className="icon is-small">
-                    <i className="fas fa-search" aria-hidden="true" />
-                  </span>
-                  <span>Participants</span>
-                </a>
-              </li>
-            {/* </> */}
-          )
+          <li className={`${currentTab === EmployerTabs.SearchParticipants && "is-active"}`}>
+            <a onClick={() => setCurrentTab(EmployerTabs.SearchParticipants)}>
+              <span className="icon is-small">
+                <i className="fas fa-search" aria-hidden="true" />
+              </span>
+              <span>Participants</span>
+            </a>
+          </li>
+          {/* </> */}
+
           {/* <li className={`${currentTab === EmployerTabs.SponsorFair && "is-active"}`}>
             <a onClick={() => setCurrentTab(EmployerTabs.SponsorFair)}>
               <span className="icon is-small">

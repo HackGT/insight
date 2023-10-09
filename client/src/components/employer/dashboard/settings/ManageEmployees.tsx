@@ -32,7 +32,6 @@ const ManageEmployees: React.FC<Props> = props => {
   };
 
   const handleConfirmEmployee = async (user: any) => {
-    console.log(user);
     if (
       !window.confirm(
         `Are you sure you want to add ${user.name.first} ${user.name.last} as an employee? They will have full access to your collected resumes and notes.`

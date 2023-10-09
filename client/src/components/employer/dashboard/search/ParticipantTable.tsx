@@ -21,18 +21,6 @@ interface Props {
 }
 
 const ParticipantTable: React.FC<Props> = props => {
-  // Table filtering states
-
-  // const handleGetResume = async (userId: any) => {
-  //   console.log("getting resume for")
-  //   console.log(userId)
-  //   const user = await axios.get(apiUrl(Service.USERS, `/users/${userId}`));
-  //   console.log(user)
-  //   console.log(user.data.resume)
-
-  //   axios.get(apiUrl(Service.FILES, `/files/${user?.data?.resume?.id}/view`));
-
-  // }
   const limit = 50;
   const columns = [
     {
@@ -43,8 +31,6 @@ const ParticipantTable: React.FC<Props> = props => {
           className="button is-info is-outlined"
           style={{ marginBottom: "10px" }}
           onClick={() => {
-            console.log("current user");
-            console.log(row);
             setModalUser(row.id);
           }}
         >
@@ -96,10 +82,6 @@ const ParticipantTable: React.FC<Props> = props => {
     },
   });
 
-  useEffect(() => {
-    console.log(visitData);
-  }, [visitData]);
-
   const onPreviousClicked = () => {
     setOffset(offset - limit);
   };
@@ -130,13 +112,15 @@ const ParticipantTable: React.FC<Props> = props => {
         offset={offset}
         total={data?.total}
       />
-      <ParticipantModal
-        participantId={modalUser}
-        companyHasAccess={props.company.hasResumeAccess}
-        // visitData={detailModalInfo?.visitData}
-        setModalUser={setModalUser}
-        // fetchData={fetchData}
-      />
+      {modalUser && (
+        <ParticipantModal
+          participantId={modalUser}
+          companyHasAccess={props.company.hasResumeAccess}
+          // visitData={detailModalInfo?.visitData}
+          setModalUser={setModalUser}
+          // fetchData={fetchData}
+        />
+      )}
     </>
   );
 };
